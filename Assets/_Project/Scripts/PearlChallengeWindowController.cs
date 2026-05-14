@@ -4,6 +4,7 @@ using UnityEngine.UI;
 public sealed class PearlChallengeWindowController : MonoBehaviour
 {
     [SerializeField] private GameObject pearlChallengeWindowRoot;
+    [SerializeField] private GameObject dimBackgroundRoot;
     [SerializeField] private Button openButton;
     [SerializeField] private Button closeButton;
 
@@ -14,6 +15,11 @@ public sealed class PearlChallengeWindowController : MonoBehaviour
         if (pearlChallengeWindowRoot != null)
         {
             pearlChallengeWindowRoot.SetActive(false);
+        }
+
+        if (dimBackgroundRoot != null)
+        {
+            dimBackgroundRoot.SetActive(false);
         }
 
         if (openButton != null)
@@ -48,6 +54,11 @@ public sealed class PearlChallengeWindowController : MonoBehaviour
             return;
         }
 
+        if (dimBackgroundRoot != null)
+        {
+            dimBackgroundRoot.SetActive(true);
+        }
+
         pearlChallengeWindowRoot.SetActive(true);
     }
 
@@ -60,6 +71,11 @@ public sealed class PearlChallengeWindowController : MonoBehaviour
         }
 
         pearlChallengeWindowRoot.SetActive(false);
+
+        if (dimBackgroundRoot != null)
+        {
+            dimBackgroundRoot.SetActive(false);
+        }
     }
 
     private bool ValidateReferences()
@@ -75,6 +91,12 @@ public sealed class PearlChallengeWindowController : MonoBehaviour
         if (openButton == null)
         {
             Debug.LogError($"{nameof(PearlChallengeWindowController)} on '{name}' is missing a reference to {nameof(openButton)}.", this);
+            isValid = false;
+        }
+
+        if (dimBackgroundRoot == null)
+        {
+            Debug.LogError($"{nameof(PearlChallengeWindowController)} on '{name}' is missing a reference to {nameof(dimBackgroundRoot)}.", this);
             isValid = false;
         }
 
