@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,6 +8,12 @@ public sealed class PearlChallengeWindowController : MonoBehaviour
     [SerializeField] private GameObject dimBackgroundRoot;
     [SerializeField] private Button openButton;
     [SerializeField] private Button closeButton;
+    [SerializeField] private float openAnimationDuration = 0.2f;
+    [SerializeField] private float openStartScale = 0.96f;
+    [SerializeField] private float openBounceScale = 1.02f;
+
+    private Coroutine openAnimationRoutine;
+    private Vector3 windowDefaultScale = Vector3.one;
 
     private void Awake()
     {
@@ -14,6 +21,7 @@ public sealed class PearlChallengeWindowController : MonoBehaviour
 
         if (pearlChallengeWindowRoot != null)
         {
+            windowDefaultScale = pearlChallengeWindowRoot.transform.localScale;
             pearlChallengeWindowRoot.SetActive(false);
         }
 
@@ -35,6 +43,8 @@ public sealed class PearlChallengeWindowController : MonoBehaviour
 
     private void OnDestroy()
     {
+        StopOpenAnimation();
+
         if (openButton != null)
         {
             openButton.onClick.RemoveListener(OpenWindow);
@@ -60,6 +70,7 @@ public sealed class PearlChallengeWindowController : MonoBehaviour
         }
 
         pearlChallengeWindowRoot.SetActive(true);
+        PlayOpenAnimation();
     }
 
     public void CloseWindow()
@@ -70,6 +81,8 @@ public sealed class PearlChallengeWindowController : MonoBehaviour
             return;
         }
 
+        StopOpenAnimation();
+        pearlChallengeWindowRoot.transform.localScale = windowDefaultScale;
         pearlChallengeWindowRoot.SetActive(false);
 
         if (dimBackgroundRoot != null)
@@ -107,5 +120,63 @@ public sealed class PearlChallengeWindowController : MonoBehaviour
         }
 
         return isValid;
+    }
+
+    private void PlayOpenAnimation()
+    {
+        StopOpenAnimation();
+        openAnimationRoutine = StartCoroutine(AnimateOpen());
+    }
+
+    private void StopOpenAnimation()
+    {
+        if (openAnimationRoutine == null)
+        {
+            return;
+        }
+
+        StopCoroutine(openAnimationRoutine);
+        openAnimationRoutine = null;
+    }
+
+    private IEnumerator AnimateOpen()
+    {
+        var windowTransform = pearlChallengeWindowRoot.transform;
+        var startScale = windowDefaultScale * openStartScale;
+        var bounceScale = windowDefaultScale * openBounceScale;
+
+        windowTransform.localScale = startScale;
+
+        var bounceDuration = openAnimationDuration * 0.65f;
+        var settleDuration = openAnimationDuration - bounceDuration;
+
+        yield return ScaleWindow(windowTransform, startScale, bounceScale, bounceDuration);
+        yield return ScaleWindow(windowTransform, bounceScale, windowDefaultScale, settleDuration);
+
+        windowTransform.localScale = windowDefaultScale;
+        openAnimationRoutine = null;
+    }
+
+    private static IEnumerator ScaleWindow(Transform windowTransform, Vector3 fromScale, Vector3 toScale, float duration)
+    {
+        if (duration <= 0f)
+        {
+            windowTransform.localScale = toScale;
+            yield break;
+        }
+
+        var elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            var progress = Mathf.Clamp01(elapsed / duration);
+            var easedProgress = Mathf.SmoothStep(0f, 1f, progress);
+
+            windowTransform.localScale = Vector3.LerpUnclamped(fromScale, toScale, easedProgress);
+            yield return null;
+        }
+
+        windowTransform.localScale = toScale;
     }
 }
