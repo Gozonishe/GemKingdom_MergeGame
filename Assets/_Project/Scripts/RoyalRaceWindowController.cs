@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
-public sealed class PearlChallengeWindowController : MonoBehaviour
+public sealed class RoyalRaceWindowController : MonoBehaviour
 {
     [SerializeField] private GameObject pearlChallengeWindowRoot;
     [SerializeField] private GameObject dimBackgroundRoot;
@@ -60,7 +60,7 @@ public sealed class PearlChallengeWindowController : MonoBehaviour
     {
         if (pearlChallengeWindowRoot == null)
         {
-            Debug.LogError($"{nameof(PearlChallengeWindowController)} on '{name}' cannot open the window because {nameof(pearlChallengeWindowRoot)} is not assigned.", this);
+            Debug.LogError($"{nameof(RoyalRaceWindowController)} on '{name}' cannot open the window because {nameof(pearlChallengeWindowRoot)} is not assigned.", this);
             return;
         }
 
@@ -77,7 +77,7 @@ public sealed class PearlChallengeWindowController : MonoBehaviour
     {
         if (pearlChallengeWindowRoot == null)
         {
-            Debug.LogError($"{nameof(PearlChallengeWindowController)} on '{name}' cannot close the window because {nameof(pearlChallengeWindowRoot)} is not assigned.", this);
+            Debug.LogError($"{nameof(RoyalRaceWindowController)} on '{name}' cannot close the window because {nameof(pearlChallengeWindowRoot)} is not assigned.", this);
             return;
         }
 
@@ -97,25 +97,25 @@ public sealed class PearlChallengeWindowController : MonoBehaviour
 
         if (pearlChallengeWindowRoot == null)
         {
-            Debug.LogError($"{nameof(PearlChallengeWindowController)} on '{name}' is missing a reference to {nameof(pearlChallengeWindowRoot)}.", this);
+            Debug.LogError($"{nameof(RoyalRaceWindowController)} on '{name}' is missing a reference to {nameof(pearlChallengeWindowRoot)}.", this);
             isValid = false;
         }
 
         if (openButton == null)
         {
-            Debug.LogError($"{nameof(PearlChallengeWindowController)} on '{name}' is missing a reference to {nameof(openButton)}.", this);
+            Debug.LogError($"{nameof(RoyalRaceWindowController)} on '{name}' is missing a reference to {nameof(openButton)}.", this);
             isValid = false;
         }
 
         if (dimBackgroundRoot == null)
         {
-            Debug.LogError($"{nameof(PearlChallengeWindowController)} on '{name}' is missing a reference to {nameof(dimBackgroundRoot)}.", this);
+            Debug.LogError($"{nameof(RoyalRaceWindowController)} on '{name}' is missing a reference to {nameof(dimBackgroundRoot)}.", this);
             isValid = false;
         }
 
         if (closeButton == null)
         {
-            Debug.LogError($"{nameof(PearlChallengeWindowController)} on '{name}' is missing a reference to {nameof(closeButton)}.", this);
+            Debug.LogError($"{nameof(RoyalRaceWindowController)} on '{name}' is missing a reference to {nameof(closeButton)}.", this);
             isValid = false;
         }
 
