@@ -9,12 +9,21 @@ public sealed class RoyalRaceWindowController : MonoBehaviour
     [SerializeField] private Button openButton;
     [SerializeField] private Button closeButton;
     [SerializeField] private GameObject[] objectsToHideWhileWindowOpen;
+    [SerializeField] private bool configureResponsiveLayout = true;
+    [SerializeField] private Vector2 referenceResolution = new Vector2(1080f, 1920f);
+    [SerializeField] private Vector2 windowScreenPadding = new Vector2(24f, 80f);
+    [SerializeField] private float minimumWindowScale = 0.9f;
     [SerializeField] private float openAnimationDuration = 0.2f;
     [SerializeField] private float openStartScale = 0.96f;
     [SerializeField] private float openBounceScale = 1.02f;
 
     private Coroutine openAnimationRoutine;
     private Vector3 windowDefaultScale = Vector3.one;
+    private Vector3 windowContainerDefaultScale = Vector3.one;
+    private RectTransform windowRectTransform;
+    private RectTransform windowContainerRectTransform;
+    private RectTransform dimBackgroundRectTransform;
+    private RectTransform parentCanvasRectTransform;
 
     private void Awake()
     {
@@ -22,12 +31,23 @@ public sealed class RoyalRaceWindowController : MonoBehaviour
 
         if (pearlChallengeWindowRoot != null)
         {
+            windowRectTransform = pearlChallengeWindowRoot.GetComponent<RectTransform>();
+            windowContainerRectTransform = pearlChallengeWindowRoot.transform.Find("Container") as RectTransform;
             windowDefaultScale = pearlChallengeWindowRoot.transform.localScale;
+
+            if (windowContainerRectTransform != null)
+            {
+                windowContainerDefaultScale = windowContainerRectTransform.localScale;
+            }
+
+            ConfigureResponsiveLayout();
             pearlChallengeWindowRoot.SetActive(false);
         }
 
         if (dimBackgroundRoot != null)
         {
+            dimBackgroundRectTransform = dimBackgroundRoot.GetComponent<RectTransform>();
+            ConfigureDimBackgroundLayout();
             dimBackgroundRoot.SetActive(false);
         }
 
@@ -67,10 +87,13 @@ public sealed class RoyalRaceWindowController : MonoBehaviour
 
         if (dimBackgroundRoot != null)
         {
+            ConfigureDimBackgroundLayout();
             dimBackgroundRoot.SetActive(true);
         }
 
         SetBackgroundObjectsVisible(false);
+        CenterWindow();
+        FitWindowToScreen();
         pearlChallengeWindowRoot.SetActive(true);
         PlayOpenAnimation();
     }
@@ -200,5 +223,114 @@ public sealed class RoyalRaceWindowController : MonoBehaviour
         }
 
         windowTransform.localScale = toScale;
+    }
+
+    private void ConfigureResponsiveLayout()
+    {
+        if (!configureResponsiveLayout)
+        {
+            return;
+        }
+
+        ConfigureCanvasScaler();
+        CenterWindow();
+        FitWindowToScreen();
+        ConfigureDimBackgroundLayout();
+    }
+
+    private void ConfigureCanvasScaler()
+    {
+        var parentCanvas = pearlChallengeWindowRoot.GetComponentInParent<Canvas>();
+
+        if (parentCanvas == null)
+        {
+            return;
+        }
+
+        parentCanvasRectTransform = parentCanvas.transform as RectTransform;
+
+        var canvasScaler = parentCanvas.GetComponent<CanvasScaler>();
+
+        if (canvasScaler == null)
+        {
+            return;
+        }
+
+        canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        canvasScaler.referenceResolution = referenceResolution;
+        canvasScaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+        canvasScaler.matchWidthOrHeight = 0.5f;
+    }
+
+    private void CenterWindow()
+    {
+        if (windowRectTransform == null)
+        {
+            return;
+        }
+
+        windowRectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+        windowRectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        windowRectTransform.pivot = new Vector2(0.5f, 0.5f);
+        windowRectTransform.anchoredPosition = Vector2.zero;
+        windowRectTransform.localPosition = new Vector3(windowRectTransform.localPosition.x, windowRectTransform.localPosition.y, 0f);
+
+        if (windowContainerRectTransform == null)
+        {
+            return;
+        }
+
+        windowContainerRectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+        windowContainerRectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        windowContainerRectTransform.pivot = new Vector2(0.5f, 0.5f);
+        windowContainerRectTransform.anchoredPosition = Vector2.zero;
+        windowContainerRectTransform.localPosition = new Vector3(windowContainerRectTransform.localPosition.x, windowContainerRectTransform.localPosition.y, 0f);
+    }
+
+    private void FitWindowToScreen()
+    {
+        if (windowContainerRectTransform == null || parentCanvasRectTransform == null)
+        {
+            return;
+        }
+
+        windowContainerRectTransform.localScale = windowContainerDefaultScale;
+        Canvas.ForceUpdateCanvases();
+
+        var containerSize = Vector2.Scale(windowContainerRectTransform.rect.size, windowContainerDefaultScale);
+        var canvasSize = parentCanvasRectTransform.rect.size;
+        var availableSize = new Vector2(
+            Mathf.Max(1f, canvasSize.x - windowScreenPadding.x * 2f),
+            Mathf.Max(1f, canvasSize.y - windowScreenPadding.y * 2f));
+
+        if (containerSize.x <= 0f || containerSize.y <= 0f)
+        {
+            return;
+        }
+
+        var fitScale = Mathf.Min(1f, availableSize.x / containerSize.x, availableSize.y / containerSize.y);
+        fitScale = Mathf.Max(minimumWindowScale, fitScale);
+        windowContainerRectTransform.localScale = windowContainerDefaultScale * fitScale;
+    }
+
+    private void ConfigureDimBackgroundLayout()
+    {
+        if (dimBackgroundRectTransform == null && dimBackgroundRoot != null)
+        {
+            dimBackgroundRectTransform = dimBackgroundRoot.GetComponent<RectTransform>();
+        }
+
+        if (dimBackgroundRectTransform == null)
+        {
+            return;
+        }
+
+        dimBackgroundRectTransform.anchorMin = Vector2.zero;
+        dimBackgroundRectTransform.anchorMax = Vector2.one;
+        dimBackgroundRectTransform.pivot = new Vector2(0.5f, 0.5f);
+        dimBackgroundRectTransform.offsetMin = Vector2.zero;
+        dimBackgroundRectTransform.offsetMax = Vector2.zero;
+        dimBackgroundRectTransform.anchoredPosition = Vector2.zero;
+        dimBackgroundRectTransform.localPosition = new Vector3(dimBackgroundRectTransform.localPosition.x, dimBackgroundRectTransform.localPosition.y, 0f);
     }
 }
