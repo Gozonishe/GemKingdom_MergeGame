@@ -8,6 +8,7 @@ public sealed class RoyalRaceWindowController : MonoBehaviour
     [SerializeField] private GameObject dimBackgroundRoot;
     [SerializeField] private Button openButton;
     [SerializeField] private Button closeButton;
+    [SerializeField] private GameObject[] objectsToHideWhileWindowOpen;
     [SerializeField] private float openAnimationDuration = 0.2f;
     [SerializeField] private float openStartScale = 0.96f;
     [SerializeField] private float openBounceScale = 1.02f;
@@ -69,6 +70,7 @@ public sealed class RoyalRaceWindowController : MonoBehaviour
             dimBackgroundRoot.SetActive(true);
         }
 
+        SetBackgroundObjectsVisible(false);
         pearlChallengeWindowRoot.SetActive(true);
         PlayOpenAnimation();
     }
@@ -89,6 +91,8 @@ public sealed class RoyalRaceWindowController : MonoBehaviour
         {
             dimBackgroundRoot.SetActive(false);
         }
+
+        SetBackgroundObjectsVisible(true);
     }
 
     private bool ValidateReferences()
@@ -120,6 +124,24 @@ public sealed class RoyalRaceWindowController : MonoBehaviour
         }
 
         return isValid;
+    }
+
+    private void SetBackgroundObjectsVisible(bool isVisible)
+    {
+        if (objectsToHideWhileWindowOpen == null)
+        {
+            return;
+        }
+
+        for (var i = 0; i < objectsToHideWhileWindowOpen.Length; i++)
+        {
+            if (objectsToHideWhileWindowOpen[i] == null)
+            {
+                continue;
+            }
+
+            objectsToHideWhileWindowOpen[i].SetActive(isVisible);
+        }
     }
 
     private void PlayOpenAnimation()
