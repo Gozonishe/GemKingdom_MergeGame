@@ -51,6 +51,10 @@ public sealed class EventWindowController : MonoBehaviour
             dimBackgroundRoot.SetActive(false);
         }
 
+    }
+
+    private void OnEnable()
+    {
         if (openButton != null)
         {
             openButton.onClick.AddListener(OpenWindow);
@@ -62,10 +66,8 @@ public sealed class EventWindowController : MonoBehaviour
         }
     }
 
-    private void OnDestroy()
+    private void OnDisable()
     {
-        StopOpenAnimation();
-
         if (openButton != null)
         {
             openButton.onClick.RemoveListener(OpenWindow);
@@ -75,6 +77,11 @@ public sealed class EventWindowController : MonoBehaviour
         {
             closeButton.onClick.RemoveListener(CloseWindow);
         }
+    }
+
+    private void OnDestroy()
+    {
+        StopOpenAnimation();
     }
 
     public void OpenWindow()
