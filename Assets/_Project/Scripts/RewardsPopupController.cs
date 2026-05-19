@@ -20,6 +20,7 @@ public sealed class RewardsPopupController : MonoBehaviour
     [SerializeField] private GameObject overlayRoot;
     [SerializeField] private Button dimCloseButton;
     [SerializeField] private Button closeButton;
+    [SerializeField] private GameObject[] objectsToHideWhilePopupOpen;
     [SerializeField] private Transform rewardsContainer;
     [SerializeField] private RewardItemView rewardItemPrefab;
     [SerializeField] private RewardData[] rewards;
@@ -76,6 +77,7 @@ public sealed class RewardsPopupController : MonoBehaviour
 
         StopAllCoroutines();
         ClearRewards();
+        SetBackgroundObjectsVisible(false);
         overlayRoot.SetActive(true);
 
         if (rewards == null)
@@ -108,6 +110,8 @@ public sealed class RewardsPopupController : MonoBehaviour
         {
             overlayRoot.SetActive(false);
         }
+
+        SetBackgroundObjectsVisible(true);
     }
 
     private void ClearRewards()
@@ -115,6 +119,24 @@ public sealed class RewardsPopupController : MonoBehaviour
         for (var i = rewardsContainer.childCount - 1; i >= 0; i--)
         {
             Destroy(rewardsContainer.GetChild(i).gameObject);
+        }
+    }
+
+    private void SetBackgroundObjectsVisible(bool isVisible)
+    {
+        if (objectsToHideWhilePopupOpen == null)
+        {
+            return;
+        }
+
+        for (var i = 0; i < objectsToHideWhilePopupOpen.Length; i++)
+        {
+            if (objectsToHideWhilePopupOpen[i] == null)
+            {
+                continue;
+            }
+
+            objectsToHideWhilePopupOpen[i].SetActive(isVisible);
         }
     }
 
