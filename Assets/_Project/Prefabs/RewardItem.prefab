@@ -100,6 +100,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RewardItemView
   iconImage: {fileID: 4271216228890356352}
   amountText: {fileID: 7339881805403152770}
+  appearEffectPrefab: {fileID: 1686275301171920802, guid: d9549f278d43b584b9e849485574c5d9, type: 3}
 --- !u!1 &2663884100865583609
 GameObject:
   m_ObjectHideFlags: 0

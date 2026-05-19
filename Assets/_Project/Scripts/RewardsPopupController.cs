@@ -96,6 +96,7 @@ public sealed class RewardsPopupController : MonoBehaviour
 
             canvasGroup.alpha = 0f;
             StartCoroutine(FadeInReward(canvasGroup));
+            rewardItem.PlayAppearEffect();
         }
     }
 
