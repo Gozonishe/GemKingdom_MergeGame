@@ -22,7 +22,6 @@ public sealed class EventWindowController : MonoBehaviour
     private Vector3 windowContainerDefaultScale = Vector3.one;
     private RectTransform windowRectTransform;
     private RectTransform windowContainerRectTransform;
-    private RectTransform dimBackgroundRectTransform;
     private RectTransform parentCanvasRectTransform;
 
     private void Awake()
@@ -46,8 +45,6 @@ public sealed class EventWindowController : MonoBehaviour
 
         if (dimBackgroundRoot != null)
         {
-            dimBackgroundRectTransform = dimBackgroundRoot.GetComponent<RectTransform>();
-            ConfigureDimBackgroundLayout();
             dimBackgroundRoot.SetActive(false);
         }
 
@@ -94,11 +91,11 @@ public sealed class EventWindowController : MonoBehaviour
 
         if (dimBackgroundRoot != null)
         {
-            ConfigureDimBackgroundLayout();
             dimBackgroundRoot.SetActive(true);
         }
 
         SetBackgroundObjectsVisible(false);
+        BringWindowOverlayToFront();
         CenterWindow();
         FitWindowToScreen();
         pearlChallengeWindowRoot.SetActive(true);
@@ -242,7 +239,6 @@ public sealed class EventWindowController : MonoBehaviour
         ConfigureCanvasScaler();
         CenterWindow();
         FitWindowToScreen();
-        ConfigureDimBackgroundLayout();
     }
 
     private void ConfigureCanvasScaler()
@@ -320,24 +316,22 @@ public sealed class EventWindowController : MonoBehaviour
         windowContainerRectTransform.localScale = windowContainerDefaultScale * fitScale;
     }
 
-    private void ConfigureDimBackgroundLayout()
+    private void BringWindowOverlayToFront()
     {
-        if (dimBackgroundRectTransform == null && dimBackgroundRoot != null)
+        if (dimBackgroundRoot == null)
         {
-            dimBackgroundRectTransform = dimBackgroundRoot.GetComponent<RectTransform>();
-        }
-
-        if (dimBackgroundRectTransform == null)
-        {
+            pearlChallengeWindowRoot.transform.SetAsLastSibling();
             return;
         }
 
-        dimBackgroundRectTransform.anchorMin = Vector2.zero;
-        dimBackgroundRectTransform.anchorMax = Vector2.one;
-        dimBackgroundRectTransform.pivot = new Vector2(0.5f, 0.5f);
-        dimBackgroundRectTransform.offsetMin = Vector2.zero;
-        dimBackgroundRectTransform.offsetMax = Vector2.zero;
-        dimBackgroundRectTransform.anchoredPosition = Vector2.zero;
-        dimBackgroundRectTransform.localPosition = new Vector3(dimBackgroundRectTransform.localPosition.x, dimBackgroundRectTransform.localPosition.y, 0f);
+        if (dimBackgroundRoot.transform.parent == pearlChallengeWindowRoot.transform.parent)
+        {
+            dimBackgroundRoot.transform.SetAsLastSibling();
+            pearlChallengeWindowRoot.transform.SetAsLastSibling();
+            return;
+        }
+
+        dimBackgroundRoot.transform.SetAsLastSibling();
+        pearlChallengeWindowRoot.transform.SetAsLastSibling();
     }
 }
