@@ -23,12 +23,17 @@ public sealed class ScreenSwitchController : MonoBehaviour
     [SerializeField] private Button clanButton;
     [SerializeField] private Button locationButton;
     [SerializeField] private Button rankingButton;
+    [SerializeField] private RectTransform mainButtonContent;
+    [SerializeField] private float selectedMainContentYOffset = 50f;
     [SerializeField] private ScreenId defaultScreen = ScreenId.Main;
     [SerializeField] private bool showDefaultScreenOnAwake = true;
+
+    private Vector2 mainButtonContentDefaultPosition;
 
     private void Awake()
     {
         ResolveMissingReferences();
+        CacheDefaultPositions();
         SubscribeButtons();
 
         if (showDefaultScreenOnAwake)
@@ -135,6 +140,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
         SetActive(clanScreen, screenId == ScreenId.Clan);
         SetActive(locationScreen, screenId == ScreenId.Location);
         SetActive(rankingScreen, screenId == ScreenId.Ranking);
+        UpdateMainButtonContentOffset(screenId == ScreenId.Main);
         transform.SetAsLastSibling();
     }
 
@@ -151,6 +157,44 @@ public sealed class ScreenSwitchController : MonoBehaviour
         clanButton = clanButton != null ? clanButton : FindSceneButton("ClanScreenButton");
         locationButton = locationButton != null ? locationButton : FindSceneButton("LocationScreenButton");
         rankingButton = rankingButton != null ? rankingButton : FindSceneButton("RankingScreenButton");
+        mainButtonContent = mainButtonContent != null ? mainButtonContent : FindButtonContent(mainButton);
+    }
+
+    private void CacheDefaultPositions()
+    {
+        if (mainButtonContent == null)
+        {
+            return;
+        }
+
+        mainButtonContentDefaultPosition = mainButtonContent.anchoredPosition;
+    }
+
+    private void UpdateMainButtonContentOffset(bool isSelected)
+    {
+        if (mainButtonContent == null)
+        {
+            return;
+        }
+
+        var targetPosition = mainButtonContentDefaultPosition;
+
+        if (isSelected)
+        {
+            targetPosition.y += selectedMainContentYOffset;
+        }
+
+        mainButtonContent.anchoredPosition = targetPosition;
+    }
+
+    private static RectTransform FindButtonContent(Button button)
+    {
+        if (button == null)
+        {
+            return null;
+        }
+
+        return button.transform.Find("Content") as RectTransform;
     }
 
     private static Button FindSceneButton(string objectName)
