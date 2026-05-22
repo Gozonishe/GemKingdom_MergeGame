@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public sealed class ScreenSwitchController : MonoBehaviour
@@ -24,11 +25,20 @@ public sealed class ScreenSwitchController : MonoBehaviour
     [SerializeField] private Button locationButton;
     [SerializeField] private Button rankingButton;
     [SerializeField] private RectTransform mainButtonContent;
-    [SerializeField] private float selectedMainContentYOffset = 50f;
+    [SerializeField] private RectTransform shopButtonContent;
+    [SerializeField] private RectTransform clanButtonContent;
+    [SerializeField] private RectTransform locationButtonContent;
+    [SerializeField] private RectTransform rankingButtonContent;
+    [FormerlySerializedAs("selectedMainContentYOffset")]
+    [SerializeField] private float selectedContentYOffset = 50f;
     [SerializeField] private ScreenId defaultScreen = ScreenId.Main;
     [SerializeField] private bool showDefaultScreenOnAwake = true;
 
     private Vector2 mainButtonContentDefaultPosition;
+    private Vector2 shopButtonContentDefaultPosition;
+    private Vector2 clanButtonContentDefaultPosition;
+    private Vector2 locationButtonContentDefaultPosition;
+    private Vector2 rankingButtonContentDefaultPosition;
 
     private void Awake()
     {
@@ -140,7 +150,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
         SetActive(clanScreen, screenId == ScreenId.Clan);
         SetActive(locationScreen, screenId == ScreenId.Location);
         SetActive(rankingScreen, screenId == ScreenId.Ranking);
-        UpdateMainButtonContentOffset(screenId == ScreenId.Main);
+        UpdateButtonContentOffsets(screenId);
         transform.SetAsLastSibling();
     }
 
@@ -158,33 +168,49 @@ public sealed class ScreenSwitchController : MonoBehaviour
         locationButton = locationButton != null ? locationButton : FindSceneButton("LocationScreenButton");
         rankingButton = rankingButton != null ? rankingButton : FindSceneButton("RankingScreenButton");
         mainButtonContent = mainButtonContent != null ? mainButtonContent : FindButtonContent(mainButton);
+        shopButtonContent = shopButtonContent != null ? shopButtonContent : FindButtonContent(shopButton);
+        clanButtonContent = clanButtonContent != null ? clanButtonContent : FindButtonContent(clanButton);
+        locationButtonContent = locationButtonContent != null ? locationButtonContent : FindButtonContent(locationButton);
+        rankingButtonContent = rankingButtonContent != null ? rankingButtonContent : FindButtonContent(rankingButton);
     }
 
     private void CacheDefaultPositions()
     {
-        if (mainButtonContent == null)
-        {
-            return;
-        }
-
-        mainButtonContentDefaultPosition = mainButtonContent.anchoredPosition;
+        mainButtonContentDefaultPosition = GetAnchoredPosition(mainButtonContent);
+        shopButtonContentDefaultPosition = GetAnchoredPosition(shopButtonContent);
+        clanButtonContentDefaultPosition = GetAnchoredPosition(clanButtonContent);
+        locationButtonContentDefaultPosition = GetAnchoredPosition(locationButtonContent);
+        rankingButtonContentDefaultPosition = GetAnchoredPosition(rankingButtonContent);
     }
 
-    private void UpdateMainButtonContentOffset(bool isSelected)
+    private void UpdateButtonContentOffsets(ScreenId selectedScreen)
     {
-        if (mainButtonContent == null)
+        SetButtonContentOffset(mainButtonContent, mainButtonContentDefaultPosition, selectedScreen == ScreenId.Main);
+        SetButtonContentOffset(shopButtonContent, shopButtonContentDefaultPosition, selectedScreen == ScreenId.Shop);
+        SetButtonContentOffset(clanButtonContent, clanButtonContentDefaultPosition, selectedScreen == ScreenId.Clan);
+        SetButtonContentOffset(locationButtonContent, locationButtonContentDefaultPosition, selectedScreen == ScreenId.Location);
+        SetButtonContentOffset(rankingButtonContent, rankingButtonContentDefaultPosition, selectedScreen == ScreenId.Ranking);
+    }
+
+    private void SetButtonContentOffset(RectTransform content, Vector2 defaultPosition, bool isSelected)
+    {
+        if (content == null)
         {
             return;
         }
 
-        var targetPosition = mainButtonContentDefaultPosition;
-
+        var targetPosition = defaultPosition;
         if (isSelected)
         {
-            targetPosition.y += selectedMainContentYOffset;
+            targetPosition.y += selectedContentYOffset;
         }
 
-        mainButtonContent.anchoredPosition = targetPosition;
+        content.anchoredPosition = targetPosition;
+    }
+
+    private static Vector2 GetAnchoredPosition(RectTransform target)
+    {
+        return target != null ? target.anchoredPosition : Vector2.zero;
     }
 
     private static RectTransform FindButtonContent(Button button)

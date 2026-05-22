@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 3b1c463d0c439cb40a3a5b447d76f146
+guid: 422db58735af8b4448d55144b9f7c23d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4686076207427241227
-    second: icon_gold_medal_0
+      213: 4834363173349513470
+    second: icon_hud_clan_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: icon_gold_medal_0
+      name: icon_hud_clan_0
       rect:
         serializedVersion: 2
-        x: 6
-        y: 2
-        width: 126
-        height: 115
+        x: 0
+        y: 0
+        width: 160
+        height: 189
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b054c169b79480140800000000000000
-      internalID: 4686076207427241227
+      spriteID: ef85abe41bb171340800000000000000
+      internalID: 4834363173349513470
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      icon_gold_medal_0: 4686076207427241227
+      icon_hud_clan_0: 4834363173349513470
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
