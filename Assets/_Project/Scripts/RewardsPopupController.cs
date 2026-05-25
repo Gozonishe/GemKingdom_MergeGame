@@ -96,6 +96,7 @@ public sealed class RewardsPopupController : MonoBehaviour
         ClearRewards();
         SetBackgroundObjectsVisible(false);
         overlayRoot.SetActive(true);
+        overlayRoot.transform.SetAsLastSibling();
         PrepareOverlayForOpen();
 
         if (rewards == null)
