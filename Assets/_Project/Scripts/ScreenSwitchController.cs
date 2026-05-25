@@ -24,6 +24,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
     [SerializeField] private Button clanButton;
     [SerializeField] private Button locationButton;
     [SerializeField] private Button rankingButton;
+    [SerializeField] private Button playerGoldButton;
     [SerializeField] private RectTransform mainButtonContent;
     [SerializeField] private RectTransform shopButtonContent;
     [SerializeField] private RectTransform clanButtonContent;
@@ -99,6 +100,11 @@ public sealed class ScreenSwitchController : MonoBehaviour
             shopButton.onClick.AddListener(ShowShop);
         }
 
+        if (playerGoldButton != null)
+        {
+            playerGoldButton.onClick.AddListener(ShowShop);
+        }
+
         if (clanButton != null)
         {
             clanButton.onClick.AddListener(ShowClan);
@@ -125,6 +131,11 @@ public sealed class ScreenSwitchController : MonoBehaviour
         if (shopButton != null)
         {
             shopButton.onClick.RemoveListener(ShowShop);
+        }
+
+        if (playerGoldButton != null)
+        {
+            playerGoldButton.onClick.RemoveListener(ShowShop);
         }
 
         if (clanButton != null)
@@ -167,6 +178,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
         clanButton = clanButton != null ? clanButton : FindSceneButton("ClanScreenButton");
         locationButton = locationButton != null ? locationButton : FindSceneButton("LocationScreenButton");
         rankingButton = rankingButton != null ? rankingButton : FindSceneButton("RankingScreenButton");
+        playerGoldButton = playerGoldButton != null ? playerGoldButton : FindSceneButton("BtnPlayerGold");
         mainButtonContent = mainButtonContent != null ? mainButtonContent : FindButtonContent(mainButton);
         shopButtonContent = shopButtonContent != null ? shopButtonContent : FindButtonContent(shopButton);
         clanButtonContent = clanButtonContent != null ? clanButtonContent : FindButtonContent(clanButton);
