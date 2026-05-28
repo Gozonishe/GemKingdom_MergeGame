@@ -1,10 +1,22 @@
 fileFormatVersion: 2
-guid: eebc67622b270f848a5bb6debd8db1bc
+guid: 1640ebeb1db304c4895c21de46899eef
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3609420456847098661
-    second: settings_window_bg_placeholder 1_0
+      213: -9189748588438338768
+    second: info_window_continue_0
+  - first:
+      213: -2821773331664631744
+    second: info_window_continue_1
+  - first:
+      213: 7054579314025142243
+    second: info_window_continue_2
+  - first:
+      213: -182538696685481526
+    second: info_window_continue_3
+  - first:
+      213: 5190581106780977720
+    second: info_window_continue_4
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +138,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: settings_window_bg_placeholder 1_0
+      name: info_window_continue_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
-        width: 1080
-        height: 1668
+        y: 9
+        width: 39
+        height: 49
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +153,96 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 523466f28cc371230800000000000000
-      internalID: 3609420456847098661
+      spriteID: 0334cf22954777080800000000000000
+      internalID: -9189748588438338768
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: info_window_continue_1
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 0
+        width: 92
+        height: 58
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0488571fa1c07d8d0800000000000000
+      internalID: -2821773331664631744
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: info_window_continue_2
+      rect:
+        serializedVersion: 2
+        x: 151
+        y: 10
+        width: 55
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e799446286e6e160800000000000000
+      internalID: 7054579314025142243
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: info_window_continue_3
+      rect:
+        serializedVersion: 2
+        x: 212
+        y: 10
+        width: 214
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac19c42c50e777df0800000000000000
+      internalID: -182538696685481526
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: info_window_continue_4
+      rect:
+        serializedVersion: 2
+        x: 433
+        y: 9
+        width: 39
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 83ab8870406a80840800000000000000
+      internalID: 5190581106780977720
       vertices: []
       indices: 
       edges: []
@@ -161,7 +261,11 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      settings_window_bg_placeholder 1_0: 3609420456847098661
+      info_window_continue_0: -9189748588438338768
+      info_window_continue_1: -2821773331664631744
+      info_window_continue_2: 7054579314025142243
+      info_window_continue_3: -182538696685481526
+      info_window_continue_4: 5190581106780977720
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
