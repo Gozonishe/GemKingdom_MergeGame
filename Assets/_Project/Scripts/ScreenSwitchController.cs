@@ -25,6 +25,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
     [SerializeField] private Button locationButton;
     [SerializeField] private Button rankingButton;
     [SerializeField] private Button playerGoldButton;
+    [SerializeField] private Button getLivesClanButton;
     [SerializeField] private RectTransform mainButtonContent;
     [SerializeField] private RectTransform shopButtonContent;
     [SerializeField] private RectTransform clanButtonContent;
@@ -105,6 +106,11 @@ public sealed class ScreenSwitchController : MonoBehaviour
             playerGoldButton.onClick.AddListener(ShowShop);
         }
 
+        if (getLivesClanButton != null)
+        {
+            getLivesClanButton.onClick.AddListener(ShowClan);
+        }
+
         if (clanButton != null)
         {
             clanButton.onClick.AddListener(ShowClan);
@@ -136,6 +142,11 @@ public sealed class ScreenSwitchController : MonoBehaviour
         if (playerGoldButton != null)
         {
             playerGoldButton.onClick.RemoveListener(ShowShop);
+        }
+
+        if (getLivesClanButton != null)
+        {
+            getLivesClanButton.onClick.RemoveListener(ShowClan);
         }
 
         if (clanButton != null)
@@ -179,6 +190,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
         locationButton = locationButton != null ? locationButton : FindSceneButton("LocationScreenButton");
         rankingButton = rankingButton != null ? rankingButton : FindSceneButton("RankingScreenButton");
         playerGoldButton = playerGoldButton != null ? playerGoldButton : FindSceneButton("BtnPlayerGold");
+        getLivesClanButton = getLivesClanButton != null ? getLivesClanButton : FindSceneButtonInRoot("GetLivesScreen", "BtnGreen");
         mainButtonContent = mainButtonContent != null ? mainButtonContent : FindButtonContent(mainButton);
         shopButtonContent = shopButtonContent != null ? shopButtonContent : FindButtonContent(shopButton);
         clanButtonContent = clanButtonContent != null ? clanButtonContent : FindButtonContent(clanButton);
@@ -239,6 +251,27 @@ public sealed class ScreenSwitchController : MonoBehaviour
     {
         var target = FindSceneObject(objectName);
         return target != null ? target.GetComponent<Button>() : null;
+    }
+
+    private static Button FindSceneButtonInRoot(string rootName, string buttonName)
+    {
+        var root = FindSceneObject(rootName);
+        if (root == null)
+        {
+            return null;
+        }
+
+        var transforms = root.GetComponentsInChildren<Transform>(true);
+        for (var i = 0; i < transforms.Length; i++)
+        {
+            var target = transforms[i];
+            if (target.name == buttonName && target.TryGetComponent<Button>(out var button))
+            {
+                return button;
+            }
+        }
+
+        return null;
     }
 
     private static GameObject FindSceneObject(string objectName)
