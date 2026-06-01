@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 1b81646be4a6a5041a9e210e91e6b5ca
+guid: 5b86ba5d355bd4541ab9236d3783c9bf
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7814107721795640489
-    second: key_ui_icon_0
+      213: -7450758908298467553
+    second: icon_image_helmet_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: key_ui_icon_0
+      name: icon_image_helmet_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 125
-        height: 125
+        width: 160
+        height: 180
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 753ebbd8d66be8390800000000000000
-      internalID: -7814107721795640489
+      spriteID: f17eacbaf36999890800000000000000
+      internalID: -7450758908298467553
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      key_ui_icon_0: -7814107721795640489
+      icon_image_helmet_0: -7450758908298467553
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

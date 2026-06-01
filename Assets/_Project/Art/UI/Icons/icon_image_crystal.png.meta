@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 2431b23c81eacfc43b3d70e7af3c8bc2
+guid: 368df4fc5abb68842bb1ee608070ed6a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3835044760184954895
-    second: cup_ui_icon_0
+      213: 8083298104749206359
+    second: icon_image_crystal_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: cup_ui_icon_0
+      name: icon_image_crystal_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 125
-        height: 125
+        width: 162
+        height: 186
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1ffd37b0c1f27cac0800000000000000
-      internalID: -3835044760184954895
+      spriteID: 75b2a239cc4ad2070800000000000000
+      internalID: 8083298104749206359
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      cup_ui_icon_0: -3835044760184954895
+      icon_image_crystal_0: 8083298104749206359
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

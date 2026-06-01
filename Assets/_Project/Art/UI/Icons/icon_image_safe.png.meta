@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 447fe5efdd3b1e8429ab2498d4dc32f9
+guid: af3bd02d1b2ca784fbf8cf960f001a16
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1567342437084240317
-    second: gold_ui_icon_0
+      213: 6155836662604520517
+    second: icon_image_safe_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: gold_ui_icon_0
+      name: icon_image_safe_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 125
-        height: 125
+        width: 168
+        height: 178
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 346e23c8b5eaf3ae0800000000000000
-      internalID: -1567342437084240317
+      spriteID: 54c5ed164dced6550800000000000000
+      internalID: 6155836662604520517
       vertices: []
       indices: 
       edges: []
@@ -151,7 +151,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      gold_ui_icon_0: -1567342437084240317
+      icon_image_safe_0: 6155836662604520517
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

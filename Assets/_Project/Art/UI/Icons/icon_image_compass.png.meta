@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 4dfe61715c8296249b3cb99ce5b199db
+guid: fa2d6d88e5d4144428b55757b91dab27
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1568546211777702922
-    second: diamonds_green_ui_icon_0
+      213: -3149727663763798789
+    second: icon_image_compass_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: diamonds_green_ui_icon_0
+      name: icon_image_compass_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 125
-        height: 125
+        width: 172
+        height: 210
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a0c6bc6187894c510800000000000000
-      internalID: 1568546211777702922
+      spriteID: bf44326b06be944d0800000000000000
+      internalID: -3149727663763798789
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      diamonds_green_ui_icon_0: 1568546211777702922
+      icon_image_compass_0: -3149727663763798789
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
