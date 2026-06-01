@@ -8345,14 +8345,18 @@ PrefabInstance:
     - target: {fileID: 735075754709634546, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 1b81646be4a6a5041a9e210e91e6b5ca, type: 3}
+      objectReference: {fileID: 21300000, guid: 00f1e64d426de4e40994da7d2d55c335, type: 3}
+    - target: {fileID: 4793538265444725165, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 1.9000015
+      objectReference: {fileID: 0}
     - target: {fileID: 5691256346712694412, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
       propertyPath: m_Name
       value: IconEventKey
       objectReference: {fileID: 0}
     - target: {fileID: 6370568377262972090, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -12.800003
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 7769536927845929895, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
       propertyPath: m_IsActive
@@ -8798,14 +8802,18 @@ PrefabInstance:
     - target: {fileID: 735075754709634546, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 447fe5efdd3b1e8429ab2498d4dc32f9, type: 3}
+      objectReference: {fileID: 21300000, guid: 00f1e64d426de4e40994da7d2d55c335, type: 3}
+    - target: {fileID: 4793538265444725165, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 1.9000015
+      objectReference: {fileID: 0}
     - target: {fileID: 5691256346712694412, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
       propertyPath: m_Name
       value: IconEventGold
       objectReference: {fileID: 0}
     - target: {fileID: 6370568377262972090, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -12.800003
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 7769536927845929895, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
       propertyPath: m_IsActive
@@ -9515,14 +9523,22 @@ PrefabInstance:
     - target: {fileID: 735075754709634546, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 4dfe61715c8296249b3cb99ce5b199db, type: 3}
+      objectReference: {fileID: 21300000, guid: 00f1e64d426de4e40994da7d2d55c335, type: 3}
+    - target: {fileID: 4793538265444725165, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 1.9000015
+      objectReference: {fileID: 0}
     - target: {fileID: 5691256346712694412, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
       propertyPath: m_Name
       value: IconEventUI
       objectReference: {fileID: 0}
+    - target: {fileID: 5691256346712694412, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6370568377262972090, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -12.800003
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 7769536927845929895, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
       propertyPath: m_IsActive
@@ -10688,6 +10704,10 @@ PrefabInstance:
       propertyPath: m_fontSize
       value: 31.5
       objectReference: {fileID: 0}
+    - target: {fileID: 296496671175950409, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 431354444232170657, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -10771,7 +10791,11 @@ PrefabInstance:
     - target: {fileID: 735075754709634546, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 2431b23c81eacfc43b3d70e7af3c8bc2, type: 3}
+      objectReference: {fileID: 21300000, guid: 00f1e64d426de4e40994da7d2d55c335, type: 3}
+    - target: {fileID: 4793538265444725165, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 1.9000015
+      objectReference: {fileID: 0}
     - target: {fileID: 5691256346712694412, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
       propertyPath: m_Name
       value: IconEventCup
@@ -10782,7 +10806,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6370568377262972090, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -12.800003
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 7769536927845929895, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
       propertyPath: m_IsActive
@@ -12169,7 +12193,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7411686250462441999, guid: 5e056aa85faf80341a3425fce95a490e, type: 3}
       propertyPath: m_Spacing
-      value: 26
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 9156373135169004400, guid: 5e056aa85faf80341a3425fce95a490e, type: 3}
       propertyPath: m_Layer
@@ -12531,7 +12555,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7411686250462441999, guid: 5e056aa85faf80341a3425fce95a490e, type: 3}
       propertyPath: m_Spacing
-      value: 22
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 9156373135169004400, guid: 5e056aa85faf80341a3425fce95a490e, type: 3}
       propertyPath: m_Layer
@@ -13201,13 +13225,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4793538265444725165, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 1.9000015
+      objectReference: {fileID: 0}
     - target: {fileID: 5691256346712694412, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
       propertyPath: m_Name
       value: IconEventDiamonds
       objectReference: {fileID: 0}
     - target: {fileID: 6370568377262972090, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -12.800003
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 8735922357877562354, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
       propertyPath: openButton

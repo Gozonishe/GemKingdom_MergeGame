@@ -8,10 +8,22 @@ public sealed class HudButtonPressAnimation : MonoBehaviour, IPointerDownHandler
     [SerializeField] private RectTransform target;
     [SerializeField] private float pressedScale = 0.92f;
     [SerializeField] private float animationDuration = 0.08f;
+    [SerializeField] private bool scaleAroundVisualCenter;
+    [SerializeField] private bool scaleChildrenInsteadOfTarget;
 
     private Button button;
     private Coroutine animationRoutine;
     private Vector3 defaultScale = Vector3.one;
+    private Vector2 defaultAnchoredPosition;
+    private RectTransform targetRect;
+    private ChildScaleState[] childScaleStates = new ChildScaleState[0];
+
+    private struct ChildScaleState
+    {
+        public RectTransform RectTransform;
+        public Vector2 AnchoredPosition;
+        public Vector3 LocalScale;
+    }
 
     private void Awake()
     {
@@ -25,6 +37,9 @@ public sealed class HudButtonPressAnimation : MonoBehaviour, IPointerDownHandler
         if (target != null)
         {
             defaultScale = target.localScale;
+            targetRect = target;
+            defaultAnchoredPosition = targetRect.anchoredPosition;
+            CacheChildScaleStates();
         }
     }
 
@@ -34,7 +49,7 @@ public sealed class HudButtonPressAnimation : MonoBehaviour, IPointerDownHandler
 
         if (target != null)
         {
-            target.localScale = defaultScale;
+            ApplyScale(defaultScale);
         }
     }
 
@@ -83,7 +98,7 @@ public sealed class HudButtonPressAnimation : MonoBehaviour, IPointerDownHandler
     {
         if (animationDuration <= 0f)
         {
-            target.localScale = toScale;
+            ApplyScale(toScale);
             animationRoutine = null;
             yield break;
         }
@@ -95,12 +110,98 @@ public sealed class HudButtonPressAnimation : MonoBehaviour, IPointerDownHandler
             elapsed += Time.unscaledDeltaTime;
             var progress = Mathf.Clamp01(elapsed / animationDuration);
             var easedProgress = 1f - Mathf.Pow(1f - progress, 3f);
-            target.localScale = Vector3.LerpUnclamped(fromScale, toScale, easedProgress);
+            ApplyScale(Vector3.LerpUnclamped(fromScale, toScale, easedProgress));
             yield return null;
         }
 
-        target.localScale = toScale;
+        ApplyScale(toScale);
         animationRoutine = null;
+    }
+
+    private void ApplyScale(Vector3 scale)
+    {
+        if (scaleChildrenInsteadOfTarget)
+        {
+            ApplyChildrenScale(scale);
+            return;
+        }
+
+        target.localScale = scale;
+
+        if (!scaleAroundVisualCenter || targetRect == null)
+        {
+            return;
+        }
+
+        var rect = targetRect.rect;
+        var pivot = targetRect.pivot;
+        var centerOffset = new Vector2((0.5f - pivot.x) * rect.width, (0.5f - pivot.y) * rect.height);
+        var scaleRatio = new Vector2(
+            defaultScale.x != 0f ? scale.x / defaultScale.x : 1f,
+            defaultScale.y != 0f ? scale.y / defaultScale.y : 1f);
+
+        targetRect.anchoredPosition = defaultAnchoredPosition - new Vector2(
+            centerOffset.x * (scaleRatio.x - 1f),
+            centerOffset.y * (scaleRatio.y - 1f));
+    }
+
+    private void CacheChildScaleStates()
+    {
+        if (!scaleChildrenInsteadOfTarget || targetRect == null)
+        {
+            childScaleStates = new ChildScaleState[0];
+            return;
+        }
+
+        var childStates = new ChildScaleState[targetRect.childCount];
+        var childStateCount = 0;
+
+        for (var i = 0; i < targetRect.childCount; i++)
+        {
+            if (targetRect.GetChild(i) is not RectTransform childRect)
+            {
+                continue;
+            }
+
+            childStates[childStateCount] = new ChildScaleState
+            {
+                RectTransform = childRect,
+                AnchoredPosition = childRect.anchoredPosition,
+                LocalScale = childRect.localScale
+            };
+            childStateCount++;
+        }
+
+        if (childStateCount != childStates.Length)
+        {
+            System.Array.Resize(ref childStates, childStateCount);
+        }
+
+        childScaleStates = childStates;
+    }
+
+    private void ApplyChildrenScale(Vector3 scale)
+    {
+        var scaleRatio = new Vector2(
+            defaultScale.x != 0f ? scale.x / defaultScale.x : 1f,
+            defaultScale.y != 0f ? scale.y / defaultScale.y : 1f);
+
+        for (var i = 0; i < childScaleStates.Length; i++)
+        {
+            var childState = childScaleStates[i];
+            if (childState.RectTransform == null)
+            {
+                continue;
+            }
+
+            childState.RectTransform.localScale = new Vector3(
+                childState.LocalScale.x * scaleRatio.x,
+                childState.LocalScale.y * scaleRatio.y,
+                childState.LocalScale.z);
+            childState.RectTransform.anchoredPosition = new Vector2(
+                childState.AnchoredPosition.x * scaleRatio.x,
+                childState.AnchoredPosition.y * scaleRatio.y);
+        }
     }
 
     private void StopAnimation()
