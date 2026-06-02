@@ -131,6 +131,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3580225276427552215}
   - component: {fileID: 6558076357129550424}
+  - component: {fileID: 1835274792214045769}
   m_Layer: 0
   m_Name: reward_screen_title
   m_TagString: Untagged
@@ -216,6 +217,30 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &1835274792214045769
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4174130331265780544}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ca6b2fd080741d88bb0b8ca560c51e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpriteRendererShineSweep
+  sourceRenderer: {fileID: 6558076357129550424}
+  shineShader: {fileID: 4800000, guid: e0ca1eb4dbf44790a9ba7bce9c28fb9f, type: 3}
+  initialDelayRange: {x: 1, y: 3}
+  instanceDelayJitter: 0.75
+  minDelay: 3.5
+  maxDelay: 5.5
+  sweepDuration: 0.55
+  stripeWidth: 0.12
+  angle: -18
+  maxAlpha: 0.3
+  sortingOrderOffset: 20
+  useUnscaledTime: 1
 --- !u!1 &4584839847071723827
 GameObject:
   m_ObjectHideFlags: 0

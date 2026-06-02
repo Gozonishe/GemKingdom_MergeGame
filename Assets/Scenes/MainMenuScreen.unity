@@ -15708,6 +15708,22 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 1835274792214045769, guid: e9c6dcf2a946c1b428bec21ce6df8f9e, type: 3}
+      propertyPath: maxDelay
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1835274792214045769, guid: e9c6dcf2a946c1b428bec21ce6df8f9e, type: 3}
+      propertyPath: minDelay
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1835274792214045769, guid: e9c6dcf2a946c1b428bec21ce6df8f9e, type: 3}
+      propertyPath: stripeWidth
+      value: 0.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 1835274792214045769, guid: e9c6dcf2a946c1b428bec21ce6df8f9e, type: 3}
+      propertyPath: initialDelayRange.y
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2768559590642410781, guid: e9c6dcf2a946c1b428bec21ce6df8f9e, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
