@@ -7832,7 +7832,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1864549844499007502, guid: 4e8ba6b97ca50b540ae29b59dfb6bd90, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -50
+      value: -38
       objectReference: {fileID: 0}
     - target: {fileID: 2658180053519073083, guid: 4e8ba6b97ca50b540ae29b59dfb6bd90, type: 3}
       propertyPath: m_Pivot.x
@@ -7926,6 +7926,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3078695559980201448, guid: 4e8ba6b97ca50b540ae29b59dfb6bd90, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 3078695559980201448, guid: 4e8ba6b97ca50b540ae29b59dfb6bd90, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3078695559980201448, guid: 4e8ba6b97ca50b540ae29b59dfb6bd90, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3129239500372343357, guid: 4e8ba6b97ca50b540ae29b59dfb6bd90, type: 3}
       propertyPath: m_text
       value: Start!
@@ -7976,7 +7988,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5939686217577345976, guid: 4e8ba6b97ca50b540ae29b59dfb6bd90, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -50
+      value: -38
       objectReference: {fileID: 0}
     - target: {fileID: 6039942483999515170, guid: 4e8ba6b97ca50b540ae29b59dfb6bd90, type: 3}
       propertyPath: m_Sprite
@@ -7993,6 +8005,10 @@ PrefabInstance:
     - target: {fileID: 6745134948543215544, guid: 4e8ba6b97ca50b540ae29b59dfb6bd90, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7079709954739975807, guid: 4e8ba6b97ca50b540ae29b59dfb6bd90, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -83
       objectReference: {fileID: 0}
     - target: {fileID: 8246457384313841781, guid: 4e8ba6b97ca50b540ae29b59dfb6bd90, type: 3}
       propertyPath: m_AnchoredPosition.x

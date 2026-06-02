@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: TimeText
+  m_text: 24h 00m
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c19cd1e23a0b57346acafc3d904f8de4, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: fcedced6a303cbe4db12e1d23ed376d6, type: 2}
@@ -92,7 +92,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36.05
+  m_fontSize: 36.8
   m_fontSizeBase: 76
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -300,6 +300,7 @@ GameObject:
   - component: {fileID: 5993223057019289886}
   - component: {fileID: 417211485436619699}
   - component: {fileID: 221777851473498250}
+  - component: {fileID: 7692852460335721182}
   m_Layer: 0
   m_Name: Timer
   m_TagString: Untagged
@@ -325,7 +326,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 516, y: 14}
+  m_SizeDelta: {x: 262, y: 72}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &417211485436619699
 CanvasRenderer:
@@ -365,6 +366,22 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &7692852460335721182
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4078586720502427519}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2fd46ca87ec4d6dbd01612cc5e52f91, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CountdownTimerText
+  targetText: {fileID: 7695080318156811353}
+  durationHours: 24
+  restartOnEnable: 1
+  useUnscaledTime: 1
 --- !u!1 &4824398301106829742
 GameObject:
   m_ObjectHideFlags: 0
@@ -376,6 +393,7 @@ GameObject:
   - component: {fileID: 4435597099606583661}
   - component: {fileID: 8017768502528206006}
   - component: {fileID: 5909489317932823765}
+  - component: {fileID: 7361247088644833375}
   m_Layer: 0
   m_Name: Hand
   m_TagString: Untagged
@@ -399,9 +417,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 11.2}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 34}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0.5, y: 0.17}
 --- !u!222 &8017768502528206006
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -440,6 +458,23 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &7361247088644833375
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4824398301106829742}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4dfe9a4a95b4d95be347791b86a9d33, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ClockHandRotator
+  target: {fileID: 4435597099606583661}
+  moveDuration: 0.2
+  pauseDuration: 0.7
+  clockwise: 1
+  useUnscaledTime: 1
 --- !u!1 &5826163482011210759
 GameObject:
   m_ObjectHideFlags: 0
@@ -476,7 +511,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 21.6, y: 0}
-  m_SizeDelta: {x: 300, y: 100}
+  m_SizeDelta: {x: 300, y: 76}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &6451680943821590968
 MonoBehaviour:
