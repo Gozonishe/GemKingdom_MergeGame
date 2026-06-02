@@ -415,7 +415,7 @@ GameObject:
   - component: {fileID: 2605315154710798944}
   - component: {fileID: 1835388017033456382}
   m_Layer: 5
-  m_Name: PromoWindow
+  m_Name: PromoWindowTall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

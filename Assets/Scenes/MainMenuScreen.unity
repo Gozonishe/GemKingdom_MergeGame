@@ -2025,6 +2025,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1498762027}
     m_Modifications:
+    - target: {fileID: 167735348804023631, guid: 23dd49623eea45e489be2684a4f780e8, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 1667678671369468054, guid: 23dd49623eea45e489be2684a4f780e8, type: 3}
       propertyPath: m_Name
       value: BtnParentalControls
@@ -7814,6 +7818,22 @@ PrefabInstance:
       propertyPath: m_PresetInfoIsWorld
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1864549844499007502, guid: 4e8ba6b97ca50b540ae29b59dfb6bd90, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1864549844499007502, guid: 4e8ba6b97ca50b540ae29b59dfb6bd90, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1864549844499007502, guid: 4e8ba6b97ca50b540ae29b59dfb6bd90, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 145.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 1864549844499007502, guid: 4e8ba6b97ca50b540ae29b59dfb6bd90, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -50
+      objectReference: {fileID: 0}
     - target: {fileID: 2658180053519073083, guid: 4e8ba6b97ca50b540ae29b59dfb6bd90, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -7941,6 +7961,22 @@ PrefabInstance:
     - target: {fileID: 5589145793123665151, guid: 4e8ba6b97ca50b540ae29b59dfb6bd90, type: 3}
       propertyPath: m_fontSize
       value: 49
+      objectReference: {fileID: 0}
+    - target: {fileID: 5939686217577345976, guid: 4e8ba6b97ca50b540ae29b59dfb6bd90, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5939686217577345976, guid: 4e8ba6b97ca50b540ae29b59dfb6bd90, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5939686217577345976, guid: 4e8ba6b97ca50b540ae29b59dfb6bd90, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 35
+      objectReference: {fileID: 0}
+    - target: {fileID: 5939686217577345976, guid: 4e8ba6b97ca50b540ae29b59dfb6bd90, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -50
       objectReference: {fileID: 0}
     - target: {fileID: 6039942483999515170, guid: 4e8ba6b97ca50b540ae29b59dfb6bd90, type: 3}
       propertyPath: m_Sprite
@@ -9224,6 +9260,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1498762027}
     m_Modifications:
+    - target: {fileID: 167735348804023631, guid: 23dd49623eea45e489be2684a4f780e8, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 1667678671369468054, guid: 23dd49623eea45e489be2684a4f780e8, type: 3}
       propertyPath: m_Name
       value: BtnTermsPrivacy
@@ -9447,7 +9487,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1841694777704462663, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1841694777704462663, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -10985,7 +11025,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1841694777704462663, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1841694777704462663, guid: 9b03690d751f20040ada2313c91eaca3, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -15817,6 +15857,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1498762027}
     m_Modifications:
+    - target: {fileID: 167735348804023631, guid: 23dd49623eea45e489be2684a4f780e8, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 1667678671369468054, guid: 23dd49623eea45e489be2684a4f780e8, type: 3}
       propertyPath: m_Name
       value: BtnSupport
