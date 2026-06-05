@@ -168,7 +168,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5223807221424156601}
+  m_Father: {fileID: 2658180053519073083}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -282,6 +282,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 180200480714051860, guid: dcf5d67b1feb0dc438684903c5e968fa, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: ab228f1c0e0779647b359e8128a958a4, type: 3}
+    - target: {fileID: 180200480714051860, guid: dcf5d67b1feb0dc438684903c5e968fa, type: 3}
       propertyPath: m_RaycastTarget
       value: 0
       objectReference: {fileID: 0}
@@ -363,7 +367,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1642355358425360766, guid: dcf5d67b1feb0dc438684903c5e968fa, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -386
+      value: -967
       objectReference: {fileID: 0}
     - target: {fileID: 1642355358425360766, guid: dcf5d67b1feb0dc438684903c5e968fa, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -534,7 +538,7 @@ PrefabInstance:
     - {fileID: 3450030828561368568, guid: dcf5d67b1feb0dc438684903c5e968fa, type: 3}
     - {fileID: 7588569353454536301, guid: dcf5d67b1feb0dc438684903c5e968fa, type: 3}
     m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 8815692015799122428, guid: dcf5d67b1feb0dc438684903c5e968fa, type: 3}
+    - targetCorrespondingSourceObject: {fileID: 1642355358425360766, guid: dcf5d67b1feb0dc438684903c5e968fa, type: 3}
       insertIndex: 0
       addedObject: {fileID: 8210687864244970519}
     - targetCorrespondingSourceObject: {fileID: 5055920454610927645, guid: dcf5d67b1feb0dc438684903c5e968fa, type: 3}
@@ -542,9 +546,9 @@ PrefabInstance:
       addedObject: {fileID: 7079709954739975807}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dcf5d67b1feb0dc438684903c5e968fa, type: 3}
---- !u!224 &5223807221424156601 stripped
+--- !u!224 &2658180053519073083 stripped
 RectTransform:
-  m_CorrespondingSourceObject: {fileID: 8815692015799122428, guid: dcf5d67b1feb0dc438684903c5e968fa, type: 3}
+  m_CorrespondingSourceObject: {fileID: 1642355358425360766, guid: dcf5d67b1feb0dc438684903c5e968fa, type: 3}
   m_PrefabInstance: {fileID: 3614439778087294533}
   m_PrefabAsset: {fileID: 0}
 --- !u!224 &8359574872813737560 stripped
