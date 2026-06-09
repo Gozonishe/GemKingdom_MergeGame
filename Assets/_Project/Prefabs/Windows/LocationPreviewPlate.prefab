@@ -149,6 +149,7 @@ GameObject:
   - component: {fileID: 7217056707192601139}
   - component: {fileID: 885613134943127542}
   - component: {fileID: 7469126351952184401}
+  - component: {fileID: 707001010}
   m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
@@ -257,6 +258,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &707001010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6912956252131067076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 497794100106411f8ceaa7479c004cd0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  button: {fileID: 7469126351952184401}
+  overrideClickClip: {fileID: 0}
+  volumeScale: 1
 --- !u!1001 &3614439778087294533
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -399,6 +399,7 @@ GameObject:
   - component: {fileID: 8208892102566571088}
   - component: {fileID: 3819672940129698129}
   - component: {fileID: 6235148422193352222}
+  - component: {fileID: 707001009}
   m_Layer: 0
   m_Name: IconEventUI
   m_TagString: Untagged
@@ -481,6 +482,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &707001009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5691256346712694412}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 497794100106411f8ceaa7479c004cd0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  button: {fileID: 3819672940129698129}
+  overrideClickClip: {fileID: 0}
+  volumeScale: 1
 --- !u!114 &6235148422193352222
 MonoBehaviour:
   m_ObjectHideFlags: 0
