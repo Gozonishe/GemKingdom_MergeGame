@@ -24,6 +24,9 @@ public sealed class UIAudioController : MonoBehaviour
     private bool uiSoundsMuted;
     private bool musicMuted;
 
+    public bool IsUISoundMuted => uiSoundsMuted;
+    public bool IsMusicMuted => musicMuted;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -128,11 +131,15 @@ public sealed class UIAudioController : MonoBehaviour
     public void SetUISoundMuted(bool isMuted)
     {
         uiSoundsMuted = isMuted;
+        ConfigureSources();
+        uiSoundSource.volume = uiSoundsMuted ? 0f : uiSoundVolume;
     }
 
     public void SetMusicMuted(bool isMuted)
     {
         musicMuted = isMuted;
+        ConfigureSources();
+        musicSource.volume = musicMuted ? 0f : musicVolume;
 
         if (musicSource == null)
         {
@@ -149,13 +156,23 @@ public sealed class UIAudioController : MonoBehaviour
         }
     }
 
+    public void ToggleUISoundMuted()
+    {
+        SetUISoundMuted(!uiSoundsMuted);
+    }
+
+    public void ToggleMusicMuted()
+    {
+        SetMusicMuted(!musicMuted);
+    }
+
     public void SetUISoundVolume(float volume)
     {
         uiSoundVolume = Mathf.Clamp01(volume);
 
         if (uiSoundSource != null)
         {
-            uiSoundSource.volume = uiSoundVolume;
+            uiSoundSource.volume = uiSoundsMuted ? 0f : uiSoundVolume;
         }
     }
 
@@ -165,7 +182,7 @@ public sealed class UIAudioController : MonoBehaviour
 
         if (musicSource != null)
         {
-            musicSource.volume = musicVolume;
+            musicSource.volume = musicMuted ? 0f : musicVolume;
         }
     }
 
@@ -176,10 +193,10 @@ public sealed class UIAudioController : MonoBehaviour
 
         uiSoundSource.playOnAwake = false;
         uiSoundSource.loop = false;
-        uiSoundSource.volume = uiSoundVolume;
+        uiSoundSource.volume = uiSoundsMuted ? 0f : uiSoundVolume;
 
         musicSource.playOnAwake = false;
         musicSource.loop = true;
-        musicSource.volume = musicVolume;
+        musicSource.volume = musicMuted ? 0f : musicVolume;
     }
 }
