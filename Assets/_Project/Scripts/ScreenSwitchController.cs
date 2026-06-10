@@ -26,6 +26,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
     [SerializeField] private Button rankingButton;
     [SerializeField] private Button playerGoldButton;
     [SerializeField] private Button getLivesClanButton;
+    [SerializeField] private Button continueRaceButton;
     [SerializeField] private RectTransform mainButtonContent;
     [SerializeField] private RectTransform shopButtonContent;
     [SerializeField] private RectTransform clanButtonContent;
@@ -41,6 +42,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
     private Vector2 clanButtonContentDefaultPosition;
     private Vector2 locationButtonContentDefaultPosition;
     private Vector2 rankingButtonContentDefaultPosition;
+    private Button subscribedContinueRaceButton;
 
     private void Awake()
     {
@@ -111,6 +113,8 @@ public sealed class ScreenSwitchController : MonoBehaviour
             getLivesClanButton.onClick.AddListener(ShowClan);
         }
 
+        SubscribeContinueRaceButton();
+
         if (clanButton != null)
         {
             clanButton.onClick.AddListener(ShowClan);
@@ -149,6 +153,8 @@ public sealed class ScreenSwitchController : MonoBehaviour
             getLivesClanButton.onClick.RemoveListener(ShowClan);
         }
 
+        UnsubscribeContinueRaceButton();
+
         if (clanButton != null)
         {
             clanButton.onClick.RemoveListener(ShowClan);
@@ -172,6 +178,12 @@ public sealed class ScreenSwitchController : MonoBehaviour
         SetActive(clanScreen, screenId == ScreenId.Clan);
         SetActive(locationScreen, screenId == ScreenId.Location);
         SetActive(rankingScreen, screenId == ScreenId.Ranking);
+
+        if (screenId == ScreenId.Ranking)
+        {
+            BindContinueRaceButton();
+        }
+
         UpdateButtonContentOffsets(screenId);
         transform.SetAsLastSibling();
     }
@@ -191,11 +203,46 @@ public sealed class ScreenSwitchController : MonoBehaviour
         rankingButton = rankingButton != null ? rankingButton : FindSceneButton("RankingScreenButton");
         playerGoldButton = playerGoldButton != null ? playerGoldButton : FindSceneButton("BtnPlayerGold");
         getLivesClanButton = getLivesClanButton != null ? getLivesClanButton : FindSceneButtonInRoot("GetLivesScreen", "BtnGreen");
+        continueRaceButton = continueRaceButton != null ? continueRaceButton : FindSceneButtonInRoot("RankingScreen", "BtnContinueRace");
         mainButtonContent = mainButtonContent != null ? mainButtonContent : FindButtonContent(mainButton);
         shopButtonContent = shopButtonContent != null ? shopButtonContent : FindButtonContent(shopButton);
         clanButtonContent = clanButtonContent != null ? clanButtonContent : FindButtonContent(clanButton);
         locationButtonContent = locationButtonContent != null ? locationButtonContent : FindButtonContent(locationButton);
         rankingButtonContent = rankingButtonContent != null ? rankingButtonContent : FindButtonContent(rankingButton);
+    }
+
+    private void BindContinueRaceButton()
+    {
+        continueRaceButton = continueRaceButton != null ? continueRaceButton : FindSceneButtonInRoot("RankingScreen", "BtnContinueRace");
+        SubscribeContinueRaceButton();
+    }
+
+    private void SubscribeContinueRaceButton()
+    {
+        if (continueRaceButton == null)
+        {
+            return;
+        }
+
+        if (subscribedContinueRaceButton == continueRaceButton)
+        {
+            return;
+        }
+
+        UnsubscribeContinueRaceButton();
+        continueRaceButton.onClick.AddListener(ShowMain);
+        subscribedContinueRaceButton = continueRaceButton;
+    }
+
+    private void UnsubscribeContinueRaceButton()
+    {
+        if (subscribedContinueRaceButton == null)
+        {
+            return;
+        }
+
+        subscribedContinueRaceButton.onClick.RemoveListener(ShowMain);
+        subscribedContinueRaceButton = null;
     }
 
     private void CacheDefaultPositions()
@@ -261,11 +308,11 @@ public sealed class ScreenSwitchController : MonoBehaviour
             return null;
         }
 
-        var transforms = root.GetComponentsInChildren<Transform>(true);
-        for (var i = 0; i < transforms.Length; i++)
+        var buttons = root.GetComponentsInChildren<Button>(true);
+        for (var i = 0; i < buttons.Length; i++)
         {
-            var target = transforms[i];
-            if (target.name == buttonName && target.TryGetComponent<Button>(out var button))
+            var button = buttons[i];
+            if (button.name == buttonName)
             {
                 return button;
             }

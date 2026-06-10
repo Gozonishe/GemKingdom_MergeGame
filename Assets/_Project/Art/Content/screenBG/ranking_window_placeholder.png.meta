@@ -1,10 +1,22 @@
 fileFormatVersion: 2
-guid: eebc67622b270f848a5bb6debd8db1bc
+guid: e6ef6cee30162b940ad6a01402b5516f
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3609420456847098661
-    second: settings_window_bg_placeholder 1_0
+      213: 1282071313655440511
+    second: ranking_window_placeholder_0
+  - first:
+      213: -6246831958895425815
+    second: ranking_window_placeholder_1
+  - first:
+      213: -4004786005511443557
+    second: ranking_window_placeholder_2
+  - first:
+      213: 5403213578923206675
+    second: ranking_window_placeholder_3
+  - first:
+      213: 6035135095943363659
+    second: ranking_window_placeholder_4
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +138,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: settings_window_bg_placeholder 1_0
+      name: ranking_window_placeholder_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1080
-        height: 1668
+        x: 113
+        y: 516
+        width: 558
+        height: 119
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +153,96 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 523466f28cc371230800000000000000
-      internalID: 3609420456847098661
+      spriteID: f74a62b2115dac110800000000000000
+      internalID: 1282071313655440511
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ranking_window_placeholder_1
+      rect:
+        serializedVersion: 2
+        x: 108
+        y: 322
+        width: 148
+        height: 151
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9e60b763e6bce49a0800000000000000
+      internalID: -6246831958895425815
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ranking_window_placeholder_2
+      rect:
+        serializedVersion: 2
+        x: 308
+        y: 352
+        width: 161
+        height: 162
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b9be804a8542c68c0800000000000000
+      internalID: -4004786005511443557
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ranking_window_placeholder_3
+      rect:
+        serializedVersion: 2
+        x: 526
+        y: 322
+        width: 146
+        height: 151
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 318e8416f121cfa40800000000000000
+      internalID: 5403213578923206675
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ranking_window_placeholder_4
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 17
+        width: 679
+        height: 334
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b4c723de46b11c350800000000000000
+      internalID: 6035135095943363659
       vertices: []
       indices: 
       edges: []
@@ -161,7 +261,11 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      settings_window_bg_placeholder 1_0: 3609420456847098661
+      ranking_window_placeholder_0: 1282071313655440511
+      ranking_window_placeholder_1: -6246831958895425815
+      ranking_window_placeholder_2: -4004786005511443557
+      ranking_window_placeholder_3: 5403213578923206675
+      ranking_window_placeholder_4: 6035135095943363659
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
