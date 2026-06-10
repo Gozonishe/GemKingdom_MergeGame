@@ -38,6 +38,7 @@ public sealed class RewardsPopupController : MonoBehaviour
     [SerializeField] private RewardData[] rewards;
     [SerializeField] private float rewardFadeDuration = 0.25f;
     [SerializeField] private float closeFadeDuration = 0.2f;
+    [SerializeField] private AudioClip openSound;
 
     private CanvasGroup overlayCanvasGroup;
     private GraphicAlphaState[] overlayGraphicAlphaStates = Array.Empty<GraphicAlphaState>();
@@ -98,6 +99,7 @@ public sealed class RewardsPopupController : MonoBehaviour
         overlayRoot.SetActive(true);
         overlayRoot.transform.SetAsLastSibling();
         PrepareOverlayForOpen();
+        PlayOpenSound();
 
         if (rewards == null)
         {
@@ -170,6 +172,16 @@ public sealed class RewardsPopupController : MonoBehaviour
         overlayCanvasGroup.alpha = 1f;
         overlayCanvasGroup.interactable = true;
         overlayCanvasGroup.blocksRaycasts = true;
+    }
+
+    private void PlayOpenSound()
+    {
+        if (openSound == null)
+        {
+            return;
+        }
+
+        UIAudioController.Instance?.PlayUISound(openSound);
     }
 
     private IEnumerator FadeOutAndClose()

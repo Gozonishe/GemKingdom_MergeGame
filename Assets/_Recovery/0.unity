@@ -14444,7 +14444,6 @@ MonoBehaviour:
     amount: 5
   rewardFadeDuration: 0.25
   closeFadeDuration: 0.15
-  openSound: {fileID: 8300000, guid: 83757a23ad60b9641825f309f338ff23, type: 3}
 --- !u!224 &1847693403 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2658180053519073083, guid: fdda7f0a9a4c533499af0ef94e2a75dc, type: 3}
