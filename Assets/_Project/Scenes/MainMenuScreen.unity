@@ -21870,6 +21870,8 @@ MonoBehaviour:
   playerGoldButton: {fileID: 4197349247757285585}
   getLivesClanButton: {fileID: 0}
   continueRaceButton: {fileID: 0}
+  mergeGameButton: {fileID: 0}
+  mergeGameSceneName: MergeGameScreen
   mainButtonContent: {fileID: 9374174}
   shopButtonContent: {fileID: 0}
   clanButtonContent: {fileID: 0}

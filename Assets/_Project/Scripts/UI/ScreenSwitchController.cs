@@ -27,6 +27,8 @@ public sealed class ScreenSwitchController : MonoBehaviour
     [SerializeField] private Button playerGoldButton;
     [SerializeField] private Button getLivesClanButton;
     [SerializeField] private Button continueRaceButton;
+    [SerializeField] private Button mergeGameButton;
+    [SerializeField] private string mergeGameSceneName = "MergeGameScreen";
     [SerializeField] private RectTransform mainButtonContent;
     [SerializeField] private RectTransform shopButtonContent;
     [SerializeField] private RectTransform clanButtonContent;
@@ -43,6 +45,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
     private Vector2 locationButtonContentDefaultPosition;
     private Vector2 rankingButtonContentDefaultPosition;
     private Button subscribedContinueRaceButton;
+    private Button subscribedMergeGameButton;
 
     private void Awake()
     {
@@ -59,6 +62,12 @@ public sealed class ScreenSwitchController : MonoBehaviour
     private void OnEnable()
     {
         transform.SetAsLastSibling();
+    }
+
+    private void Start()
+    {
+        ResolveMissingReferences();
+        SubscribeMergeGameButton();
     }
 
     private void OnDestroy()
@@ -114,6 +123,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
         }
 
         SubscribeContinueRaceButton();
+        SubscribeMergeGameButton();
 
         if (clanButton != null)
         {
@@ -154,6 +164,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
         }
 
         UnsubscribeContinueRaceButton();
+        UnsubscribeMergeGameButton();
 
         if (clanButton != null)
         {
@@ -188,6 +199,22 @@ public sealed class ScreenSwitchController : MonoBehaviour
         transform.SetAsLastSibling();
     }
 
+    private void LoadMergeGameScreen()
+    {
+        if (string.IsNullOrWhiteSpace(mergeGameSceneName))
+        {
+            mergeGameSceneName = "MergeGameScreen";
+        }
+
+        if (string.IsNullOrWhiteSpace(mergeGameSceneName))
+        {
+            Debug.LogError($"{nameof(ScreenSwitchController)} on '{name}' cannot load merge game because {nameof(mergeGameSceneName)} is empty.", this);
+            return;
+        }
+
+        SceneManager.LoadScene(mergeGameSceneName, LoadSceneMode.Single);
+    }
+
     private void ResolveMissingReferences()
     {
         mainScreen = mainScreen != null ? mainScreen : FindSceneObject("MainScreen");
@@ -204,6 +231,8 @@ public sealed class ScreenSwitchController : MonoBehaviour
         playerGoldButton = playerGoldButton != null ? playerGoldButton : FindSceneButton("BtnPlayerGold");
         getLivesClanButton = getLivesClanButton != null ? getLivesClanButton : FindSceneButtonInRoot("GetLivesScreen", "BtnGreen");
         continueRaceButton = continueRaceButton != null ? continueRaceButton : FindSceneButtonInRoot("RankingScreen", "BtnContinueRace");
+        mergeGameButton = mergeGameButton != null ? mergeGameButton : FindSceneButtonInRoot("MainScreen", "BtnMain");
+        mergeGameButton = mergeGameButton != null ? mergeGameButton : FindSceneButton("BtnMain");
         mainButtonContent = mainButtonContent != null ? mainButtonContent : FindButtonContent(mainButton);
         shopButtonContent = shopButtonContent != null ? shopButtonContent : FindButtonContent(shopButton);
         clanButtonContent = clanButtonContent != null ? clanButtonContent : FindButtonContent(clanButton);
@@ -234,6 +263,23 @@ public sealed class ScreenSwitchController : MonoBehaviour
         subscribedContinueRaceButton = continueRaceButton;
     }
 
+    private void SubscribeMergeGameButton()
+    {
+        if (mergeGameButton == null)
+        {
+            return;
+        }
+
+        if (subscribedMergeGameButton == mergeGameButton)
+        {
+            return;
+        }
+
+        UnsubscribeMergeGameButton();
+        mergeGameButton.onClick.AddListener(LoadMergeGameScreen);
+        subscribedMergeGameButton = mergeGameButton;
+    }
+
     private void UnsubscribeContinueRaceButton()
     {
         if (subscribedContinueRaceButton == null)
@@ -243,6 +289,17 @@ public sealed class ScreenSwitchController : MonoBehaviour
 
         subscribedContinueRaceButton.onClick.RemoveListener(ShowMain);
         subscribedContinueRaceButton = null;
+    }
+
+    private void UnsubscribeMergeGameButton()
+    {
+        if (subscribedMergeGameButton == null)
+        {
+            return;
+        }
+
+        subscribedMergeGameButton.onClick.RemoveListener(LoadMergeGameScreen);
+        subscribedMergeGameButton = null;
     }
 
     private void CacheDefaultPositions()
