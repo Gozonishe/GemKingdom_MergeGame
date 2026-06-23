@@ -3,7 +3,10 @@ using UnityEngine;
 
 public sealed class OrderManager : MonoBehaviour
 {
-    [Header("Orders")]
+    [Header("Order Definitions")]
+    [SerializeField] private List<OrderDefinition> orderDefinitions = new List<OrderDefinition>();
+
+    [Header("Legacy Orders")]
     [SerializeField] private List<OrderData> activeOrders = new List<OrderData>();
 
     [Header("References")]
@@ -12,25 +15,47 @@ public sealed class OrderManager : MonoBehaviour
     [SerializeField] private RewardPopup rewardPopup;
     [SerializeField] private List<OrderView> orderViews = new List<OrderView>();
 
-    public IReadOnlyList<OrderData> ActiveOrders => activeOrders;
+    private readonly List<OrderRuntimeData> runtimeOrders = new List<OrderRuntimeData>();
+
+    public IReadOnlyList<OrderRuntimeData> ActiveOrders => runtimeOrders;
+    public bool AreAllOrdersClaimed => runtimeOrders.Count > 0 && AreEveryRuntimeOrderClaimed();
 
     private void Start()
     {
         ResolveReferences();
+        BuildRuntimeOrdersIfNeeded();
+        BindViews();
+        RefreshOrders();
+    }
+
+    public void SetOrders(IReadOnlyList<OrderDefinition> definitions)
+    {
+        orderDefinitions.Clear();
+
+        if (definitions != null)
+        {
+            for (var i = 0; i < definitions.Count; i++)
+            {
+                if (definitions[i] != null)
+                {
+                    orderDefinitions.Add(definitions[i]);
+                }
+            }
+        }
+
+        BuildRuntimeOrdersFromDefinitions(orderDefinitions);
         BindViews();
         RefreshOrders();
     }
 
     public void RefreshOrders()
     {
-        if (boardManager == null)
-        {
-            ResolveReferences();
-        }
+        ResolveReferences();
+        BuildRuntimeOrdersIfNeeded();
 
-        for (var i = 0; i < activeOrders.Count; i++)
+        for (var i = 0; i < runtimeOrders.Count; i++)
         {
-            var order = activeOrders[i];
+            var order = runtimeOrders[i];
             if (order == null || order.IsClaimed)
             {
                 continue;
@@ -42,7 +67,7 @@ public sealed class OrderManager : MonoBehaviour
         RefreshViews();
     }
 
-    public bool ClaimOrder(OrderData order)
+    public bool ClaimOrder(OrderRuntimeData order)
     {
         if (order == null || !order.CanClaim)
         {
@@ -92,11 +117,13 @@ public sealed class OrderManager : MonoBehaviour
 
     public bool CompleteRandomOrderDebug()
     {
-        var availableOrders = new List<OrderData>();
+        BuildRuntimeOrdersIfNeeded();
 
-        for (var i = 0; i < activeOrders.Count; i++)
+        var availableOrders = new List<OrderRuntimeData>();
+
+        for (var i = 0; i < runtimeOrders.Count; i++)
         {
-            var order = activeOrders[i];
+            var order = runtimeOrders[i];
             if (order != null && !order.IsClaimed)
             {
                 availableOrders.Add(order);
@@ -129,12 +156,77 @@ public sealed class OrderManager : MonoBehaviour
         return true;
     }
 
+    private void BuildRuntimeOrdersIfNeeded()
+    {
+        if (runtimeOrders.Count > 0)
+        {
+            return;
+        }
+
+        if (orderDefinitions.Count > 0)
+        {
+            BuildRuntimeOrdersFromDefinitions(orderDefinitions);
+            return;
+        }
+
+        BuildRuntimeOrdersFromLegacyOrders();
+    }
+
+    private void BuildRuntimeOrdersFromDefinitions(IReadOnlyList<OrderDefinition> definitions)
+    {
+        runtimeOrders.Clear();
+
+        if (definitions == null)
+        {
+            return;
+        }
+
+        for (var i = 0; i < definitions.Count; i++)
+        {
+            var definition = definitions[i];
+            if (definition != null)
+            {
+                runtimeOrders.Add(new OrderRuntimeData(definition));
+            }
+        }
+    }
+
+    private void BuildRuntimeOrdersFromLegacyOrders()
+    {
+        runtimeOrders.Clear();
+
+        for (var i = 0; i < activeOrders.Count; i++)
+        {
+            var legacyOrder = activeOrders[i];
+            if (legacyOrder == null)
+            {
+                continue;
+            }
+
+            var definition = new OrderDefinition(
+                legacyOrder.RequiredItem,
+                legacyOrder.RequiredAmount,
+                legacyOrder.CoinReward,
+                legacyOrder.StarReward);
+
+            var runtimeOrder = new OrderRuntimeData(definition);
+            runtimeOrder.SetCurrentAmount(legacyOrder.CurrentAmount);
+
+            if (legacyOrder.IsClaimed)
+            {
+                runtimeOrder.MarkClaimed();
+            }
+
+            runtimeOrders.Add(runtimeOrder);
+        }
+    }
+
     private void BindViews()
     {
         for (var i = 0; i < orderViews.Count; i++)
         {
             var view = orderViews[i];
-            var order = i < activeOrders.Count ? activeOrders[i] : null;
+            var order = i < runtimeOrders.Count ? runtimeOrders[i] : null;
 
             if (view != null)
             {
@@ -148,7 +240,7 @@ public sealed class OrderManager : MonoBehaviour
         for (var i = 0; i < orderViews.Count; i++)
         {
             var view = orderViews[i];
-            var order = i < activeOrders.Count ? activeOrders[i] : null;
+            var order = i < runtimeOrders.Count ? runtimeOrders[i] : null;
 
             if (view != null)
             {
@@ -226,6 +318,20 @@ public sealed class OrderManager : MonoBehaviour
         }
 
         return itemsToRemove.Count;
+    }
+
+    private bool AreEveryRuntimeOrderClaimed()
+    {
+        for (var i = 0; i < runtimeOrders.Count; i++)
+        {
+            var order = runtimeOrders[i];
+            if (order == null || !order.IsClaimed)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private void ResolveReferences()

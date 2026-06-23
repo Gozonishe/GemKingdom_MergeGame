@@ -25,6 +25,7 @@ public sealed class BoardManager : MonoBehaviour
     [SerializeField] private bool clearExistingBoardOnInitialize = true;
 
     private BoardCell[,] cells;
+    private bool isInitialized;
 
     public BoardCell[,] Cells => cells;
     public int Columns => columns;
@@ -35,7 +36,10 @@ public sealed class BoardManager : MonoBehaviour
 
     private void Start()
     {
-        InitializeBoard();
+        if (!isInitialized)
+        {
+            InitializeBoard();
+        }
     }
 
     public void InitializeBoard()
@@ -69,6 +73,7 @@ public sealed class BoardManager : MonoBehaviour
         }
 
         cells = new BoardCell[columns, rows];
+        isInitialized = true;
 
         for (var y = 0; y < rows; y++)
         {
@@ -81,6 +86,24 @@ public sealed class BoardManager : MonoBehaviour
         }
 
         RefreshOrders();
+    }
+
+    public void SetSpawnableItems(IReadOnlyList<MergeItemData> items)
+    {
+        spawnableItems.Clear();
+
+        if (items == null)
+        {
+            return;
+        }
+
+        for (var i = 0; i < items.Count; i++)
+        {
+            if (items[i] != null)
+            {
+                spawnableItems.Add(items[i]);
+            }
+        }
     }
 
     public bool TryMerge(BoardCell firstCell, BoardCell secondCell)
@@ -199,6 +222,7 @@ public sealed class BoardManager : MonoBehaviour
     {
         ClearBoardRoot();
         cells = null;
+        isInitialized = false;
         InitializeBoard();
     }
 

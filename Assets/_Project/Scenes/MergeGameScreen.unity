@@ -929,6 +929,8 @@ MonoBehaviour:
   amountText: {fileID: 2048926321}
   rewardText: {fileID: 1616352424}
   claimButton: {fileID: 879088533}
+  topContent: {fileID: 0}
+  claimContent: {fileID: 0}
 --- !u!224 &286884016
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1441,6 +1443,8 @@ MonoBehaviour:
   amountText: {fileID: 2059233547}
   rewardText: {fileID: 880051722}
   claimButton: {fileID: 232254811}
+  topContent: {fileID: 0}
+  claimContent: {fileID: 0}
 --- !u!224 &629218055
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2929,6 +2933,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3999cb92749a634c8369c8c292b9a9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OrderManager
+  orderDefinitions: []
   activeOrders:
   - requiredItem: {fileID: 11400000, guid: 50e17eb973d2a4f4887adf1dc8160eb9, type: 2}
     requiredAmount: 1
@@ -4391,6 +4396,7 @@ GameObject:
   - component: {fileID: 1815406201}
   - component: {fileID: 1815406202}
   - component: {fileID: 1815406205}
+  - component: {fileID: 1815406207}
   - component: {fileID: 1815406200}
   m_Layer: 0
   m_Name: TopBar
@@ -4517,6 +4523,29 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 120}
   m_Pivot: {x: 0.5, y: 1}
+--- !u!114 &1815406207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1815406199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bbd8db8ee3b4f14a82e4811869c388d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LevelManager
+  levels:
+  - {fileID: 11400000, guid: 2bc01f7b32ad488fa35e7839ee83cc95, type: 2}
+  - {fileID: 11400000, guid: 39972b19e18c4493b76bd0301f30b04d, type: 2}
+  - {fileID: 11400000, guid: ad0239eef3112ad49bff9974b23d7646, type: 2}
+  - {fileID: 11400000, guid: 469539bf90151dc45bb8dea7748202a2, type: 2}
+  - {fileID: 11400000, guid: 032390b826f4d144fafd203acbe39091, type: 2}
+  currentLevelIndex: 0
+  boardManager: {fileID: 174095286}
+  energyManager: {fileID: 1815406205}
+  orderManager: {fileID: 1423717964}
+  levelText: {fileID: 0}
 --- !u!1 &1830478663
 GameObject:
   m_ObjectHideFlags: 0
@@ -5345,6 +5374,8 @@ MonoBehaviour:
   amountText: {fileID: 416118068}
   rewardText: {fileID: 75896922}
   claimButton: {fileID: 2120971424}
+  topContent: {fileID: 0}
+  claimContent: {fileID: 0}
 --- !u!224 &2118155104
 RectTransform:
   m_ObjectHideFlags: 0

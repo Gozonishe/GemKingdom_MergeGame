@@ -15,7 +15,7 @@ public sealed class OrderView : MonoBehaviour
     [SerializeField] private RectTransform claimContent;
 
     private OrderManager orderManager;
-    private OrderData order;
+    private OrderRuntimeData order;
 
     private void Awake()
     {
@@ -39,14 +39,14 @@ public sealed class OrderView : MonoBehaviour
         }
     }
 
-    public void Bind(OrderManager manager, OrderData orderData)
+    public void Bind(OrderManager manager, OrderRuntimeData orderData)
     {
         orderManager = manager;
         order = orderData;
         Refresh(order);
     }
 
-    public void Refresh(OrderData orderData)
+    public void Refresh(OrderRuntimeData orderData)
     {
         order = orderData;
 

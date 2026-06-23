@@ -49,6 +49,13 @@ public sealed class EnergyManager : MonoBehaviour
         RefreshView();
     }
 
+    public void SetEnergy(int current, int max)
+    {
+        maxEnergy = Mathf.Max(0, max);
+        currentEnergy = Mathf.Clamp(current, 0, maxEnergy);
+        RefreshView();
+    }
+
     private void RefreshView()
     {
         if (energyView != null)

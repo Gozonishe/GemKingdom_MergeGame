@@ -1,0 +1,34 @@
+using System;
+using UnityEngine;
+
+[Serializable]
+public sealed class OrderRuntimeData
+{
+    [SerializeField] private OrderDefinition definition;
+    [SerializeField] private int currentAmount;
+    [SerializeField] private bool isClaimed;
+
+    public OrderDefinition Definition => definition;
+    public MergeItemData RequiredItem => definition != null ? definition.RequiredItem : null;
+    public int RequiredAmount => definition != null ? definition.RequiredAmount : 0;
+    public int CurrentAmount => currentAmount;
+    public int CoinReward => definition != null ? definition.CoinReward : 0;
+    public int StarReward => definition != null ? definition.StarReward : 0;
+    public bool IsClaimed => isClaimed;
+    public bool CanClaim => !isClaimed && RequiredAmount > 0 && currentAmount >= RequiredAmount;
+
+    public OrderRuntimeData(OrderDefinition definition)
+    {
+        this.definition = definition;
+    }
+
+    public void SetCurrentAmount(int amount)
+    {
+        currentAmount = Mathf.Max(0, amount);
+    }
+
+    public void MarkClaimed()
+    {
+        isClaimed = true;
+    }
+}
