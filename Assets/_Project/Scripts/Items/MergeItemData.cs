@@ -1,0 +1,24 @@
+using UnityEngine;
+
+[CreateAssetMenu(fileName = "MergeItemData", menuName = "Merge-2 Puzzle/Items/Merge Item Data")]
+public sealed class MergeItemData : ScriptableObject
+{
+    [Header("Identity")]
+    [SerializeField] private string itemId;
+    [SerializeField] private string displayName;
+    [SerializeField] private int level = 1;
+
+    [Header("Visuals")]
+    [SerializeField] private Sprite icon;
+
+    [Header("Merge Chain")]
+    [SerializeField] private MergeItemData nextLevelItem;
+
+    public string ItemId => itemId;
+    public string DisplayName => displayName;
+    public int Level => level;
+    public Sprite Icon => icon;
+    public MergeItemData NextLevelItem => nextLevelItem;
+    public bool IsMaxLevel => nextLevelItem == null;
+    public bool CanMergeToNextLevel => nextLevelItem != null;
+}
