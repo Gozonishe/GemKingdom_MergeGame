@@ -97,7 +97,7 @@ public static class MergeGameSceneBuilder
         var image = root.AddComponent<Image>();
         image.color = new Color(0.13f, 0.18f, 0.25f, 0.85f);
         root.AddComponent<BoardCell>();
-        SetRect(root, Vector2.zero, Vector2.zero, new Vector2(96f, 96f));
+        SetRect(root, Vector2.zero, new Vector2(0.5f, 0.5f), new Vector2(124.8f, 124.8f));
 
         var prefab = PrefabUtility.SaveAsPrefabAsset(root, BoardCellPrefabPath);
         UnityEngine.Object.DestroyImmediate(root);
@@ -118,7 +118,7 @@ public static class MergeGameSceneBuilder
         root.AddComponent<CanvasGroup>();
         root.AddComponent<MergeItem>();
         root.AddComponent<ItemDragHandler>();
-        SetRect(root, Vector2.zero, Vector2.zero, new Vector2(92f, 92f));
+        SetRect(root, Vector2.zero, new Vector2(0.5f, 0.5f), new Vector2(119.6f, 119.6f));
 
         var prefab = PrefabUtility.SaveAsPrefabAsset(root, MergeItemPrefabPath);
         UnityEngine.Object.DestroyImmediate(root);
@@ -167,7 +167,7 @@ public static class MergeGameSceneBuilder
         var coinsText = CreateText("CoinsText", topBar.transform, "Coins: 0", 36, TextAlignmentOptions.Left);
         AnchorStretch(coinsText.gameObject, new Vector2(24f, 0f), new Vector2(330f, 0f));
 
-        var energyText = CreateText("EnergyText", topBar.transform, "Energy: 100/100", 36, TextAlignmentOptions.Center);
+        var energyText = CreateText("MovesText", topBar.transform, "Moves: 100/100", 36, TextAlignmentOptions.Center);
         AnchorStretch(energyText.gameObject, new Vector2(330f, 0f), new Vector2(330f, 0f));
 
         var starsText = CreateText("StarsText", topBar.transform, "Stars: 0", 36, TextAlignmentOptions.Right);
@@ -186,7 +186,7 @@ public static class MergeGameSceneBuilder
     private static GameObject CreateOrdersPanel(Transform parent, out List<OrderView> orderViews)
     {
         var ordersPanel = CreateUiObject("OrdersPanel", parent);
-        AnchorTop(ordersPanel, 130f, 180f);
+        AnchorTop(ordersPanel, 130f, 220f);
         AddImage(ordersPanel, new Color(0.11f, 0.1f, 0.15f, 0.75f));
 
         var layout = ordersPanel.AddComponent<HorizontalLayoutGroup>();
@@ -212,24 +212,47 @@ public static class MergeGameSceneBuilder
         AddImage(viewObject, new Color(0.18f, 0.16f, 0.22f, 0.95f));
         viewObject.AddComponent<LayoutElement>().preferredWidth = 320f;
 
-        var icon = CreateUiObject("RequiredItemIcon", viewObject.transform);
+        var topContent = CreateUiObject("TopContent", viewObject.transform);
+        AnchorStretch(topContent, new Vector2(8f, 4f), new Vector2(8f, 8f));
+        var topRect = topContent.GetComponent<RectTransform>();
+        topRect.anchorMin = new Vector2(0f, 0.44f);
+        topRect.anchorMax = Vector2.one;
+
+        var claimContent = CreateUiObject("ClaimContent", viewObject.transform);
+        AnchorStretch(claimContent, new Vector2(8f, 8f), new Vector2(8f, 4f));
+        var claimRect = claimContent.GetComponent<RectTransform>();
+        claimRect.anchorMin = Vector2.zero;
+        claimRect.anchorMax = new Vector2(1f, 0.44f);
+
+        var icon = CreateUiObject("RequiredItemIcon", topContent.transform);
         AddImage(icon, new Color(1f, 1f, 1f, 0.35f));
-        AnchorStretch(icon, new Vector2(16f, 44f), new Vector2(220f, 44f));
+        AnchorStretch(icon, new Vector2(8f, 8f), new Vector2(6f, 8f));
+        var iconRect = icon.GetComponent<RectTransform>();
+        iconRect.anchorMin = Vector2.zero;
+        iconRect.anchorMax = new Vector2(0.36f, 1f);
 
-        var amountText = CreateText("AmountText", viewObject.transform, "0/0", 30, TextAlignmentOptions.Center);
-        AnchorStretch(amountText.gameObject, new Vector2(110f, 88f), new Vector2(16f, 44f));
+        var amountText = CreateText("AmountText", topContent.transform, "0/0", 30, TextAlignmentOptions.Center);
+        AnchorStretch(amountText.gameObject, new Vector2(6f, 0f), new Vector2(8f, 4f));
+        var amountRect = amountText.GetComponent<RectTransform>();
+        amountRect.anchorMin = new Vector2(0.36f, 0.5f);
+        amountRect.anchorMax = Vector2.one;
 
-        var rewardText = CreateText("RewardText", viewObject.transform, "0 coins  0 stars", 24, TextAlignmentOptions.Center);
-        AnchorStretch(rewardText.gameObject, new Vector2(110f, 44f), new Vector2(16f, 86f));
+        var rewardText = CreateText("RewardText", topContent.transform, "0 coins  0 stars", 24, TextAlignmentOptions.Center);
+        AnchorStretch(rewardText.gameObject, new Vector2(6f, 4f), new Vector2(8f, 0f));
+        var rewardRect = rewardText.GetComponent<RectTransform>();
+        rewardRect.anchorMin = new Vector2(0.36f, 0f);
+        rewardRect.anchorMax = new Vector2(1f, 0.5f);
 
-        var claimButton = CreateButton("ClaimButton", viewObject.transform, "Claim");
-        AnchorBottom(claimButton.gameObject, 12f, 72f);
+        var claimButton = CreateButton("ClaimButton", claimContent.transform, "Claim");
+        StretchToParent(claimButton.gameObject);
 
         var orderView = viewObject.AddComponent<OrderView>();
         SetObjectReference(orderView, "requiredItemIcon", icon.GetComponent<Image>());
         SetObjectReference(orderView, "amountText", amountText);
         SetObjectReference(orderView, "rewardText", rewardText);
         SetObjectReference(orderView, "claimButton", claimButton);
+        SetObjectReference(orderView, "topContent", topContent.GetComponent<RectTransform>());
+        SetObjectReference(orderView, "claimContent", claimContent.GetComponent<RectTransform>());
 
         return orderView;
     }
@@ -241,12 +264,12 @@ public static class MergeGameSceneBuilder
         rect.anchorMin = new Vector2(0.5f, 0.5f);
         rect.anchorMax = new Vector2(0.5f, 0.5f);
         rect.pivot = new Vector2(0.5f, 0.5f);
-        rect.sizeDelta = new Vector2(660f, 780f);
+        rect.sizeDelta = new Vector2(858f, 1014f);
         rect.anchoredPosition = new Vector2(0f, -80f);
 
         var grid = boardRoot.AddComponent<GridLayoutGroup>();
-        grid.cellSize = new Vector2(96f, 96f);
-        grid.spacing = new Vector2(8f, 8f);
+        grid.cellSize = new Vector2(124.8f, 124.8f);
+        grid.spacing = new Vector2(10.4f, 10.4f);
         grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
         grid.constraintCount = 6;
 

@@ -17,7 +17,7 @@ public sealed class UIEnergyView : MonoBehaviour
     {
         if (energyText != null)
         {
-            energyText.text = $"{current}/{max}";
+            energyText.text = $"Moves: {current}/{max}";
         }
     }
 }

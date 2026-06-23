@@ -20,8 +20,8 @@ public sealed class BoardManager : MonoBehaviour
     [SerializeField] private List<MergeItemData> spawnableItems = new List<MergeItemData>();
 
     [Header("Layout")]
-    [SerializeField] private Vector2 cellSize = new Vector2(120f, 120f);
-    [SerializeField] private Vector2 cellSpacing = new Vector2(8f, 8f);
+    [SerializeField] private Vector2 cellSize = new Vector2(156f, 156f);
+    [SerializeField] private Vector2 cellSpacing = new Vector2(10.4f, 10.4f);
     [SerializeField] private bool clearExistingBoardOnInitialize = true;
 
     private BoardCell[,] cells;
