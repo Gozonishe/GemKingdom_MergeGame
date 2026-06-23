@@ -8,6 +8,7 @@ public sealed class EventWindowController : MonoBehaviour
     [SerializeField] private GameObject dimBackgroundRoot;
     [SerializeField] private Button openButton;
     [SerializeField] private Button closeButton;
+    [SerializeField] private Button additionalCloseButton;
     [SerializeField] private GameObject[] objectsToHideWhileWindowOpen;
     [SerializeField] private bool configureResponsiveLayout = true;
     [SerializeField] private Vector2 referenceResolution = new Vector2(1080f, 1920f);
@@ -61,6 +62,11 @@ public sealed class EventWindowController : MonoBehaviour
         {
             closeButton.onClick.AddListener(CloseWindow);
         }
+
+        if (additionalCloseButton != null && additionalCloseButton != closeButton)
+        {
+            additionalCloseButton.onClick.AddListener(CloseWindow);
+        }
     }
 
     private void OnDisable()
@@ -73,6 +79,11 @@ public sealed class EventWindowController : MonoBehaviour
         if (closeButton != null)
         {
             closeButton.onClick.RemoveListener(CloseWindow);
+        }
+
+        if (additionalCloseButton != null && additionalCloseButton != closeButton)
+        {
+            additionalCloseButton.onClick.RemoveListener(CloseWindow);
         }
     }
 
