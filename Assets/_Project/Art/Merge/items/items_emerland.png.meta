@@ -1,25 +1,31 @@
 fileFormatVersion: 2
-guid: d37ac960834590e449698a9d87255eec
+guid: 31ff49255f2d37d4da84daa9d28ce5c1
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3768813733221622179
-    second: items_crystal_0
+      213: -6432212484795865267
+    second: items_emerland_0
   - first:
-      213: 2300462230963040214
-    second: items_crystal_1
+      213: -5012605601759079553
+    second: items_emerland_1
   - first:
-      213: -3040045810002639068
-    second: items_crystal_2
+      213: 8167482433845400010
+    second: items_emerland_2
   - first:
-      213: 1193165806609443345
-    second: items_crystal_3
+      213: -2806071691983744491
+    second: items_emerland_3
   - first:
-      213: 2329393544296142022
-    second: items_crystal_4
+      213: -4439937830682416215
+    second: items_emerland_4
   - first:
-      213: 8555568042082077332
-    second: items_crystal_5
+      213: 5274854453582346266
+    second: items_emerland_5
+  - first:
+      213: 425455963550339189
+    second: items_emerland_6
+  - first:
+      213: -7963605268165783724
+    second: items_emerland_7
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -141,177 +147,177 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: items_crystal_1
-      rect:
-        serializedVersion: 2
-        x: 128
-        y: 243
-        width: 114
-        height: 113
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: d5e16bea0eb72bbc0800000000000000
-      internalID: -3768813733221622179
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: items_crystal_2
-      rect:
-        serializedVersion: 2
-        x: 266
-        y: 235
-        width: 141
-        height: 135
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 6df21cfe532ecef10800000000000000
-      internalID: 2300462230963040214
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: items_crystal_3
-      rect:
-        serializedVersion: 2
-        x: 432
-        y: 238
-        width: 130
-        height: 115
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 427c0e151769fc5d0800000000000000
-      internalID: -3040045810002639068
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: items_crystal_4
+      name: items_emerland_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 13
-        width: 101
-        height: 121
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 11a291dbaf9fe8010800000000000000
-      internalID: 1193165806609443345
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: items_crystal_5
-      rect:
-        serializedVersion: 2
-        x: 132
-        y: 21
-        width: 120
-        height: 128
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 6c41cdd361ba35020800000000000000
-      internalID: 2329393544296142022
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: items_crystal_6
-      rect:
-        serializedVersion: 2
-        x: 269
-        y: 15
-        width: 135
-        height: 145
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 49a8cff0ecb7bb670800000000000000
-      internalID: 8555568042082077332
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: items_crystal_0
-      rect:
-        serializedVersion: 2
-        x: 1
         y: 247
-        width: 89
-        height: 82
+        width: 88
+        height: 81
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: d4655c58c0d04b6458fb26f1fb04a49e
-      internalID: -1987336597
+      spriteID: d47e8eb03d03cb6a0800000000000000
+      internalID: -6432212484795865267
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: items_crystal_7
+      name: items_emerland_1
+      rect:
+        serializedVersion: 2
+        x: 127
+        y: 245
+        width: 114
+        height: 111
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f73540c53c5af6ab0800000000000000
+      internalID: -5012605601759079553
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: items_emerland_2
+      rect:
+        serializedVersion: 2
+        x: 265
+        y: 239
+        width: 139
+        height: 131
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac1199a100ab85170800000000000000
+      internalID: 8167482433845400010
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: items_emerland_3
+      rect:
+        serializedVersion: 2
+        x: 431
+        y: 237
+        width: 129
+        height: 114
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5129701d9a4de09d0800000000000000
+      internalID: -2806071691983744491
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: items_emerland_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 30
+        width: 94
+        height: 97
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 1, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9ab2b59111c2262c0800000000000000
+      internalID: -4439937830682416215
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: items_emerland_5
+      rect:
+        serializedVersion: 2
+        x: 124
+        y: 32
+        width: 127
+        height: 98
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a18b9ab9d2c043940800000000000000
+      internalID: 5274854453582346266
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: items_emerland_6
+      rect:
+        serializedVersion: 2
+        x: 268
+        y: 16
+        width: 133
+        height: 141
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5705df6d1f587e500800000000000000
+      internalID: 425455963550339189
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: items_emerland_7
       rect:
         serializedVersion: 2
         x: 416
         y: 0
-        width: 165
-        height: 171
+        width: 167
+        height: 160
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 5639b5dbb551ea043b1f90ae246c0c19
-      internalID: -911218737
+      spriteID: 45f8c8b93379b7190800000000000000
+      internalID: -7963605268165783724
       vertices: []
       indices: 
       edges: []
@@ -320,7 +326,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 50351ff689c15ea4c9c6d31f02994304
+    spriteID: 7fce5586934fd6642867fa8f2c03dca5
     internalID: 0
     vertices: []
     indices: 
@@ -332,14 +338,14 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      items_crystal_0: -1987336597
-      items_crystal_1: -3768813733221622179
-      items_crystal_2: 2300462230963040214
-      items_crystal_3: -3040045810002639068
-      items_crystal_4: 1193165806609443345
-      items_crystal_5: 2329393544296142022
-      items_crystal_6: 8555568042082077332
-      items_crystal_7: -911218737
+      items_emerland_0: -6432212484795865267
+      items_emerland_1: -5012605601759079553
+      items_emerland_2: 8167482433845400010
+      items_emerland_3: -2806071691983744491
+      items_emerland_4: -4439937830682416215
+      items_emerland_5: 5274854453582346266
+      items_emerland_6: 425455963550339189
+      items_emerland_7: -7963605268165783724
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

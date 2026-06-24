@@ -1,25 +1,34 @@
 fileFormatVersion: 2
-guid: d37ac960834590e449698a9d87255eec
+guid: 968bfb4f560b186499932da67015c913
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3768813733221622179
-    second: items_crystal_0
+      213: 8759545011929764490
+    second: items_gold_0
   - first:
-      213: 2300462230963040214
-    second: items_crystal_1
+      213: -2825341077331519415
+    second: items_gold_1
   - first:
-      213: -3040045810002639068
-    second: items_crystal_2
+      213: -9177259445040146966
+    second: items_gold_2
   - first:
-      213: 1193165806609443345
-    second: items_crystal_3
+      213: -3351535713847398562
+    second: items_gold_3
   - first:
-      213: 2329393544296142022
-    second: items_crystal_4
+      213: -6408895322395791063
+    second: items_gold_4
   - first:
-      213: 8555568042082077332
-    second: items_crystal_5
+      213: 3227497332577739898
+    second: items_gold_5
+  - first:
+      213: 9019949436463891668
+    second: items_gold_6
+  - first:
+      213: -8907681290107517413
+    second: items_gold_7
+  - first:
+      213: -324565973523079789
+    second: items_gold_8
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -141,13 +150,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: items_crystal_1
+      name: items_gold_0
       rect:
         serializedVersion: 2
-        x: 128
-        y: 243
-        width: 114
-        height: 113
+        x: 10
+        y: 247
+        width: 89
+        height: 83
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -156,20 +165,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d5e16bea0eb72bbc0800000000000000
-      internalID: -3768813733221622179
+      spriteID: a825e1e37c7209970800000000000000
+      internalID: 8759545011929764490
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: items_crystal_2
+      name: items_gold_2
       rect:
         serializedVersion: 2
-        x: 266
-        y: 235
-        width: 141
-        height: 135
+        x: 276
+        y: 237
+        width: 139
+        height: 131
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -178,20 +187,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6df21cfe532ecef10800000000000000
-      internalID: 2300462230963040214
+      spriteID: e5f27148604fc71d0800000000000000
+      internalID: -3351535713847398562
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: items_crystal_3
+      name: items_gold_3
       rect:
         serializedVersion: 2
-        x: 432
-        y: 238
+        x: 442
+        y: 236
         width: 130
-        height: 115
+        height: 114
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -200,42 +209,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 427c0e151769fc5d0800000000000000
-      internalID: -3040045810002639068
+      spriteID: 921bfe9f8a70f07a0800000000000000
+      internalID: -6408895322395791063
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: items_crystal_4
+      name: items_gold_4
       rect:
         serializedVersion: 2
         x: 0
-        y: 13
-        width: 101
-        height: 121
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 11a291dbaf9fe8010800000000000000
-      internalID: 1193165806609443345
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: items_crystal_5
-      rect:
-        serializedVersion: 2
-        x: 132
-        y: 21
+        y: 31
         width: 120
-        height: 128
+        height: 110
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -244,20 +231,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6c41cdd361ba35020800000000000000
-      internalID: 2329393544296142022
+      spriteID: a7421d559bf5acc20800000000000000
+      internalID: 3227497332577739898
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: items_crystal_6
+      name: items_gold_5
       rect:
         serializedVersion: 2
-        x: 269
-        y: 15
-        width: 135
-        height: 145
+        x: 136
+        y: 28
+        width: 126
+        height: 114
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -266,20 +253,64 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 49a8cff0ecb7bb670800000000000000
-      internalID: 8555568042082077332
+      spriteID: 4d44a64093c4d2d70800000000000000
+      internalID: 9019949436463891668
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: items_crystal_0
+      name: items_gold_6
       rect:
         serializedVersion: 2
-        x: 1
-        y: 247
-        width: 89
-        height: 82
+        x: 276
+        y: 11
+        width: 148
+        height: 142
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b168fb2cf0f816480800000000000000
+      internalID: -8907681290107517413
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: items_gold_7
+      rect:
+        serializedVersion: 2
+        x: 430
+        y: 1
+        width: 164
+        height: 161
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 39d5af977f8ee7bf0800000000000000
+      internalID: -324565973523079789
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: items_gold_1
+      rect:
+        serializedVersion: 2
+        x: 138
+        y: 242
+        width: 114
+        height: 112
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -288,30 +319,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d4655c58c0d04b6458fb26f1fb04a49e
-      internalID: -1987336597
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: items_crystal_7
-      rect:
-        serializedVersion: 2
-        x: 416
-        y: 0
-        width: 165
-        height: 171
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 5639b5dbb551ea043b1f90ae246c0c19
-      internalID: -911218737
+      spriteID: 715fa21e7a4c5224db54bf16840c25d5
+      internalID: -678777243
       vertices: []
       indices: 
       edges: []
@@ -320,7 +329,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 50351ff689c15ea4c9c6d31f02994304
+    spriteID: 3f6598440a3ae894b84d246ab37823e1
     internalID: 0
     vertices: []
     indices: 
@@ -332,14 +341,14 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      items_crystal_0: -1987336597
-      items_crystal_1: -3768813733221622179
-      items_crystal_2: 2300462230963040214
-      items_crystal_3: -3040045810002639068
-      items_crystal_4: 1193165806609443345
-      items_crystal_5: 2329393544296142022
-      items_crystal_6: 8555568042082077332
-      items_crystal_7: -911218737
+      items_gold_0: 8759545011929764490
+      items_gold_1: -678777243
+      items_gold_2: -3351535713847398562
+      items_gold_3: -6408895322395791063
+      items_gold_4: 3227497332577739898
+      items_gold_5: 9019949436463891668
+      items_gold_6: -8907681290107517413
+      items_gold_7: -324565973523079789
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

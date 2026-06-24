@@ -6,7 +6,6 @@ public sealed class BoardManager : MonoBehaviour
 {
     private const int DefaultColumns = 6;
     private const int DefaultRows = 7;
-    private const int MaxRefillItemLevel = 2;
 
     [Header("Board Size")]
     [SerializeField] private int columns = DefaultColumns;
@@ -527,7 +526,7 @@ public sealed class BoardManager : MonoBehaviour
         for (var i = 0; i < spawnableItems.Count; i++)
         {
             var itemData = spawnableItems[i];
-            if (IsValidRefillItem(itemData))
+            if (itemData != null)
             {
                 validItemCount++;
             }
@@ -535,7 +534,7 @@ public sealed class BoardManager : MonoBehaviour
 
         if (validItemCount == 0)
         {
-            Debug.LogWarning($"{nameof(BoardManager)} has no spawnable items with level 1-{MaxRefillItemLevel}.", this);
+            Debug.LogWarning($"{nameof(BoardManager)} has no valid spawnable items.", this);
             return null;
         }
 
@@ -544,7 +543,7 @@ public sealed class BoardManager : MonoBehaviour
         for (var i = 0; i < spawnableItems.Count; i++)
         {
             var itemData = spawnableItems[i];
-            if (!IsValidRefillItem(itemData))
+            if (itemData == null)
             {
                 continue;
             }
@@ -558,11 +557,6 @@ public sealed class BoardManager : MonoBehaviour
         }
 
         return null;
-    }
-
-    private static bool IsValidRefillItem(MergeItemData itemData)
-    {
-        return itemData != null && itemData.Level >= 1 && itemData.Level <= MaxRefillItemLevel;
     }
 
     private int CountEmptyCells()

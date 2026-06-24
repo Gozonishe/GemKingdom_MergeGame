@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acabc977b4b391648adaea8db66beaa4, type: 3}
+  m_Name: Item_Gold_Lvl_2
+  m_EditorClassIdentifier: Assembly-CSharp::MergeItemData
+  itemId: gold_02
+  displayName: gold_02
+  level: 2
+  icon: {fileID: -3351535713847398562, guid: 968bfb4f560b186499932da67015c913, type: 3}
+  nextLevelItem: {fileID: 11400000, guid: 6fdcf7b0fce727a439cf287b6c25ff6d, type: 2}

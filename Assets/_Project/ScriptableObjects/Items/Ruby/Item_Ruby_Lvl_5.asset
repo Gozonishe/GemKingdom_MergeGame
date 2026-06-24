@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acabc977b4b391648adaea8db66beaa4, type: 3}
+  m_Name: Item_Ruby_Lvl_5
+  m_EditorClassIdentifier: Assembly-CSharp::MergeItemData
+  itemId: ruby_05
+  displayName: ruby_05
+  level: 5
+  icon: {fileID: -1842251362941330282, guid: 2259b48f7b4345d4eb587f3ce7daa7d9, type: 3}
+  nextLevelItem: {fileID: 11400000, guid: c934e6b8fc1b9f049af757ce002a6dae, type: 2}

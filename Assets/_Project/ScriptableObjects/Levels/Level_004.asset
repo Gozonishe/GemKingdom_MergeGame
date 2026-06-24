@@ -15,14 +15,14 @@ MonoBehaviour:
   levelNumber: 4
   movesCount: 18
   spawnableItems:
-  - {fileID: 11400000, guid: 7619562684c9c4747812645ab6705f6c, type: 2}
-  - {fileID: 11400000, guid: 50e17eb973d2a4f4887adf1dc8160eb9, type: 2}
+  - {fileID: 11400000, guid: 8cfa7b3c4e357544d96e8c7553d758d1, type: 2}
+  - {fileID: 11400000, guid: 9fdd0c216bb5e4943a30262ba4314a1a, type: 2}
   orders:
-  - requiredItem: {fileID: 11400000, guid: 67b4da7ec2bd3f0409dd1296ee237360, type: 2}
-    requiredAmount: 5
+  - requiredItem: {fileID: 11400000, guid: 71d0213abebdc05418bb46757492c750, type: 2}
+    requiredAmount: 2
     coinReward: 150
     starReward: 100
-  - requiredItem: {fileID: 11400000, guid: 0cc9490e02953a44b9eb0a4ce4e9a542, type: 2}
-    requiredAmount: 5
+  - requiredItem: {fileID: 11400000, guid: c934e6b8fc1b9f049af757ce002a6dae, type: 2}
+    requiredAmount: 3
     coinReward: 500
     starReward: 250

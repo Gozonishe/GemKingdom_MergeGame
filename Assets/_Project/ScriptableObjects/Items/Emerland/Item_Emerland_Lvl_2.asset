@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: acabc977b4b391648adaea8db66beaa4, type: 3}
-  m_Name: Item_Crystal_Lvl_3
+  m_Name: Item_Emerland_Lvl_2
   m_EditorClassIdentifier: Assembly-CSharp::MergeItemData
-  itemId: crystal_03
-  displayName: crystal_03
-  level: 3
-  icon: {fileID: -3040045810002639068, guid: d37ac960834590e449698a9d87255eec, type: 3}
-  nextLevelItem: {fileID: 11400000, guid: 0cc9490e02953a44b9eb0a4ce4e9a542, type: 2}
+  itemId: emerland_02
+  displayName: emerland_02
+  level: 2
+  icon: {fileID: 8167482433845400010, guid: 31ff49255f2d37d4da84daa9d28ce5c1, type: 3}
+  nextLevelItem: {fileID: 11400000, guid: c5f8e9419e692b54ca62a99be1e5350e, type: 2}
