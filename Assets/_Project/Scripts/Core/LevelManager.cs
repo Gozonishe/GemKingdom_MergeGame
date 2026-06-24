@@ -149,7 +149,15 @@ public sealed class LevelManager : MonoBehaviour
 
         if (boardManager != null)
         {
-            boardManager.SetSpawnableItems(level.SpawnableItems);
+            if (level.HasWeightedSpawnableItems)
+            {
+                boardManager.SetSpawnableItems(level.WeightedSpawnableItems);
+            }
+            else
+            {
+                boardManager.SetSpawnableItems(level.SpawnableItems);
+            }
+
             boardManager.ResetBoard();
         }
         else

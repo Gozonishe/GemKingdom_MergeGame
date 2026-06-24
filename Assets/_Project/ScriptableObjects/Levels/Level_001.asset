@@ -14,9 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LevelData
   levelNumber: 1
   movesCount: 15
+  weightedSpawnableItems:
+  - itemData: {fileID: 11400000, guid: 50e17eb973d2a4f4887adf1dc8160eb9, type: 2}
+    weight: 2
+  - itemData: {fileID: 11400000, guid: 67b4da7ec2bd3f0409dd1296ee237360, type: 2}
+    weight: 2
+  - itemData: {fileID: 11400000, guid: d85d5deb5f360d14586c93295decef84, type: 2}
+    weight: 1
   spawnableItems:
   - {fileID: 11400000, guid: 50e17eb973d2a4f4887adf1dc8160eb9, type: 2}
   - {fileID: 11400000, guid: 67b4da7ec2bd3f0409dd1296ee237360, type: 2}
+  - {fileID: 11400000, guid: d85d5deb5f360d14586c93295decef84, type: 2}
   orders:
   - requiredItem: {fileID: 11400000, guid: 67b4da7ec2bd3f0409dd1296ee237360, type: 2}
     requiredAmount: 3

@@ -17,6 +17,8 @@ public sealed class BoardManager : MonoBehaviour
     [SerializeField] private MergeItem itemPrefab;
     [SerializeField] private EnergyManager energyManager;
     [SerializeField] private OrderManager orderManager;
+    [SerializeField] private List<SpawnableItemDefinition> weightedSpawnableItems = new List<SpawnableItemDefinition>();
+    [HideInInspector]
     [SerializeField] private List<MergeItemData> spawnableItems = new List<MergeItemData>();
 
     [Header("Layout")]
@@ -67,9 +69,9 @@ public sealed class BoardManager : MonoBehaviour
             return;
         }
 
-        if (spawnableItems == null || spawnableItems.Count == 0)
+        if (!HasValidSpawnableItems())
         {
-            Debug.LogError($"{nameof(BoardManager)} on '{name}' cannot fill a board because {nameof(spawnableItems)} is empty.", this);
+            Debug.LogError($"{nameof(BoardManager)} on '{name}' cannot fill a board because no spawnable items are configured.", this);
             return;
         }
 
@@ -96,6 +98,7 @@ public sealed class BoardManager : MonoBehaviour
 
     public void SetSpawnableItems(IReadOnlyList<MergeItemData> items)
     {
+        weightedSpawnableItems.Clear();
         spawnableItems.Clear();
 
         if (items == null)
@@ -108,6 +111,26 @@ public sealed class BoardManager : MonoBehaviour
             if (items[i] != null)
             {
                 spawnableItems.Add(items[i]);
+            }
+        }
+    }
+
+    public void SetSpawnableItems(IReadOnlyList<SpawnableItemDefinition> items)
+    {
+        weightedSpawnableItems.Clear();
+        spawnableItems.Clear();
+
+        if (items == null)
+        {
+            return;
+        }
+
+        for (var i = 0; i < items.Count; i++)
+        {
+            var item = items[i];
+            if (item != null && item.ItemData != null && item.Weight > 0)
+            {
+                weightedSpawnableItems.Add(item);
             }
         }
     }
@@ -337,7 +360,7 @@ public sealed class BoardManager : MonoBehaviour
 
         Debug.Log($"{nameof(BoardManager)}: RefillBoard started.", this);
 
-        // Refill board: create new low-level items only for empty cells left after collapse.
+        // Refill board: create level-configured random items only for empty cells left after collapse.
         for (var y = 0; y < rows; y++)
         {
             for (var x = 0; x < columns; x++)
@@ -516,6 +539,12 @@ public sealed class BoardManager : MonoBehaviour
 
     private MergeItemData GetRandomSpawnableItem()
     {
+        var weightedItem = GetRandomWeightedSpawnableItem();
+        if (weightedItem != null)
+        {
+            return weightedItem;
+        }
+
         if (spawnableItems == null || spawnableItems.Count == 0)
         {
             return null;
@@ -557,6 +586,77 @@ public sealed class BoardManager : MonoBehaviour
         }
 
         return null;
+    }
+
+    private MergeItemData GetRandomWeightedSpawnableItem()
+    {
+        if (weightedSpawnableItems == null || weightedSpawnableItems.Count == 0)
+        {
+            return null;
+        }
+
+        var totalWeight = 0;
+        for (var i = 0; i < weightedSpawnableItems.Count; i++)
+        {
+            var item = weightedSpawnableItems[i];
+            if (item != null && item.ItemData != null && item.Weight > 0)
+            {
+                totalWeight += item.Weight;
+            }
+        }
+
+        if (totalWeight <= 0)
+        {
+            Debug.LogWarning($"{nameof(BoardManager)} has weighted spawnable items, but their total weight is 0.", this);
+            return null;
+        }
+
+        var randomWeight = Random.Range(0, totalWeight);
+        for (var i = 0; i < weightedSpawnableItems.Count; i++)
+        {
+            var item = weightedSpawnableItems[i];
+            if (item == null || item.ItemData == null || item.Weight <= 0)
+            {
+                continue;
+            }
+
+            if (randomWeight < item.Weight)
+            {
+                return item.ItemData;
+            }
+
+            randomWeight -= item.Weight;
+        }
+
+        return null;
+    }
+
+    private bool HasValidSpawnableItems()
+    {
+        if (weightedSpawnableItems != null)
+        {
+            for (var i = 0; i < weightedSpawnableItems.Count; i++)
+            {
+                var item = weightedSpawnableItems[i];
+                if (item != null && item.ItemData != null && item.Weight > 0)
+                {
+                    return true;
+                }
+            }
+        }
+
+        if (spawnableItems != null)
+        {
+            for (var i = 0; i < spawnableItems.Count; i++)
+            {
+                if (spawnableItems[i] != null)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private int CountEmptyCells()
