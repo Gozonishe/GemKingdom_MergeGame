@@ -194,10 +194,10 @@ TextureImporter:
       name: items_emerland_2
       rect:
         serializedVersion: 2
-        x: 265
-        y: 239
-        width: 139
-        height: 131
+        x: 262
+        y: 237
+        width: 145
+        height: 133
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -216,10 +216,10 @@ TextureImporter:
       name: items_emerland_3
       rect:
         serializedVersion: 2
-        x: 431
-        y: 237
-        width: 129
-        height: 114
+        x: 428
+        y: 235
+        width: 136
+        height: 118
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -260,10 +260,10 @@ TextureImporter:
       name: items_emerland_5
       rect:
         serializedVersion: 2
-        x: 124
-        y: 32
-        width: 127
-        height: 98
+        x: 121
+        y: 30
+        width: 132
+        height: 103
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -282,10 +282,10 @@ TextureImporter:
       name: items_emerland_6
       rect:
         serializedVersion: 2
-        x: 268
-        y: 16
-        width: 133
-        height: 141
+        x: 266
+        y: 15
+        width: 135
+        height: 145
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -307,7 +307,7 @@ TextureImporter:
         x: 416
         y: 0
         width: 167
-        height: 160
+        height: 161
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
