@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,6 +10,11 @@ public sealed class RewardPopup : MonoBehaviour
     [SerializeField] private TMP_Text coinsText;
     [SerializeField] private TMP_Text starsText;
     [SerializeField] private Button claimButton;
+
+    private bool isVisible;
+
+    public event Action Hidden;
+    public bool IsVisible => isVisible;
 
     private void Awake()
     {
@@ -39,6 +45,8 @@ public sealed class RewardPopup : MonoBehaviour
 
     public void Show(int coins, int stars)
     {
+        isVisible = true;
+
         if (titleText != null)
         {
             titleText.text = "Reward";
@@ -62,9 +70,17 @@ public sealed class RewardPopup : MonoBehaviour
 
     public void Hide()
     {
+        var wasVisible = isVisible;
+        isVisible = false;
+
         if (root != null)
         {
             root.SetActive(false);
+        }
+
+        if (wasVisible)
+        {
+            Hidden?.Invoke();
         }
     }
 

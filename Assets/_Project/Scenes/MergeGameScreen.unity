@@ -513,6 +513,10 @@ MonoBehaviour:
   cellSize: {x: 156, y: 156}
   cellSpacing: {x: 10.4, y: 10.4}
   clearExistingBoardOnInitialize: 1
+  animateGravity: 1
+  fallDuration: 0.22
+  fallBouncePixels: 14
+  refillFallOffset: 220
 --- !u!114 &174095287
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2821,7 +2825,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Refill Board
+  m_text: Reset Progress
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -4545,7 +4549,9 @@ MonoBehaviour:
   boardManager: {fileID: 174095286}
   energyManager: {fileID: 1815406205}
   orderManager: {fileID: 1423717964}
+  rewardPopup: {fileID: 0}
   levelText: {fileID: 0}
+  mainMenuSceneName: MainMenuScreen
 --- !u!1 &1830478663
 GameObject:
   m_ObjectHideFlags: 0

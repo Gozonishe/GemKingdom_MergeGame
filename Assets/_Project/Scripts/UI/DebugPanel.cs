@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public sealed class DebugPanel : MonoBehaviour
@@ -7,12 +8,14 @@ public sealed class DebugPanel : MonoBehaviour
     [SerializeField] private BoardManager boardManager;
     [SerializeField] private EnergyManager energyManager;
     [SerializeField] private OrderManager orderManager;
+    [SerializeField] private LevelManager levelManager;
 
     [Header("Buttons")]
     [SerializeField] private Button addEnergyButton;
     [SerializeField] private Button shuffleBoardButton;
     [SerializeField] private Button completeRandomOrderButton;
-    [SerializeField] private Button refillBoardButton;
+    [FormerlySerializedAs("refillBoardButton")]
+    [SerializeField] private Button resetProgressButton;
     [SerializeField] private Button resetBoardButton;
 
     [Header("Debug Values")]
@@ -52,10 +55,10 @@ public sealed class DebugPanel : MonoBehaviour
         orderManager?.CompleteRandomOrderDebug();
     }
 
-    private void RefillBoard()
+    private void ResetProgress()
     {
         ResolveReferences();
-        boardManager?.RefillBoard();
+        levelManager?.ResetProgressAndLoadFirstLevel();
     }
 
     private void ResetBoard()
@@ -81,9 +84,9 @@ public sealed class DebugPanel : MonoBehaviour
             completeRandomOrderButton.onClick.AddListener(CompleteRandomOrder);
         }
 
-        if (refillBoardButton != null)
+        if (resetProgressButton != null)
         {
-            refillBoardButton.onClick.AddListener(RefillBoard);
+            resetProgressButton.onClick.AddListener(ResetProgress);
         }
 
         if (resetBoardButton != null)
@@ -109,9 +112,9 @@ public sealed class DebugPanel : MonoBehaviour
             completeRandomOrderButton.onClick.RemoveListener(CompleteRandomOrder);
         }
 
-        if (refillBoardButton != null)
+        if (resetProgressButton != null)
         {
-            refillBoardButton.onClick.RemoveListener(RefillBoard);
+            resetProgressButton.onClick.RemoveListener(ResetProgress);
         }
 
         if (resetBoardButton != null)
@@ -136,6 +139,11 @@ public sealed class DebugPanel : MonoBehaviour
         {
             orderManager = FindFirstObjectByType<OrderManager>();
         }
+
+        if (levelManager == null)
+        {
+            levelManager = FindFirstObjectByType<LevelManager>();
+        }
     }
 
     private void ValidateReferences()
@@ -155,9 +163,9 @@ public sealed class DebugPanel : MonoBehaviour
             Debug.LogError($"{nameof(DebugPanel)} on '{name}' is missing {nameof(completeRandomOrderButton)}.", this);
         }
 
-        if (refillBoardButton == null)
+        if (resetProgressButton == null)
         {
-            Debug.LogError($"{nameof(DebugPanel)} on '{name}' is missing {nameof(refillBoardButton)}.", this);
+            Debug.LogError($"{nameof(DebugPanel)} on '{name}' is missing {nameof(resetProgressButton)}.", this);
         }
 
         if (resetBoardButton == null)

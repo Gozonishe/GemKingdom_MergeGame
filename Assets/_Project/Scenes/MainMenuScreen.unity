@@ -36914,6 +36914,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3439919725475686909, guid: 836335576df0f8d4f9aaad319734541e, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4022541918671859889, guid: 836335576df0f8d4f9aaad319734541e, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 0ec0922169b8a8543b8f0f263c9990c2, type: 3}
     - target: {fileID: 4926332014169270969, guid: 836335576df0f8d4f9aaad319734541e, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -37013,6 +37021,18 @@ PrefabInstance:
     - target: {fileID: 8365947029305777231, guid: 836335576df0f8d4f9aaad319734541e, type: 3}
       propertyPath: m_Name
       value: BtnMain
+      objectReference: {fileID: 0}
+    - target: {fileID: 8524515102547502511, guid: 836335576df0f8d4f9aaad319734541e, type: 3}
+      propertyPath: m_text
+      value: Common
+      objectReference: {fileID: 0}
+    - target: {fileID: 8524515102547502511, guid: 836335576df0f8d4f9aaad319734541e, type: 3}
+      propertyPath: m_fontSize
+      value: 41.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8810775930063689591, guid: 836335576df0f8d4f9aaad319734541e, type: 3}
+      propertyPath: m_text
+      value: Level
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

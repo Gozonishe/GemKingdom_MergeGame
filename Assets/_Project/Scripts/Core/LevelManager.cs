@@ -1,10 +1,14 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public sealed class LevelManager : MonoBehaviour
 {
+    private const string SavedLevelIndexKey = "MergeGame.NextLevelIndex";
+    private const string DefaultMainMenuSceneName = "MainMenuScreen";
+
     [Header("Levels")]
     [SerializeField] private List<LevelData> levels = new List<LevelData>();
     [SerializeField] private int currentLevelIndex;
@@ -13,14 +17,35 @@ public sealed class LevelManager : MonoBehaviour
     [SerializeField] private BoardManager boardManager;
     [SerializeField] private EnergyManager energyManager;
     [SerializeField] private OrderManager orderManager;
+    [SerializeField] private RewardPopup rewardPopup;
     [SerializeField] private TMP_Text levelText;
+
+    [Header("Scene Flow")]
+    [SerializeField] private string mainMenuSceneName = DefaultMainMenuSceneName;
 
     private bool isLoadingLevel;
     private bool levelCompleteHandled;
+    private bool waitingRewardPopupClose;
 
     public IReadOnlyList<LevelData> Levels => levels;
     public int CurrentLevelIndex => currentLevelIndex;
     public LevelData CurrentLevel => IsInsideLevels(currentLevelIndex) ? levels[currentLevelIndex] : null;
+
+    public static int GetSavedLevelIndex(int defaultIndex = 0)
+    {
+        return Mathf.Max(0, PlayerPrefs.GetInt(SavedLevelIndexKey, defaultIndex));
+    }
+
+    public static int GetSavedLevelNumber(int defaultIndex = 0)
+    {
+        return GetSavedLevelIndex(defaultIndex) + 1;
+    }
+
+    public static void ResetSavedProgress()
+    {
+        PlayerPrefs.DeleteKey(SavedLevelIndexKey);
+        PlayerPrefs.Save();
+    }
 
     private void Start()
     {
@@ -32,7 +57,8 @@ public sealed class LevelManager : MonoBehaviour
             return;
         }
 
-        LoadLevel(Mathf.Clamp(currentLevelIndex, 0, levels.Count - 1));
+        var savedLevelIndex = GetSavedLevelIndex(currentLevelIndex);
+        LoadLevel(Mathf.Clamp(savedLevelIndex, 0, levels.Count - 1));
     }
 
     private void Update()
@@ -45,7 +71,15 @@ public sealed class LevelManager : MonoBehaviour
         if (orderManager.AreAllOrdersClaimed)
         {
             levelCompleteHandled = true;
-            LoadNextLevel();
+            CompleteCurrentLevelAndReturnToMenu();
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (rewardPopup != null)
+        {
+            rewardPopup.Hidden -= HandleRewardPopupHidden;
         }
     }
 
@@ -69,6 +103,7 @@ public sealed class LevelManager : MonoBehaviour
         isLoadingLevel = true;
         currentLevelIndex = index;
         levelCompleteHandled = false;
+        waitingRewardPopupClose = false;
         RefreshLevelText(level);
 
         if (energyManager != null)
@@ -119,6 +154,19 @@ public sealed class LevelManager : MonoBehaviour
         LoadLevel(currentLevelIndex);
     }
 
+    public void ResetProgressAndLoadFirstLevel()
+    {
+        ResetSavedProgress();
+
+        if (levels.Count == 0)
+        {
+            Debug.LogWarning($"{nameof(LevelManager)} on '{name}' cannot reset progress because no levels are assigned.", this);
+            return;
+        }
+
+        LoadLevel(0);
+    }
+
     private void ResolveReferences()
     {
         if (boardManager == null)
@@ -136,10 +184,69 @@ public sealed class LevelManager : MonoBehaviour
             orderManager = FindFirstObjectByType<OrderManager>();
         }
 
+        if (rewardPopup == null)
+        {
+            rewardPopup = FindFirstObjectByType<RewardPopup>(FindObjectsInactive.Include);
+        }
+
         if (levelText == null)
         {
             levelText = FindLevelText();
         }
+    }
+
+    private void CompleteCurrentLevelAndReturnToMenu()
+    {
+        SaveNextLevelIndex();
+
+        if (rewardPopup != null && rewardPopup.IsVisible)
+        {
+            waitingRewardPopupClose = true;
+            rewardPopup.Hidden -= HandleRewardPopupHidden;
+            rewardPopup.Hidden += HandleRewardPopupHidden;
+            return;
+        }
+
+        LoadMainMenuScene();
+    }
+
+    private void SaveNextLevelIndex()
+    {
+        var nextLevelIndex = currentLevelIndex + 1;
+        if (!IsInsideLevels(nextLevelIndex))
+        {
+            Debug.Log("All levels completed", this);
+            return;
+        }
+
+        PlayerPrefs.SetInt(SavedLevelIndexKey, nextLevelIndex);
+        PlayerPrefs.Save();
+    }
+
+    private void HandleRewardPopupHidden()
+    {
+        if (rewardPopup != null)
+        {
+            rewardPopup.Hidden -= HandleRewardPopupHidden;
+        }
+
+        if (!waitingRewardPopupClose)
+        {
+            return;
+        }
+
+        waitingRewardPopupClose = false;
+        LoadMainMenuScene();
+    }
+
+    private void LoadMainMenuScene()
+    {
+        if (string.IsNullOrWhiteSpace(mainMenuSceneName))
+        {
+            mainMenuSceneName = DefaultMainMenuSceneName;
+        }
+
+        SceneManager.LoadScene(mainMenuSceneName, LoadSceneMode.Single);
     }
 
     private bool IsInsideLevels(int index)
