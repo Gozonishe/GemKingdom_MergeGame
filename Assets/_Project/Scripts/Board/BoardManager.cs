@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -23,6 +24,12 @@ public sealed class BoardManager : MonoBehaviour
     [SerializeField] private Vector2 cellSize = new Vector2(156f, 156f);
     [SerializeField] private Vector2 cellSpacing = new Vector2(10.4f, 10.4f);
     [SerializeField] private bool clearExistingBoardOnInitialize = true;
+
+    [Header("Gravity Animation")]
+    [SerializeField] private bool animateGravity = true;
+    [SerializeField] private float fallDuration = 0.22f;
+    [SerializeField] private float fallBouncePixels = 14f;
+    [SerializeField] private float refillFallOffset = 220f;
 
     private BoardCell[,] cells;
     private bool isInitialized;
@@ -155,19 +162,21 @@ public sealed class BoardManager : MonoBehaviour
 
         IsBusy = true;
 
-        try
-        {
-            // Merge logic: dragged source item upgrades the target item, then the source cell becomes empty.
-            targetItem.SetData(sourceData.NextLevelItem);
-            targetCell.SetItem(targetItem);
-            sourceCell.Clear();
-            Destroy(sourceItem.gameObject);
+        // Merge logic: dragged source item upgrades the target item, then the source cell becomes empty.
+        targetItem.SetData(sourceData.NextLevelItem);
+        targetCell.SetItem(targetItem);
+        targetItem.PlayMergePopEffect();
+        sourceCell.Clear();
+        Destroy(sourceItem.gameObject);
 
+        if (animateGravity && isActiveAndEnabled)
+        {
+            StartCoroutine(ResolveBoardAfterMergeCoroutine());
+        }
+        else
+        {
             CollapseColumns();
             RefillBoard();
-        }
-        finally
-        {
             IsBusy = false;
         }
 
@@ -256,6 +265,11 @@ public sealed class BoardManager : MonoBehaviour
 
     public void CollapseColumns()
     {
+        CollapseColumnsInternal(false, null);
+    }
+
+    private void CollapseColumnsInternal(bool animateItems, List<MergeItem> animatedItems)
+    {
         if (cells == null)
         {
             Debug.LogError($"{nameof(BoardManager)} on '{name}' cannot collapse columns because the board is not initialized.", this);
@@ -264,44 +278,57 @@ public sealed class BoardManager : MonoBehaviour
 
         Debug.Log($"{nameof(BoardManager)}: CollapseColumns started.", this);
         var columnItems = new List<MergeItem>(rows);
+        var columnCells = new List<BoardCell>(rows);
 
         for (var x = 0; x < columns; x++)
         {
             columnItems.Clear();
-
-            // Collapse columns: collect existing items from bottom to top, then place them back from y = 0 upward.
-            for (var y = 0; y < rows; y++)
-            {
-                var cell = cells[x, y];
-                if (cell == null || cell.CurrentItem == null)
-                {
-                    continue;
-                }
-
-                columnItems.Add(cell.RemoveItem());
-            }
+            columnCells.Clear();
 
             for (var y = 0; y < rows; y++)
             {
                 var cell = cells[x, y];
                 if (cell != null)
                 {
-                    cell.Clear();
+                    columnCells.Add(cell);
                 }
             }
 
-            for (var itemIndex = 0; itemIndex < columnItems.Count; itemIndex++)
+            columnCells.Sort(CompareCellsBottomToTop);
+
+            // Collapse columns: collect existing items from visual bottom to top, then place them back from bottom upward.
+            // This keeps gravity correct even when a GridLayoutGroup or anchors make logical y different from screen y.
+            for (var cellIndex = 0; cellIndex < columnCells.Count; cellIndex++)
             {
-                var targetCell = cells[x, itemIndex];
-                if (targetCell != null)
+                var cell = columnCells[cellIndex];
+                if (cell.CurrentItem != null)
                 {
-                    targetCell.SetItem(columnItems[itemIndex]);
+                    columnItems.Add(cell.RemoveItem());
                 }
+            }
+
+            for (var cellIndex = 0; cellIndex < columnCells.Count; cellIndex++)
+            {
+                columnCells[cellIndex].Clear();
+            }
+
+            for (var itemIndex = 0; itemIndex < columnItems.Count && itemIndex < columnCells.Count; itemIndex++)
+            {
+                var item = columnItems[itemIndex];
+                var startWorldPosition = item.transform.position;
+                columnCells[itemIndex].SetItem(item);
+                PlayFallFromWorldPosition(item, startWorldPosition, animateItems, animatedItems);
             }
         }
     }
 
     public void RefillBoard()
+    {
+        RefillBoardInternal(false, null);
+        RefreshOrders();
+    }
+
+    private void RefillBoardInternal(bool animateItems, List<MergeItem> animatedItems)
     {
         if (cells == null)
         {
@@ -319,7 +346,7 @@ public sealed class BoardManager : MonoBehaviour
                 var cell = cells[x, y];
                 if (cell != null && cell.IsEmpty())
                 {
-                    SpawnItemInCell(cell);
+                    SpawnItemInCell(cell, animateItems, animatedItems);
                 }
             }
         }
@@ -330,7 +357,6 @@ public sealed class BoardManager : MonoBehaviour
             Debug.LogWarning($"{nameof(BoardManager)}: RefillBoard finished with {emptyCellsCount} empty cells. Check {nameof(spawnableItems)} and {nameof(itemPrefab)}.", this);
         }
 
-        RefreshOrders();
     }
 
     public void ShuffleBoard()
@@ -434,6 +460,11 @@ public sealed class BoardManager : MonoBehaviour
 
     private void SpawnItemInCell(BoardCell cell)
     {
+        SpawnItemInCell(cell, false, null);
+    }
+
+    private void SpawnItemInCell(BoardCell cell, bool animateItem, List<MergeItem> animatedItems)
+    {
         var itemData = GetRandomSpawnableItem();
         if (itemData == null)
         {
@@ -444,6 +475,11 @@ public sealed class BoardManager : MonoBehaviour
         item.name = $"Item_{itemData.ItemId}_{cell.X}_{cell.Y}";
         item.SetData(itemData);
         SetItemAt(cell.X, cell.Y, item);
+
+        if (animateItem)
+        {
+            PlayNewItemFall(item, animatedItems);
+        }
     }
 
     private bool TrySpendMergeEnergy()
@@ -597,5 +633,99 @@ public sealed class BoardManager : MonoBehaviour
     {
         var delta = firstCell.GridPosition - secondCell.GridPosition;
         return Mathf.Abs(delta.x) + Mathf.Abs(delta.y) == 1;
+    }
+
+    private IEnumerator ResolveBoardAfterMergeCoroutine()
+    {
+        var animatedItems = new List<MergeItem>(columns * rows);
+
+        CollapseColumnsInternal(true, animatedItems);
+        RefillBoardInternal(true, animatedItems);
+
+        while (HasActiveFallAnimations(animatedItems))
+        {
+            yield return null;
+        }
+
+        RefreshOrders();
+        IsBusy = false;
+    }
+
+    private void PlayFallFromWorldPosition(MergeItem item, Vector3 startWorldPosition, bool animateItem, List<MergeItem> animatedItems)
+    {
+        if (!animateItem || item == null || item.transform is not RectTransform itemRectTransform)
+        {
+            return;
+        }
+
+        var targetWorldPosition = itemRectTransform.position;
+        if ((targetWorldPosition - startWorldPosition).sqrMagnitude < 0.01f)
+        {
+            return;
+        }
+
+        itemRectTransform.position = startWorldPosition;
+        item.PlayFallToCellEffect(fallDuration, fallBouncePixels);
+        animatedItems?.Add(item);
+    }
+
+    private void PlayNewItemFall(MergeItem item, List<MergeItem> animatedItems)
+    {
+        if (item == null || item.transform is not RectTransform itemRectTransform)
+        {
+            return;
+        }
+
+        itemRectTransform.anchoredPosition = new Vector2(0f, Mathf.Max(0f, refillFallOffset));
+        item.PlayFallToCellEffect(fallDuration, fallBouncePixels, true);
+        animatedItems?.Add(item);
+    }
+
+    private static bool HasActiveFallAnimations(List<MergeItem> animatedItems)
+    {
+        if (animatedItems == null)
+        {
+            return false;
+        }
+
+        for (var i = animatedItems.Count - 1; i >= 0; i--)
+        {
+            var item = animatedItems[i];
+            if (item == null)
+            {
+                animatedItems.RemoveAt(i);
+                continue;
+            }
+
+            if (item.IsAnimatingFall)
+            {
+                return true;
+            }
+
+            animatedItems.RemoveAt(i);
+        }
+
+        return false;
+    }
+
+    private static int CompareCellsBottomToTop(BoardCell firstCell, BoardCell secondCell)
+    {
+        var firstY = GetCellWorldY(firstCell);
+        var secondY = GetCellWorldY(secondCell);
+        var positionComparison = firstY.CompareTo(secondY);
+
+        if (positionComparison != 0)
+        {
+            return positionComparison;
+        }
+
+        return secondCell.Y.CompareTo(firstCell.Y);
+    }
+
+    private static float GetCellWorldY(BoardCell cell)
+    {
+        return cell != null && cell.RectTransform != null
+            ? cell.RectTransform.position.y
+            : 0f;
     }
 }
