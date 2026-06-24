@@ -19,12 +19,16 @@ public sealed class LevelManager : MonoBehaviour
     [SerializeField] private OrderManager orderManager;
     [SerializeField] private RewardPopup rewardPopup;
     [SerializeField] private TMP_Text levelText;
+    [SerializeField] private GameObject loosePopup;
+    [SerializeField] private Button loosePopupQuitButton;
+    [SerializeField] private Button exitLevelButton;
 
     [Header("Scene Flow")]
     [SerializeField] private string mainMenuSceneName = DefaultMainMenuSceneName;
 
     private bool isLoadingLevel;
     private bool levelCompleteHandled;
+    private bool levelLoseHandled;
     private bool waitingRewardPopupClose;
 
     public IReadOnlyList<LevelData> Levels => levels;
@@ -63,7 +67,7 @@ public sealed class LevelManager : MonoBehaviour
 
     private void Update()
     {
-        if (isLoadingLevel || levelCompleteHandled || orderManager == null)
+        if (isLoadingLevel || levelCompleteHandled || levelLoseHandled || orderManager == null)
         {
             return;
         }
@@ -72,6 +76,13 @@ public sealed class LevelManager : MonoBehaviour
         {
             levelCompleteHandled = true;
             CompleteCurrentLevelAndReturnToMenu();
+            return;
+        }
+
+        if (IsOutOfMoves())
+        {
+            levelLoseHandled = true;
+            ShowLoosePopup();
         }
     }
 
@@ -80,6 +91,16 @@ public sealed class LevelManager : MonoBehaviour
         if (rewardPopup != null)
         {
             rewardPopup.Hidden -= HandleRewardPopupHidden;
+        }
+
+        if (loosePopupQuitButton != null)
+        {
+            loosePopupQuitButton.onClick.RemoveListener(LoadMainMenuScene);
+        }
+
+        if (exitLevelButton != null)
+        {
+            exitLevelButton.onClick.RemoveListener(ExitLevelToMainMenu);
         }
     }
 
@@ -103,7 +124,9 @@ public sealed class LevelManager : MonoBehaviour
         isLoadingLevel = true;
         currentLevelIndex = index;
         levelCompleteHandled = false;
+        levelLoseHandled = false;
         waitingRewardPopupClose = false;
+        SetLoosePopupActive(false);
         RefreshLevelText(level);
 
         if (energyManager != null)
@@ -167,6 +190,11 @@ public sealed class LevelManager : MonoBehaviour
         LoadLevel(0);
     }
 
+    public void ExitLevelToMainMenu()
+    {
+        LoadMainMenuScene();
+    }
+
     private void ResolveReferences()
     {
         if (boardManager == null)
@@ -187,6 +215,33 @@ public sealed class LevelManager : MonoBehaviour
         if (rewardPopup == null)
         {
             rewardPopup = FindFirstObjectByType<RewardPopup>(FindObjectsInactive.Include);
+        }
+
+        if (loosePopup == null)
+        {
+            loosePopup = FindSceneObject("LoosePopup");
+        }
+
+        if (loosePopupQuitButton == null)
+        {
+            loosePopupQuitButton = FindButtonInRoot(loosePopup, "QuitButton");
+        }
+
+        if (loosePopupQuitButton != null)
+        {
+            loosePopupQuitButton.onClick.RemoveListener(LoadMainMenuScene);
+            loosePopupQuitButton.onClick.AddListener(LoadMainMenuScene);
+        }
+
+        if (exitLevelButton == null)
+        {
+            exitLevelButton = FindSceneButton("ExitLevelButton");
+        }
+
+        if (exitLevelButton != null)
+        {
+            exitLevelButton.onClick.RemoveListener(ExitLevelToMainMenu);
+            exitLevelButton.onClick.AddListener(ExitLevelToMainMenu);
         }
 
         if (levelText == null)
@@ -247,6 +302,36 @@ public sealed class LevelManager : MonoBehaviour
         }
 
         SceneManager.LoadScene(mainMenuSceneName, LoadSceneMode.Single);
+    }
+
+    private bool IsOutOfMoves()
+    {
+        return energyManager != null
+            && energyManager.CurrentEnergy <= 0
+            && (boardManager == null || !boardManager.IsBusy)
+            && (rewardPopup == null || !rewardPopup.IsVisible);
+    }
+
+    private void ShowLoosePopup()
+    {
+        ResolveReferences();
+
+        if (loosePopup == null)
+        {
+            Debug.LogWarning($"{nameof(LevelManager)} on '{name}' cannot show LoosePopup because it was not found. Returning to main menu.", this);
+            LoadMainMenuScene();
+            return;
+        }
+
+        SetLoosePopupActive(true);
+    }
+
+    private void SetLoosePopupActive(bool isActive)
+    {
+        if (loosePopup != null && loosePopup.activeSelf != isActive)
+        {
+            loosePopup.SetActive(isActive);
+        }
     }
 
     private bool IsInsideLevels(int index)
@@ -315,5 +400,52 @@ public sealed class LevelManager : MonoBehaviour
         layoutElement.ignoreLayout = true;
 
         return text;
+    }
+
+    private static GameObject FindSceneObject(string objectName)
+    {
+        var transforms = Resources.FindObjectsOfTypeAll<Transform>();
+        for (var i = 0; i < transforms.Length; i++)
+        {
+            var target = transforms[i];
+            if (target == null || target.name != objectName)
+            {
+                continue;
+            }
+
+            var scene = target.gameObject.scene;
+            if (scene.IsValid() && scene.isLoaded)
+            {
+                return target.gameObject;
+            }
+        }
+
+        return null;
+    }
+
+    private static Button FindSceneButton(string buttonName)
+    {
+        var buttonObject = FindSceneObject(buttonName);
+        return buttonObject != null ? buttonObject.GetComponent<Button>() : null;
+    }
+
+    private static Button FindButtonInRoot(GameObject root, string buttonName)
+    {
+        if (root == null)
+        {
+            return null;
+        }
+
+        var buttons = root.GetComponentsInChildren<Button>(true);
+        for (var i = 0; i < buttons.Length; i++)
+        {
+            var button = buttons[i];
+            if (button != null && button.name == buttonName)
+            {
+                return button;
+            }
+        }
+
+        return null;
     }
 }
