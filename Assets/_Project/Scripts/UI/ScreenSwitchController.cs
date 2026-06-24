@@ -30,6 +30,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
     [SerializeField] private Button continueRaceButton;
     [SerializeField] private Button mergeGameButton;
     [SerializeField] private TMP_Text mergeGameLevelText;
+    [SerializeField] private TMP_Text levelStartWindowHeaderLabel;
     [SerializeField] private string mergeGameSceneName = "MergeGameScreen";
     [SerializeField] private string mergeGameLevelTextFormat = "Level {0}";
     [SerializeField] private RectTransform mainButtonContent;
@@ -238,10 +239,12 @@ public sealed class ScreenSwitchController : MonoBehaviour
         playerGoldButton = playerGoldButton != null ? playerGoldButton : FindSceneButton("BtnPlayerGold");
         getLivesClanButton = getLivesClanButton != null ? getLivesClanButton : FindSceneButtonInRoot("GetLivesScreen", "BtnGreen");
         continueRaceButton = continueRaceButton != null ? continueRaceButton : FindSceneButtonInRoot("RankingScreen", "BtnContinueRace");
-        mergeGameButton = mergeGameButton != null ? mergeGameButton : FindSceneButtonInRoot("MainScreen", "BtnMain");
-        mergeGameButton = mergeGameButton != null ? mergeGameButton : FindSceneButton("BtnMain");
-        mergeGameLevelText = mergeGameLevelText != null ? mergeGameLevelText : FindTextInButton(mergeGameButton, "TextNumber");
+        mergeGameButton = mergeGameButton != null ? mergeGameButton : FindSceneButtonInRoot("LevelStartWindow", "BtnStartLevel");
+        mergeGameButton = mergeGameButton != null ? mergeGameButton : FindSceneButton("BtnStartLevel");
+        mergeGameLevelText = mergeGameLevelText != null ? mergeGameLevelText : FindTextInButton(FindSceneButtonInRoot("MainScreen", "BtnMain"), "TextNumber");
         mergeGameLevelText = mergeGameLevelText != null ? mergeGameLevelText : FindSceneTextInRoot("MainScreen", "TextNumber");
+        levelStartWindowHeaderLabel = levelStartWindowHeaderLabel != null ? levelStartWindowHeaderLabel : FindSceneTextByPath("LevelStartWindow", "Bg/HeaderLabel");
+        levelStartWindowHeaderLabel = levelStartWindowHeaderLabel != null ? levelStartWindowHeaderLabel : FindSceneTextInRoot("LevelStartWindow", "HeaderLabel");
         mainButtonContent = mainButtonContent != null ? mainButtonContent : FindButtonContent(mainButton);
         shopButtonContent = shopButtonContent != null ? shopButtonContent : FindButtonContent(shopButton);
         clanButtonContent = clanButtonContent != null ? clanButtonContent : FindButtonContent(clanButton);
@@ -259,17 +262,28 @@ public sealed class ScreenSwitchController : MonoBehaviour
     {
         if (mergeGameLevelText == null)
         {
-            mergeGameLevelText = FindTextInButton(mergeGameButton, "TextNumber");
+            mergeGameLevelText = FindTextInButton(FindSceneButtonInRoot("MainScreen", "BtnMain"), "TextNumber");
             mergeGameLevelText = mergeGameLevelText != null ? mergeGameLevelText : FindSceneTextInRoot("MainScreen", "TextNumber");
         }
 
-        if (mergeGameLevelText == null)
+        if (levelStartWindowHeaderLabel == null)
         {
-            return;
+            levelStartWindowHeaderLabel = FindSceneTextByPath("LevelStartWindow", "Bg/HeaderLabel");
+            levelStartWindowHeaderLabel = levelStartWindowHeaderLabel != null ? levelStartWindowHeaderLabel : FindSceneTextInRoot("LevelStartWindow", "HeaderLabel");
         }
 
         var levelNumber = LevelManager.GetSavedLevelNumber();
-        mergeGameLevelText.text = string.Format(mergeGameLevelTextFormat, levelNumber);
+        var levelText = string.Format(mergeGameLevelTextFormat, levelNumber);
+
+        if (mergeGameLevelText != null)
+        {
+            mergeGameLevelText.text = levelText;
+        }
+
+        if (levelStartWindowHeaderLabel != null)
+        {
+            levelStartWindowHeaderLabel.text = levelText;
+        }
     }
 
     private void SubscribeContinueRaceButton()
@@ -416,6 +430,18 @@ public sealed class ScreenSwitchController : MonoBehaviour
         }
 
         return null;
+    }
+
+    private static TMP_Text FindSceneTextByPath(string rootName, string path)
+    {
+        var root = FindSceneObject(rootName);
+        if (root == null)
+        {
+            return null;
+        }
+
+        var target = root.transform.Find(path);
+        return target != null ? target.GetComponent<TMP_Text>() : null;
     }
 
     private static Button FindSceneButton(string objectName)
