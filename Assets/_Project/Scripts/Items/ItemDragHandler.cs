@@ -115,7 +115,7 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
             && AreNeighborCells(sourceCell, targetCell)
             && targetItem != null
             && item != null
-            && item.CanMergeWith(targetItem);
+            && (boardManager != null ? boardManager.CanMerge(sourceCell, targetCell) : item.CanMergeWith(targetItem));
     }
 
     private BoardCell FindTargetCell(PointerEventData eventData)

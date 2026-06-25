@@ -64,10 +64,17 @@ public sealed class MergeItem : MonoBehaviour
 
     public bool CanMergeWith(MergeItem otherItem)
     {
-        return otherItem != null
-            && data != null
-            && !data.ReactToAdjacentMerge
-            && otherItem.Data != null
+        if (otherItem == null || data == null || otherItem.Data == null)
+        {
+            return false;
+        }
+
+        if (data.DestroyBothOnAnyNeighborMerge || otherItem.Data.DestroyBothOnAnyNeighborMerge)
+        {
+            return true;
+        }
+
+        return !data.ReactToAdjacentMerge
             && !otherItem.Data.ReactToAdjacentMerge
             && data.CanMergeToNextLevel
             && data == otherItem.Data;

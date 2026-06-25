@@ -172,9 +172,17 @@ public sealed class BoardManager : MonoBehaviour
 
         var sourceData = sourceItem.Data;
         var targetData = targetItem.Data;
-        if (sourceData == null
-            || targetData == null
-            || sourceData.ReactToAdjacentMerge
+        if (sourceData == null || targetData == null)
+        {
+            return false;
+        }
+
+        if (CanDestroyBothByAnyNeighborMerge(sourceData, targetData))
+        {
+            return TryDestroyBothByAnyNeighborMerge(sourceCell, targetCell, sourceItem, targetItem);
+        }
+
+        if (sourceData.ReactToAdjacentMerge
             || targetData.ReactToAdjacentMerge
             || sourceData != targetData
             || sourceData.NextLevelItem == null)
@@ -226,7 +234,9 @@ public sealed class BoardManager : MonoBehaviour
 
         var firstItem = firstCell.CurrentItem;
         var secondItem = secondCell.CurrentItem;
-        return firstItem != null && firstItem.CanMergeWith(secondItem);
+        return firstItem != null
+            && secondItem != null
+            && (CanDestroyBothByAnyNeighborMerge(firstItem.Data, secondItem.Data) || firstItem.CanMergeWith(secondItem));
     }
 
     public BoardCell GetCellAtScreenPosition(Vector2 screenPosition, Camera uiCamera)
@@ -525,6 +535,42 @@ public sealed class BoardManager : MonoBehaviour
         }
 
         return energyManager.SpendEnergy();
+    }
+
+    private bool TryDestroyBothByAnyNeighborMerge(BoardCell sourceCell, BoardCell targetCell, MergeItem sourceItem, MergeItem targetItem)
+    {
+        if (!TrySpendMergeEnergy())
+        {
+            Debug.Log("Not enough energy", this);
+            return false;
+        }
+
+        IsBusy = true;
+
+        sourceCell.Clear();
+        targetCell.Clear();
+        Destroy(sourceItem.gameObject);
+        Destroy(targetItem.gameObject);
+
+        if (animateGravity && isActiveAndEnabled)
+        {
+            StartCoroutine(ResolveBoardAfterMergeCoroutine());
+        }
+        else
+        {
+            CollapseColumns();
+            RefillBoard();
+            IsBusy = false;
+        }
+
+        return true;
+    }
+
+    private static bool CanDestroyBothByAnyNeighborMerge(MergeItemData firstData, MergeItemData secondData)
+    {
+        return firstData != null
+            && secondData != null
+            && (firstData.DestroyBothOnAnyNeighborMerge || secondData.DestroyBothOnAnyNeighborMerge);
     }
 
     private void RefreshOrders()
