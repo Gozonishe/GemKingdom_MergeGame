@@ -14,11 +14,15 @@ public sealed class MergeItemData : ScriptableObject
     [Header("Merge Chain")]
     [SerializeField] private MergeItemData nextLevelItem;
 
+    [Header("Adjacent Merge Reaction")]
+    [SerializeField] private bool reactToAdjacentMerge;
+
     public string ItemId => itemId;
     public string DisplayName => displayName;
     public int Level => level;
     public Sprite Icon => icon;
     public MergeItemData NextLevelItem => nextLevelItem;
+    public bool ReactToAdjacentMerge => reactToAdjacentMerge;
     public bool IsMaxLevel => nextLevelItem == null;
     public bool CanMergeToNextLevel => nextLevelItem != null;
 }

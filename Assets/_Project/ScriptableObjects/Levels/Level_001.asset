@@ -19,9 +19,7 @@ MonoBehaviour:
     weight: 2
   - itemData: {fileID: 11400000, guid: 67b4da7ec2bd3f0409dd1296ee237360, type: 2}
     weight: 1
-  - itemData: {fileID: 11400000, guid: d85d5deb5f360d14586c93295decef84, type: 2}
-    weight: 1
-  - itemData: {fileID: 11400000, guid: 6ec710b846bd01d45a82d6ee4d730d77, type: 2}
+  - itemData: {fileID: 11400000, guid: da200a52036e13f44b6d84a28c6de0e9, type: 2}
     weight: 1
   spawnableItems:
   - {fileID: 11400000, guid: 50e17eb973d2a4f4887adf1dc8160eb9, type: 2}

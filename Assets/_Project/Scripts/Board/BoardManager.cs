@@ -171,7 +171,13 @@ public sealed class BoardManager : MonoBehaviour
         }
 
         var sourceData = sourceItem.Data;
-        if (sourceData == null || sourceData != targetItem.Data || sourceData.NextLevelItem == null)
+        var targetData = targetItem.Data;
+        if (sourceData == null
+            || targetData == null
+            || sourceData.ReactToAdjacentMerge
+            || targetData.ReactToAdjacentMerge
+            || sourceData != targetData
+            || sourceData.NextLevelItem == null)
         {
             return false;
         }
@@ -190,6 +196,7 @@ public sealed class BoardManager : MonoBehaviour
         targetItem.PlayMergePopEffect();
         sourceCell.Clear();
         Destroy(sourceItem.gameObject);
+        ApplyAdjacentMergeReactions(targetCell);
 
         if (animateGravity && isActiveAndEnabled)
         {
@@ -586,6 +593,63 @@ public sealed class BoardManager : MonoBehaviour
         }
 
         return null;
+    }
+
+    private void ApplyAdjacentMergeReactions(BoardCell mergeResultCell)
+    {
+        var affectedCells = new HashSet<BoardCell>();
+        AddAdjacentCells(mergeResultCell, affectedCells);
+
+        affectedCells.Remove(mergeResultCell);
+
+        foreach (var cell in affectedCells)
+        {
+            ApplyAdjacentMergeReaction(cell);
+        }
+    }
+
+    private void AddAdjacentCells(BoardCell centerCell, HashSet<BoardCell> targetCells)
+    {
+        if (centerCell == null || targetCells == null)
+        {
+            return;
+        }
+
+        AddCellIfInside(centerCell.X + 1, centerCell.Y, targetCells);
+        AddCellIfInside(centerCell.X - 1, centerCell.Y, targetCells);
+        AddCellIfInside(centerCell.X, centerCell.Y + 1, targetCells);
+        AddCellIfInside(centerCell.X, centerCell.Y - 1, targetCells);
+    }
+
+    private void AddCellIfInside(int x, int y, HashSet<BoardCell> targetCells)
+    {
+        var cell = GetCell(x, y);
+        if (cell != null)
+        {
+            targetCells.Add(cell);
+        }
+    }
+
+    private void ApplyAdjacentMergeReaction(BoardCell cell)
+    {
+        var item = cell != null ? cell.CurrentItem : null;
+        var itemData = item != null ? item.Data : null;
+
+        if (itemData == null || !itemData.ReactToAdjacentMerge)
+        {
+            return;
+        }
+
+        // Adjacent merge reaction: blockers advance through their data chain, then disappear when the chain ends.
+        if (itemData.NextLevelItem != null)
+        {
+            item.SetData(itemData.NextLevelItem);
+            item.PlayMergePopEffect();
+            return;
+        }
+
+        cell.Clear();
+        Destroy(item.gameObject);
     }
 
     private MergeItemData GetRandomWeightedSpawnableItem()

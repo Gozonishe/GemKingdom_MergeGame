@@ -66,6 +66,9 @@ public sealed class MergeItem : MonoBehaviour
     {
         return otherItem != null
             && data != null
+            && !data.ReactToAdjacentMerge
+            && otherItem.Data != null
+            && !otherItem.Data.ReactToAdjacentMerge
             && data.CanMergeToNextLevel
             && data == otherItem.Data;
     }
