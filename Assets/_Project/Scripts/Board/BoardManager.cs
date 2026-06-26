@@ -556,6 +556,7 @@ public sealed class BoardManager : MonoBehaviour
         NotifyItemDestroyed(targetData);
         Destroy(sourceItem.gameObject);
         Destroy(targetItem.gameObject);
+        ApplyAdjacentMergeReactions(targetCell);
 
         if (animateGravity && isActiveAndEnabled)
         {

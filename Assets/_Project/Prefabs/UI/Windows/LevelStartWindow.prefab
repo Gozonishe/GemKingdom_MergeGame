@@ -203,7 +203,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: 7247fdb9d24988a4b96d2fee11242a13, type: 3}
-  m_Type: 0
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -247,7 +247,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 729}
+  m_AnchoredPosition: {x: 0, y: 684.64}
   m_SizeDelta: {x: 580, y: 220}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &2948645848098587366
@@ -410,7 +410,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1642355358425360766}
   - component: {fileID: 8439068545063842828}
-  - component: {fileID: 3067483288780799046}
   m_Layer: 5
   m_Name: LevelStartWindow
   m_TagString: Untagged
@@ -446,31 +445,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7734226398252127768}
   m_CullTransparentMesh: 1
---- !u!114 &3067483288780799046
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7734226398252127768}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 61ddd62f1628bee439ce1d5052fda91c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EventWindowController
-  pearlChallengeWindowRoot: {fileID: 7734226398252127768}
-  dimBackgroundRoot: {fileID: 0}
-  openButton: {fileID: 0}
-  closeButton: {fileID: 1180411870653129261}
-  additionalCloseButton: {fileID: 0}
-  objectsToHideWhileWindowOpen: []
-  configureResponsiveLayout: 1
-  referenceResolution: {x: 1080, y: 1920}
-  windowScreenPadding: {x: 24, y: 80}
-  minimumWindowScale: 0.9
-  openAnimationDuration: 0.2
-  openStartScale: 0.96
-  openBounceScale: 1.02
 --- !u!1 &8048664449740104189
 GameObject:
   m_ObjectHideFlags: 0
@@ -639,11 +613,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 505279147220850818, guid: ae45105568e94374b9045996dd987baf, type: 3}
       propertyPath: m_fontSize
-      value: 100
+      value: 108
+      objectReference: {fileID: 0}
+    - target: {fileID: 505279147220850818, guid: ae45105568e94374b9045996dd987baf, type: 3}
+      propertyPath: m_fontSizeMax
+      value: 108
       objectReference: {fileID: 0}
     - target: {fileID: 916567500603666653, guid: ae45105568e94374b9045996dd987baf, type: 3}
       propertyPath: m_Name
-      value: BtnGreen
+      value: BtnStartLevel
       objectReference: {fileID: 0}
     - target: {fileID: 3620683353451773578, guid: ae45105568e94374b9045996dd987baf, type: 3}
       propertyPath: m_Pivot.x
@@ -724,6 +702,10 @@ PrefabInstance:
     - target: {fileID: 3620683353451773578, guid: ae45105568e94374b9045996dd987baf, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4620255633234883513, guid: ae45105568e94374b9045996dd987baf, type: 3}
+      propertyPath: m_Name
+      value: LevelText
       objectReference: {fileID: 0}
     - target: {fileID: 8219534192561645703, guid: ae45105568e94374b9045996dd987baf, type: 3}
       propertyPath: m_AnchorMax.x
@@ -909,17 +891,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 47f3c9988af262e468ba64cbde03bf4d, type: 3}
---- !u!114 &1180411870653129261 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7139472136144820963, guid: 47f3c9988af262e468ba64cbde03bf4d, type: 3}
-  m_PrefabInstance: {fileID: 8319602355236059342}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
 --- !u!224 &5272866051524197235 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4204622624519209917, guid: 47f3c9988af262e468ba64cbde03bf4d, type: 3}

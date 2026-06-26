@@ -144,7 +144,7 @@ public sealed class OrderManager : MonoBehaviour
             if (order == null
                 || order.IsClaimed
                 || order.ObjectiveType != OrderObjectiveType.DestroyItems
-                || order.RequiredItem != itemData)
+                || !DoesDestroyedItemMatchRequirement(itemData, order.RequiredItem))
             {
                 continue;
             }
@@ -153,6 +153,37 @@ public sealed class OrderManager : MonoBehaviour
         }
 
         RefreshViews();
+    }
+
+    private static bool DoesDestroyedItemMatchRequirement(MergeItemData destroyedItem, MergeItemData requiredItem)
+    {
+        if (destroyedItem == null || requiredItem == null)
+        {
+            return false;
+        }
+
+        return destroyedItem == requiredItem
+            || IsLinkedThroughNextLevel(destroyedItem, requiredItem)
+            || IsLinkedThroughNextLevel(requiredItem, destroyedItem);
+    }
+
+    private static bool IsLinkedThroughNextLevel(MergeItemData startItem, MergeItemData targetItem)
+    {
+        var currentItem = startItem != null ? startItem.NextLevelItem : null;
+        var guard = 0;
+
+        while (currentItem != null && guard < 64)
+        {
+            if (currentItem == targetItem)
+            {
+                return true;
+            }
+
+            currentItem = currentItem.NextLevelItem;
+            guard++;
+        }
+
+        return false;
     }
 
     public bool CompleteRandomOrderDebug()
