@@ -9,6 +9,7 @@ public sealed class DebugPanel : MonoBehaviour
     [SerializeField] private EnergyManager energyManager;
     [SerializeField] private OrderManager orderManager;
     [SerializeField] private LevelManager levelManager;
+    [SerializeField] private CurrencyManager currencyManager;
 
     [Header("Buttons")]
     [SerializeField] private Button addEnergyButton;
@@ -58,6 +59,7 @@ public sealed class DebugPanel : MonoBehaviour
     private void ResetProgress()
     {
         ResolveReferences();
+        currencyManager?.ResetCurrencies();
         levelManager?.ResetProgressAndLoadFirstLevel();
     }
 
@@ -143,6 +145,11 @@ public sealed class DebugPanel : MonoBehaviour
         if (levelManager == null)
         {
             levelManager = FindFirstObjectByType<LevelManager>();
+        }
+
+        if (currencyManager == null)
+        {
+            currencyManager = FindFirstObjectByType<CurrencyManager>();
         }
     }
 

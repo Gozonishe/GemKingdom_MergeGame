@@ -82,7 +82,7 @@ public sealed class LevelManager : MonoBehaviour
 
     private void Update()
     {
-        if (isLoadingLevel || levelCompleteHandled || levelLoseHandled || orderManager == null)
+        if (isLoadingLevel || levelCompleteHandled || levelLoseHandled || orderManager == null || orderManager.IsAutoClaimingCompletedOrders)
         {
             return;
         }

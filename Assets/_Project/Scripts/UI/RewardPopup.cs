@@ -24,7 +24,11 @@ public sealed class RewardPopup : MonoBehaviour
         }
 
         ValidateReferences();
-        Hide();
+
+        if (!isVisible && root != null)
+        {
+            root.SetActive(false);
+        }
     }
 
     private void OnEnable()

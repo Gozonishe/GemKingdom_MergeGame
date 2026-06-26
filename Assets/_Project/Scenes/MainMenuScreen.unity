@@ -16803,6 +16803,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -190
       objectReference: {fileID: 0}
+    - target: {fileID: 4462433984457631047, guid: 99f9a029865fcb240bd38a6e21fe663a, type: 3}
+      propertyPath: m_ChildControlWidth
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4462433984457631047, guid: 99f9a029865fcb240bd38a6e21fe663a, type: 3}
+      propertyPath: m_ChildControlHeight
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6007155735985673542, guid: 99f9a029865fcb240bd38a6e21fe663a, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1

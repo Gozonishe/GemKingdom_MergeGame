@@ -42,6 +42,13 @@ public sealed class CurrencyManager : MonoBehaviour
         }
     }
 
+    public void ResetCurrencies()
+    {
+        coins = 0;
+        stars = 0;
+        RefreshView();
+    }
+
     public bool SpendCoins(int amount)
     {
         if (amount < 0 || coins < amount)

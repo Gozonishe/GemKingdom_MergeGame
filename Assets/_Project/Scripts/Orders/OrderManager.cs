@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,10 +16,15 @@ public sealed class OrderManager : MonoBehaviour
     [SerializeField] private RewardPopup rewardPopup;
     [SerializeField] private List<OrderView> orderViews = new List<OrderView>();
 
+    [Header("Rewards")]
+    [SerializeField, Min(0f)] private float autoRewardPopupDelay = 1f;
+
     private readonly List<OrderRuntimeData> runtimeOrders = new List<OrderRuntimeData>();
+    private bool isAutoClaimingCompletedOrders;
 
     public IReadOnlyList<OrderRuntimeData> ActiveOrders => runtimeOrders;
     public bool AreAllOrdersClaimed => runtimeOrders.Count > 0 && AreEveryRuntimeOrderClaimed();
+    public bool IsAutoClaimingCompletedOrders => isAutoClaimingCompletedOrders;
 
     private void Start()
     {
@@ -45,10 +51,15 @@ public sealed class OrderManager : MonoBehaviour
 
         BuildRuntimeOrdersFromDefinitions(orderDefinitions);
         BindViews();
-        RefreshOrders();
+        RefreshOrders(false);
     }
 
     public void RefreshOrders()
+    {
+        RefreshOrders(true);
+    }
+
+    private void RefreshOrders(bool allowAutoClaim)
     {
         ResolveReferences();
         BuildRuntimeOrdersIfNeeded();
@@ -68,6 +79,11 @@ public sealed class OrderManager : MonoBehaviour
         }
 
         RefreshViews();
+
+        if (allowAutoClaim)
+        {
+            TryAutoClaimAllCompletedOrders();
+        }
     }
 
     public bool ClaimOrder(OrderRuntimeData order)
@@ -153,6 +169,7 @@ public sealed class OrderManager : MonoBehaviour
         }
 
         RefreshViews();
+        TryAutoClaimAllCompletedOrders();
     }
 
     private static bool DoesDestroyedItemMatchRequirement(MergeItemData destroyedItem, MergeItemData requiredItem)
@@ -397,6 +414,97 @@ public sealed class OrderManager : MonoBehaviour
         {
             var order = runtimeOrders[i];
             if (order == null || !order.IsClaimed)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void TryAutoClaimAllCompletedOrders()
+    {
+        if (isAutoClaimingCompletedOrders || runtimeOrders.Count == 0 || !AreEveryRuntimeOrderReadyOrClaimed())
+        {
+            return;
+        }
+
+        ResolveReferences();
+
+        if (currencyManager == null)
+        {
+            Debug.LogError($"{nameof(OrderManager)} on '{name}' cannot auto-claim completed orders because {nameof(currencyManager)} is not assigned.", this);
+            return;
+        }
+
+        isAutoClaimingCompletedOrders = true;
+        StartCoroutine(AutoClaimAllCompletedOrdersAfterDelay());
+    }
+
+    private IEnumerator AutoClaimAllCompletedOrdersAfterDelay()
+    {
+        if (autoRewardPopupDelay > 0f)
+        {
+            yield return new WaitForSeconds(autoRewardPopupDelay);
+        }
+
+        ResolveReferences();
+
+        if (currencyManager == null)
+        {
+            Debug.LogError($"{nameof(OrderManager)} on '{name}' cannot auto-claim completed orders because {nameof(currencyManager)} is not assigned.", this);
+            isAutoClaimingCompletedOrders = false;
+            yield break;
+        }
+
+        if (!AreEveryRuntimeOrderReadyOrClaimed())
+        {
+            isAutoClaimingCompletedOrders = false;
+            yield break;
+        }
+
+        var totalCoins = 0;
+        var totalStars = 0;
+        var claimedCount = 0;
+
+        for (var i = 0; i < runtimeOrders.Count; i++)
+        {
+            var order = runtimeOrders[i];
+            if (order == null || order.IsClaimed)
+            {
+                continue;
+            }
+
+            totalCoins += order.CoinReward;
+            totalStars += order.StarReward;
+            order.MarkClaimed();
+            claimedCount++;
+        }
+
+        if (claimedCount > 0)
+        {
+            currencyManager.AddReward(totalCoins, totalStars);
+
+            if (rewardPopup != null)
+            {
+                rewardPopup.Show(totalCoins, totalStars);
+            }
+            else
+            {
+                Debug.LogError($"{nameof(OrderManager)} on '{name}' auto-claimed completed orders without showing rewards because {nameof(rewardPopup)} is not assigned.", this);
+            }
+        }
+
+        isAutoClaimingCompletedOrders = false;
+        RefreshViews();
+    }
+
+    private bool AreEveryRuntimeOrderReadyOrClaimed()
+    {
+        for (var i = 0; i < runtimeOrders.Count; i++)
+        {
+            var order = runtimeOrders[i];
+            if (order == null || (!order.IsClaimed && !order.CanClaim))
             {
                 return false;
             }

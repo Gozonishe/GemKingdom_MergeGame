@@ -170,7 +170,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.65}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.78431374}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3061,7 +3061,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.65}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.78431374}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3926,6 +3926,7 @@ MonoBehaviour:
   - {fileID: 286884015}
   - {fileID: 629218054}
   - {fileID: 2118155103}
+  autoRewardPopupDelay: 1
 --- !u!114 &1423717965
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5005,6 +5006,7 @@ MonoBehaviour:
   energyManager: {fileID: 1815406205}
   orderManager: {fileID: 1423717964}
   levelManager: {fileID: 0}
+  currencyManager: {fileID: 0}
   addEnergyButton: {fileID: 302107358}
   shuffleBoardButton: {fileID: 1512681686}
   completeRandomOrderButton: {fileID: 2122721174}
@@ -5575,7 +5577,7 @@ GameObject:
   - component: {fileID: 1830478666}
   - component: {fileID: 1830478665}
   m_Layer: 0
-  m_Name: RefillBoardButton
+  m_Name: Reset Progress
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -24,7 +24,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9fdd0c216bb5e4943a30262ba4314a1a, type: 2}
   orders:
   - objectiveType: 0
-    requiredItem: {fileID: 11400000, guid: 63169e2b46fdeda4a99c2f6186d6658d, type: 2}
+    requiredItem: {fileID: 11400000, guid: 0cc9490e02953a44b9eb0a4ce4e9a542, type: 2}
     requiredAmount: 1
     coinReward: 25
     starReward: 25
