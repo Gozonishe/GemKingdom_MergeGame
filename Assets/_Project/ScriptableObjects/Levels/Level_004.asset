@@ -13,25 +13,23 @@ MonoBehaviour:
   m_Name: Level_004
   m_EditorClassIdentifier: Assembly-CSharp::LevelData
   levelNumber: 4
-  movesCount: 18
+  movesCount: 11
   weightedSpawnableItems:
-  - itemData: {fileID: 11400000, guid: 8cfa7b3c4e357544d96e8c7553d758d1, type: 2}
-    weight: 2
-  - itemData: {fileID: 11400000, guid: 9fdd0c216bb5e4943a30262ba4314a1a, type: 2}
-    weight: 1
-  - itemData: {fileID: 11400000, guid: d85d5deb5f360d14586c93295decef84, type: 2}
-    weight: 1
-  - itemData: {fileID: 11400000, guid: 6ec710b846bd01d45a82d6ee4d730d77, type: 2}
+  - itemData: {fileID: 11400000, guid: 50e17eb973d2a4f4887adf1dc8160eb9, type: 2}
+    weight: 19
+  - itemData: {fileID: 11400000, guid: 67b4da7ec2bd3f0409dd1296ee237360, type: 2}
     weight: 1
   spawnableItems:
   - {fileID: 11400000, guid: 8cfa7b3c4e357544d96e8c7553d758d1, type: 2}
   - {fileID: 11400000, guid: 9fdd0c216bb5e4943a30262ba4314a1a, type: 2}
   orders:
-  - requiredItem: {fileID: 11400000, guid: 71d0213abebdc05418bb46757492c750, type: 2}
+  - objectiveType: 0
+    requiredItem: {fileID: 11400000, guid: 63169e2b46fdeda4a99c2f6186d6658d, type: 2}
+    requiredAmount: 1
+    coinReward: 25
+    starReward: 25
+  - objectiveType: 0
+    requiredItem: {fileID: 11400000, guid: 67b4da7ec2bd3f0409dd1296ee237360, type: 2}
     requiredAmount: 2
-    coinReward: 150
-    starReward: 100
-  - requiredItem: {fileID: 11400000, guid: c934e6b8fc1b9f049af757ce002a6dae, type: 2}
-    requiredAmount: 3
-    coinReward: 500
-    starReward: 250
+    coinReward: 20
+    starReward: 20

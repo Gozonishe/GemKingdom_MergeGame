@@ -8,10 +8,15 @@ public sealed class LevelManager : MonoBehaviour
 {
     private const string SavedLevelIndexKey = "MergeGame.NextLevelIndex";
     private const string DefaultMainMenuSceneName = "MainMenuScreen";
+    private const string DefaultLevelsAssetFolder = "Assets/_Project/ScriptableObjects/Levels";
 
     [Header("Levels")]
     [SerializeField] private List<LevelData> levels = new List<LevelData>();
     [SerializeField] private int currentLevelIndex;
+
+    [Header("Editor Setup")]
+    [SerializeField] private bool autoFillLevelsFromProjectFolder = true;
+    [SerializeField] private string levelsAssetFolder = DefaultLevelsAssetFolder;
 
     [Header("References")]
     [SerializeField] private BoardManager boardManager;
@@ -34,6 +39,16 @@ public sealed class LevelManager : MonoBehaviour
     public IReadOnlyList<LevelData> Levels => levels;
     public int CurrentLevelIndex => currentLevelIndex;
     public LevelData CurrentLevel => IsInsideLevels(currentLevelIndex) ? levels[currentLevelIndex] : null;
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if (autoFillLevelsFromProjectFolder)
+        {
+            FillLevelsFromProjectFolder();
+        }
+    }
+#endif
 
     public static int GetSavedLevelIndex(int defaultIndex = 0)
     {
@@ -456,4 +471,83 @@ public sealed class LevelManager : MonoBehaviour
 
         return null;
     }
+
+#if UNITY_EDITOR
+    private void FillLevelsFromProjectFolder()
+    {
+        if (string.IsNullOrWhiteSpace(levelsAssetFolder))
+        {
+            levelsAssetFolder = DefaultLevelsAssetFolder;
+        }
+
+        var guids = UnityEditor.AssetDatabase.FindAssets($"t:{nameof(LevelData)}", new[] { levelsAssetFolder });
+        if (guids == null || guids.Length == 0)
+        {
+            return;
+        }
+
+        var foundLevels = new List<LevelData>(guids.Length);
+        for (var i = 0; i < guids.Length; i++)
+        {
+            var path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[i]);
+            var level = UnityEditor.AssetDatabase.LoadAssetAtPath<LevelData>(path);
+            if (level != null && !foundLevels.Contains(level))
+            {
+                foundLevels.Add(level);
+            }
+        }
+
+        foundLevels.Sort(CompareLevelsByNumber);
+
+        if (HaveSameLevels(levels, foundLevels))
+        {
+            return;
+        }
+
+        levels.Clear();
+        levels.AddRange(foundLevels);
+        UnityEditor.EditorUtility.SetDirty(this);
+    }
+
+    private static int CompareLevelsByNumber(LevelData first, LevelData second)
+    {
+        if (first == second)
+        {
+            return 0;
+        }
+
+        if (first == null)
+        {
+            return 1;
+        }
+
+        if (second == null)
+        {
+            return -1;
+        }
+
+        var numberComparison = first.LevelNumber.CompareTo(second.LevelNumber);
+        return numberComparison != 0
+            ? numberComparison
+            : string.CompareOrdinal(first.name, second.name);
+    }
+
+    private static bool HaveSameLevels(IReadOnlyList<LevelData> first, IReadOnlyList<LevelData> second)
+    {
+        if (first == null || second == null || first.Count != second.Count)
+        {
+            return false;
+        }
+
+        for (var i = 0; i < first.Count; i++)
+        {
+            if (first[i] != second[i])
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+#endif
 }

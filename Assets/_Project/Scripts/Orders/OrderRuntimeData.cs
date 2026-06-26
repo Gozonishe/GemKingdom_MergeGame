@@ -9,6 +9,7 @@ public sealed class OrderRuntimeData
     [SerializeField] private bool isClaimed;
 
     public OrderDefinition Definition => definition;
+    public OrderObjectiveType ObjectiveType => definition != null ? definition.ObjectiveType : OrderObjectiveType.CollectOnBoard;
     public MergeItemData RequiredItem => definition != null ? definition.RequiredItem : null;
     public int RequiredAmount => definition != null ? definition.RequiredAmount : 0;
     public int CurrentAmount => currentAmount;

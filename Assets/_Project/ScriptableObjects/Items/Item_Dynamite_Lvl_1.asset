@@ -18,3 +18,4 @@ MonoBehaviour:
   icon: {fileID: 3748773680283437153, guid: 7850abb5e4a935d4daeecd682d16fab6, type: 3}
   nextLevelItem: {fileID: 0}
   reactToAdjacentMerge: 0
+  destroyBothOnAnyNeighborMerge: 1

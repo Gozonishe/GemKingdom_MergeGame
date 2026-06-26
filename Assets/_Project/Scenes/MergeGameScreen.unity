@@ -5507,6 +5507,21 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ad0239eef3112ad49bff9974b23d7646, type: 2}
   - {fileID: 11400000, guid: 469539bf90151dc45bb8dea7748202a2, type: 2}
   - {fileID: 11400000, guid: 032390b826f4d144fafd203acbe39091, type: 2}
+  - {fileID: 11400000, guid: 799d092ea83ee3243b716ea0dafd9a0f, type: 2}
+  - {fileID: 11400000, guid: fa1168d293fe4314ca50386547911598, type: 2}
+  - {fileID: 11400000, guid: 8251eeda5e4bac44cba6289406aa0c59, type: 2}
+  - {fileID: 11400000, guid: cff35bd1ae752784fa007f2262c70917, type: 2}
+  - {fileID: 11400000, guid: f39ed3a0c1689994fb900953a5f251a2, type: 2}
+  - {fileID: 11400000, guid: 3cbaaa655bf45004186d9d4d28892787, type: 2}
+  - {fileID: 11400000, guid: aacb19f3f3d33404ba44c09e4701a4fe, type: 2}
+  - {fileID: 11400000, guid: 3837198f2f4f56d4fa0cb9231a3c1d6a, type: 2}
+  - {fileID: 11400000, guid: 023e12831e49a5b4aab35af40a82c095, type: 2}
+  - {fileID: 11400000, guid: 3a6981baf712eda4e9dd53746a7e7043, type: 2}
+  - {fileID: 11400000, guid: 1cd1432505ff2a74a8de46dda619db6c, type: 2}
+  - {fileID: 11400000, guid: 5676c25a546e29444911d7158dd3992f, type: 2}
+  - {fileID: 11400000, guid: 3604b6e3ede795b45991d4d87cead869, type: 2}
+  - {fileID: 11400000, guid: c3daaf85f87645f409536f1ca8e7f96d, type: 2}
+  - {fileID: 11400000, guid: 446c22b772389804191ea02e16d9a647, type: 2}
   currentLevelIndex: 0
   boardManager: {fileID: 174095286}
   energyManager: {fileID: 1815406205}

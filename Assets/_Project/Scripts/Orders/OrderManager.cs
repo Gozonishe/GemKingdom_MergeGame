@@ -61,7 +61,10 @@ public sealed class OrderManager : MonoBehaviour
                 continue;
             }
 
-            order.SetCurrentAmount(CountItemsOnBoard(order.RequiredItem));
+            if (order.ObjectiveType == OrderObjectiveType.CollectOnBoard)
+            {
+                order.SetCurrentAmount(CountItemsOnBoard(order.RequiredItem));
+            }
         }
 
         RefreshViews();
@@ -76,7 +79,7 @@ public sealed class OrderManager : MonoBehaviour
 
         ResolveReferences();
 
-        if (boardManager == null)
+        if (order.ObjectiveType == OrderObjectiveType.CollectOnBoard && boardManager == null)
         {
             Debug.LogWarning($"{nameof(OrderManager)} cannot claim order because {nameof(boardManager)} is not assigned.", this);
             return false;
@@ -93,12 +96,19 @@ public sealed class OrderManager : MonoBehaviour
             Debug.LogError($"{nameof(OrderManager)} on '{name}' will claim the order without showing rewards because {nameof(rewardPopup)} is not assigned.", this);
         }
 
-        // Orders claim: remove required items from the board first, then pay rewards and refresh board/UI.
-        var removedCount = RemoveRequiredItems(order.RequiredItem, order.RequiredAmount);
-        if (removedCount < order.RequiredAmount)
+        var shouldRefreshBoard = false;
+
+        // Orders claim: collect orders consume the required amount, destroy orders only pay rewards after gameplay progress.
+        if (order.ObjectiveType == OrderObjectiveType.CollectOnBoard)
         {
-            RefreshOrders();
-            return false;
+            var removedCount = RemoveRequiredItems(order.RequiredItem, order.RequiredAmount);
+            if (removedCount < order.RequiredAmount)
+            {
+                RefreshOrders();
+                return false;
+            }
+
+            shouldRefreshBoard = removedCount > 0;
         }
 
         currencyManager.AddReward(order.CoinReward, order.StarReward);
@@ -108,11 +118,41 @@ public sealed class OrderManager : MonoBehaviour
             rewardPopup.Show(order.CoinReward, order.StarReward);
         }
 
-        boardManager.CollapseColumns();
-        boardManager.RefillBoard();
+        if (shouldRefreshBoard)
+        {
+            boardManager.CollapseColumns();
+            boardManager.RefillBoard();
+        }
+
         order.MarkClaimed();
         RefreshOrders();
         return true;
+    }
+
+    public void RegisterItemDestroyed(MergeItemData itemData, int amount = 1)
+    {
+        if (itemData == null || amount <= 0)
+        {
+            return;
+        }
+
+        BuildRuntimeOrdersIfNeeded();
+
+        for (var i = 0; i < runtimeOrders.Count; i++)
+        {
+            var order = runtimeOrders[i];
+            if (order == null
+                || order.IsClaimed
+                || order.ObjectiveType != OrderObjectiveType.DestroyItems
+                || order.RequiredItem != itemData)
+            {
+                continue;
+            }
+
+            order.SetCurrentAmount(order.CurrentAmount + amount);
+        }
+
+        RefreshViews();
     }
 
     public bool CompleteRandomOrderDebug()

@@ -547,8 +547,13 @@ public sealed class BoardManager : MonoBehaviour
 
         IsBusy = true;
 
+        var sourceData = sourceItem != null ? sourceItem.Data : null;
+        var targetData = targetItem != null ? targetItem.Data : null;
+
         sourceCell.Clear();
         targetCell.Clear();
+        NotifyItemDestroyed(sourceData);
+        NotifyItemDestroyed(targetData);
         Destroy(sourceItem.gameObject);
         Destroy(targetItem.gameObject);
 
@@ -695,7 +700,26 @@ public sealed class BoardManager : MonoBehaviour
         }
 
         cell.Clear();
+        NotifyItemDestroyed(itemData);
         Destroy(item.gameObject);
+    }
+
+    private void NotifyItemDestroyed(MergeItemData itemData)
+    {
+        if (itemData == null)
+        {
+            return;
+        }
+
+        if (orderManager == null)
+        {
+            orderManager = FindFirstObjectByType<OrderManager>();
+        }
+
+        if (orderManager != null)
+        {
+            orderManager.RegisterItemDestroyed(itemData);
+        }
     }
 
     private MergeItemData GetRandomWeightedSpawnableItem()
