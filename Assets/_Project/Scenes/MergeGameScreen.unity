@@ -787,8 +787,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 50e17eb973d2a4f4887adf1dc8160eb9, type: 2}
   - {fileID: 11400000, guid: 67b4da7ec2bd3f0409dd1296ee237360, type: 2}
   - {fileID: 11400000, guid: 0cc9490e02953a44b9eb0a4ce4e9a542, type: 2}
-  cellSize: {x: 156, y: 156}
-  cellSpacing: {x: 10.4, y: 10.4}
+  cellSize: {x: 137.3, y: 137.3}
+  cellSpacing: {x: 11.4, y: 11.4}
   clearExistingBoardOnInitialize: 1
   animateGravity: 1
   fallDuration: 0.22
@@ -814,8 +814,8 @@ MonoBehaviour:
   m_ChildAlignment: 1
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 124.8, y: 124.8}
-  m_Spacing: {x: 10.4, y: 10.4}
+  m_CellSize: {x: 137.3, y: 137.3}
+  m_Spacing: {x: 11.4, y: 11.4}
   m_Constraint: 1
   m_ConstraintCount: 6
 --- !u!224 &174095288
@@ -834,8 +834,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -80}
-  m_SizeDelta: {x: 858, y: 1014}
+  m_AnchoredPosition: {x: 0, y: -100}
+  m_SizeDelta: {x: 943.8, y: 1115.4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &195037795
 GameObject:

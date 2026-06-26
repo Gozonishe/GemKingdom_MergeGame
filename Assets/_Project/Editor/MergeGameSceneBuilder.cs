@@ -97,7 +97,7 @@ public static class MergeGameSceneBuilder
         var image = root.AddComponent<Image>();
         image.color = new Color(0.13f, 0.18f, 0.25f, 0.85f);
         root.AddComponent<BoardCell>();
-        SetRect(root, Vector2.zero, new Vector2(0.5f, 0.5f), new Vector2(124.8f, 124.8f));
+        SetRect(root, Vector2.zero, new Vector2(0.5f, 0.5f), new Vector2(137.3f, 137.3f));
 
         var prefab = PrefabUtility.SaveAsPrefabAsset(root, BoardCellPrefabPath);
         UnityEngine.Object.DestroyImmediate(root);
@@ -118,7 +118,7 @@ public static class MergeGameSceneBuilder
         root.AddComponent<CanvasGroup>();
         root.AddComponent<MergeItem>();
         root.AddComponent<ItemDragHandler>();
-        SetRect(root, Vector2.zero, new Vector2(0.5f, 0.5f), new Vector2(119.6f, 119.6f));
+        SetRect(root, Vector2.zero, new Vector2(0.5f, 0.5f), new Vector2(131.6f, 131.6f));
 
         var prefab = PrefabUtility.SaveAsPrefabAsset(root, MergeItemPrefabPath);
         UnityEngine.Object.DestroyImmediate(root);
@@ -264,12 +264,12 @@ public static class MergeGameSceneBuilder
         rect.anchorMin = new Vector2(0.5f, 0.5f);
         rect.anchorMax = new Vector2(0.5f, 0.5f);
         rect.pivot = new Vector2(0.5f, 0.5f);
-        rect.sizeDelta = new Vector2(858f, 1014f);
+        rect.sizeDelta = new Vector2(943.8f, 1115.4f);
         rect.anchoredPosition = new Vector2(0f, -80f);
 
         var grid = boardRoot.AddComponent<GridLayoutGroup>();
-        grid.cellSize = new Vector2(124.8f, 124.8f);
-        grid.spacing = new Vector2(10.4f, 10.4f);
+        grid.cellSize = new Vector2(137.3f, 137.3f);
+        grid.spacing = new Vector2(11.4f, 11.4f);
         grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
         grid.constraintCount = 6;
 
