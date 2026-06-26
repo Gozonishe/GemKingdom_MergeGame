@@ -364,11 +364,6 @@ public sealed class LevelManager : MonoBehaviour
 
     private void RefreshLevelText(LevelData level)
     {
-        if (levelText == null)
-        {
-            levelText = CreateDefaultLevelText();
-        }
-
         if (levelText != null && level != null)
         {
             levelText.text = $"Level {level.LevelNumber}";
@@ -387,42 +382,6 @@ public sealed class LevelManager : MonoBehaviour
         }
 
         return null;
-    }
-
-    private TMP_Text CreateDefaultLevelText()
-    {
-        var parent = transform as RectTransform;
-        if (parent == null)
-        {
-            var canvas = FindFirstObjectByType<Canvas>();
-            parent = canvas != null ? canvas.transform as RectTransform : null;
-        }
-
-        if (parent == null)
-        {
-            return null;
-        }
-
-        var textObject = new GameObject("LevelText", typeof(RectTransform));
-        textObject.transform.SetParent(parent, false);
-
-        var rectTransform = textObject.GetComponent<RectTransform>();
-        rectTransform.anchorMin = new Vector2(0.35f, 0.5f);
-        rectTransform.anchorMax = new Vector2(0.65f, 1f);
-        rectTransform.offsetMin = Vector2.zero;
-        rectTransform.offsetMax = Vector2.zero;
-        rectTransform.pivot = new Vector2(0.5f, 0.5f);
-
-        var text = textObject.AddComponent<TextMeshProUGUI>();
-        text.alignment = TextAlignmentOptions.Center;
-        text.fontSize = 32f;
-        text.color = Color.white;
-        text.raycastTarget = false;
-
-        var layoutElement = textObject.AddComponent<LayoutElement>();
-        layoutElement.ignoreLayout = true;
-
-        return text;
     }
 
     private static GameObject FindSceneObject(string objectName)

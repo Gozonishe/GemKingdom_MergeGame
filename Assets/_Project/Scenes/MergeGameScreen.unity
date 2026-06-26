@@ -781,6 +781,7 @@ MonoBehaviour:
   itemPrefab: {fileID: 8379786298339210125, guid: 07a5663a7b68c784a9a701d8440eab66, type: 3}
   energyManager: {fileID: 1815406205}
   orderManager: {fileID: 1423717964}
+  weightedSpawnableItems: []
   spawnableItems:
   - {fileID: 11400000, guid: 7619562684c9c4747812645ab6705f6c, type: 2}
   - {fileID: 11400000, guid: 50e17eb973d2a4f4887adf1dc8160eb9, type: 2}
@@ -1736,8 +1737,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 42
+  m_fontSizeBase: 42
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1804,9 +1805,9 @@ RectTransform:
   m_Father: {fileID: 1815406206}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -153, y: 0}
-  m_SizeDelta: {x: -354, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 240, y: 120}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &530520147
 GameObject:
@@ -2524,8 +2525,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 42
+  m_fontSizeBase: 42
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2592,9 +2593,9 @@ RectTransform:
   m_Father: {fileID: 1815406206}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -660, y: 0}
+  m_SizeDelta: {x: 350, y: 120}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &879088532
 GameObject:
@@ -4008,7 +4009,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -130}
+  m_AnchoredPosition: {x: 0, y: -230}
   m_SizeDelta: {x: 0, y: 220}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &1473533724
@@ -5276,14 +5277,14 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 42
+  m_fontSizeBase: 42
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 4
+  m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -5344,9 +5345,9 @@ RectTransform:
   m_Father: {fileID: 1815406206}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 153, y: 0}
-  m_SizeDelta: {x: -354, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 350, y: 120}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1815406199
 GameObject:
@@ -5364,6 +5365,7 @@ GameObject:
   - component: {fileID: 1815406205}
   - component: {fileID: 1815406207}
   - component: {fileID: 1815406200}
+  - component: {fileID: 1815406208}
   m_Layer: 0
   m_Name: TopBar
   m_TagString: Untagged
@@ -5480,14 +5482,14 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 524821827}
-  - {fileID: 829757362}
   - {fileID: 1792144308}
+  - {fileID: 829757362}
   m_Father: {fileID: 1093415889}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 120}
+  m_AnchoredPosition: {x: 0, y: -100}
+  m_SizeDelta: {x: -40, y: 120}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1815406207
 MonoBehaviour:
@@ -5523,6 +5525,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c3daaf85f87645f409536f1ca8e7f96d, type: 2}
   - {fileID: 11400000, guid: 446c22b772389804191ea02e16d9a647, type: 2}
   currentLevelIndex: 0
+  autoFillLevelsFromProjectFolder: 1
+  levelsAssetFolder: Assets/_Project/ScriptableObjects/Levels
   boardManager: {fileID: 174095286}
   energyManager: {fileID: 1815406205}
   orderManager: {fileID: 1423717964}
@@ -5530,7 +5534,34 @@ MonoBehaviour:
   levelText: {fileID: 0}
   loosePopup: {fileID: 0}
   loosePopupQuitButton: {fileID: 0}
+  exitLevelButton: {fileID: 0}
   mainMenuSceneName: MainMenuScreen
+--- !u!114 &1815406208
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1815406199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.HorizontalLayoutGroup
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 0
+  m_Spacing: 0
+  m_ChildForceExpandWidth: 1
+  m_ChildForceExpandHeight: 1
+  m_ChildControlWidth: 0
+  m_ChildControlHeight: 0
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
+  m_ReverseArrangement: 0
 --- !u!1 &1830478663
 GameObject:
   m_ObjectHideFlags: 0

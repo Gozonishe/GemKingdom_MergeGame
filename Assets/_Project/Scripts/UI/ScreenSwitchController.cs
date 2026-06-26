@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -6,6 +7,8 @@ using UnityEngine.UI;
 
 public sealed class ScreenSwitchController : MonoBehaviour
 {
+    private const string DefaultLevelsAssetFolder = "Assets/_Project/ScriptableObjects/Levels";
+
     private enum ScreenId
     {
         Main,
@@ -31,6 +34,11 @@ public sealed class ScreenSwitchController : MonoBehaviour
     [SerializeField] private Button mergeGameButton;
     [SerializeField] private TMP_Text mergeGameLevelText;
     [SerializeField] private TMP_Text levelStartWindowHeaderLabel;
+    [SerializeField] private List<LevelData> levelStartLevels = new List<LevelData>();
+    [SerializeField] private RectTransform levelStartTaskItemsRoot;
+    [SerializeField] private GameObject levelStartTaskItemPrefab;
+    [SerializeField] private bool autoFillLevelStartLevelsFromProjectFolder = true;
+    [SerializeField] private string levelStartLevelsAssetFolder = DefaultLevelsAssetFolder;
     [SerializeField] private string mergeGameSceneName = "MergeGameScreen";
     [SerializeField] private string mergeGameLevelTextFormat = "Level {0}";
     [SerializeField] private RectTransform mainButtonContent;
@@ -51,6 +59,16 @@ public sealed class ScreenSwitchController : MonoBehaviour
     private Button subscribedContinueRaceButton;
     private Button subscribedMergeGameButton;
 
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if (autoFillLevelStartLevelsFromProjectFolder)
+        {
+            FillLevelStartLevelsFromProjectFolder();
+        }
+    }
+#endif
+
     private void Awake()
     {
         ResolveMissingReferences();
@@ -63,12 +81,14 @@ public sealed class ScreenSwitchController : MonoBehaviour
         }
 
         RefreshMergeGameLevelText();
+        RefreshLevelStartTasks();
     }
 
     private void OnEnable()
     {
         transform.SetAsLastSibling();
         RefreshMergeGameLevelText();
+        RefreshLevelStartTasks();
     }
 
     private void Start()
@@ -76,6 +96,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
         ResolveMissingReferences();
         SubscribeMergeGameButton();
         RefreshMergeGameLevelText();
+        RefreshLevelStartTasks();
     }
 
     private void OnDestroy()
@@ -245,6 +266,10 @@ public sealed class ScreenSwitchController : MonoBehaviour
         mergeGameLevelText = mergeGameLevelText != null ? mergeGameLevelText : FindSceneTextInRoot("MainScreen", "TextNumber");
         levelStartWindowHeaderLabel = levelStartWindowHeaderLabel != null ? levelStartWindowHeaderLabel : FindSceneTextByPath("LevelStartWindow", "Bg/HeaderLabel");
         levelStartWindowHeaderLabel = levelStartWindowHeaderLabel != null ? levelStartWindowHeaderLabel : FindSceneTextInRoot("LevelStartWindow", "HeaderLabel");
+        levelStartTaskItemsRoot = levelStartTaskItemsRoot != null ? levelStartTaskItemsRoot : FindSceneRectByPath("LevelStartWindow", "Content/TaskPlane/TasksItems");
+        levelStartTaskItemsRoot = levelStartTaskItemsRoot != null ? levelStartTaskItemsRoot : FindSceneRectByPath("LevelStartWindow", "Content/TaskPlane/Task Items");
+        levelStartTaskItemsRoot = levelStartTaskItemsRoot != null ? levelStartTaskItemsRoot : FindSceneRectInRoot("LevelStartWindow", "TasksItems");
+        levelStartTaskItemsRoot = levelStartTaskItemsRoot != null ? levelStartTaskItemsRoot : FindSceneRectInRoot("LevelStartWindow", "Task Items");
         mainButtonContent = mainButtonContent != null ? mainButtonContent : FindButtonContent(mainButton);
         shopButtonContent = shopButtonContent != null ? shopButtonContent : FindButtonContent(shopButton);
         clanButtonContent = clanButtonContent != null ? clanButtonContent : FindButtonContent(clanButton);
@@ -283,6 +308,175 @@ public sealed class ScreenSwitchController : MonoBehaviour
         if (levelStartWindowHeaderLabel != null)
         {
             levelStartWindowHeaderLabel.text = levelText;
+        }
+    }
+
+    private void RefreshLevelStartTasks()
+    {
+        if (levelStartTaskItemsRoot == null)
+        {
+            levelStartTaskItemsRoot = FindSceneRectByPath("LevelStartWindow", "Content/TaskPlane/TasksItems");
+            levelStartTaskItemsRoot = levelStartTaskItemsRoot != null ? levelStartTaskItemsRoot : FindSceneRectByPath("LevelStartWindow", "Content/TaskPlane/Task Items");
+            levelStartTaskItemsRoot = levelStartTaskItemsRoot != null ? levelStartTaskItemsRoot : FindSceneRectInRoot("LevelStartWindow", "TasksItems");
+            levelStartTaskItemsRoot = levelStartTaskItemsRoot != null ? levelStartTaskItemsRoot : FindSceneRectInRoot("LevelStartWindow", "Task Items");
+        }
+
+        if (levelStartTaskItemsRoot == null)
+        {
+            return;
+        }
+
+        var currentLevel = GetCurrentLevelStartLevel();
+        var orders = currentLevel != null ? currentLevel.Orders : null;
+        var template = ResolveLevelStartTaskItemTemplate();
+
+        if (template == null)
+        {
+            Debug.LogWarning($"{nameof(ScreenSwitchController)} on '{name}' cannot refresh level start tasks because no TaskItem prefab or template was found.", this);
+            return;
+        }
+
+        ClearLevelStartTaskItems(template);
+
+        if (orders == null)
+        {
+            SetTaskTemplateActive(template, false);
+            return;
+        }
+
+        for (var i = 0; i < orders.Count; i++)
+        {
+            var order = orders[i];
+            if (order == null)
+            {
+                continue;
+            }
+
+            var taskItem = Instantiate(template, levelStartTaskItemsRoot);
+            taskItem.name = $"TaskItem_{i + 1}";
+            taskItem.SetActive(true);
+            ApplyTaskItem(taskItem, order);
+        }
+
+        SetTaskTemplateActive(template, false);
+    }
+
+    private LevelData GetCurrentLevelStartLevel()
+    {
+        if (levelStartLevels == null || levelStartLevels.Count == 0)
+        {
+            return null;
+        }
+
+        var savedLevelIndex = Mathf.Clamp(LevelManager.GetSavedLevelIndex(), 0, levelStartLevels.Count - 1);
+        return levelStartLevels[savedLevelIndex];
+    }
+
+    private GameObject ResolveLevelStartTaskItemTemplate()
+    {
+        if (levelStartTaskItemPrefab != null)
+        {
+            return levelStartTaskItemPrefab;
+        }
+
+        if (levelStartTaskItemsRoot == null)
+        {
+            return null;
+        }
+
+        var existing = levelStartTaskItemsRoot.Find("TaskItem");
+        if (existing != null)
+        {
+            return existing.gameObject;
+        }
+
+        return levelStartTaskItemsRoot.childCount > 0
+            ? levelStartTaskItemsRoot.GetChild(0).gameObject
+            : null;
+    }
+
+    private void ClearLevelStartTaskItems(GameObject template)
+    {
+        for (var i = levelStartTaskItemsRoot.childCount - 1; i >= 0; i--)
+        {
+            var child = levelStartTaskItemsRoot.GetChild(i);
+            if (template != null && child == template.transform)
+            {
+                continue;
+            }
+
+            Destroy(child.gameObject);
+        }
+    }
+
+    private static void ApplyTaskItem(GameObject taskItem, OrderDefinition order)
+    {
+        if (taskItem == null || order == null)
+        {
+            return;
+        }
+
+        var taskImage = FindChildImage(taskItem.transform, "TaskImage");
+        taskImage = taskImage != null ? taskImage : FindChildImage(taskItem.transform, "Image");
+        if (taskImage != null)
+        {
+            taskImage.sprite = order.RequiredItem != null ? order.RequiredItem.Icon : null;
+            taskImage.enabled = taskImage.sprite != null;
+            taskImage.preserveAspect = true;
+        }
+
+        var itemCount = FindChildText(taskItem.transform, "ItemCount");
+        if (itemCount != null)
+        {
+            itemCount.text = order.RequiredAmount.ToString();
+        }
+    }
+
+    private static Image FindChildImage(Transform root, string childName)
+    {
+        if (root == null)
+        {
+            return null;
+        }
+
+        var images = root.GetComponentsInChildren<Image>(true);
+        for (var i = 0; i < images.Length; i++)
+        {
+            var image = images[i];
+            if (image != null && image.name == childName)
+            {
+                return image;
+            }
+        }
+
+        return null;
+    }
+
+    private static TMP_Text FindChildText(Transform root, string childName)
+    {
+        if (root == null)
+        {
+            return null;
+        }
+
+        var texts = root.GetComponentsInChildren<TMP_Text>(true);
+        for (var i = 0; i < texts.Length; i++)
+        {
+            var text = texts[i];
+            if (text != null && text.name == childName)
+            {
+                return text;
+            }
+        }
+
+        return null;
+    }
+
+    private static void SetTaskTemplateActive(GameObject template, bool isActive)
+    {
+        if (template != null && template.scene.IsValid())
+        {
+            template.SetActive(isActive);
         }
     }
 
@@ -444,6 +638,39 @@ public sealed class ScreenSwitchController : MonoBehaviour
         return target != null ? target.GetComponent<TMP_Text>() : null;
     }
 
+    private static RectTransform FindSceneRectByPath(string rootName, string path)
+    {
+        var root = FindSceneObject(rootName);
+        if (root == null)
+        {
+            return null;
+        }
+
+        var target = root.transform.Find(path);
+        return target as RectTransform;
+    }
+
+    private static RectTransform FindSceneRectInRoot(string rootName, string rectName)
+    {
+        var root = FindSceneObject(rootName);
+        if (root == null)
+        {
+            return null;
+        }
+
+        var rects = root.GetComponentsInChildren<RectTransform>(true);
+        for (var i = 0; i < rects.Length; i++)
+        {
+            var rect = rects[i];
+            if (rect != null && rect.name == rectName)
+            {
+                return rect;
+            }
+        }
+
+        return null;
+    }
+
     private static Button FindSceneButton(string objectName)
     {
         var target = FindSceneObject(objectName);
@@ -500,4 +727,83 @@ public sealed class ScreenSwitchController : MonoBehaviour
 
         target.SetActive(isActive);
     }
+
+#if UNITY_EDITOR
+    private void FillLevelStartLevelsFromProjectFolder()
+    {
+        if (string.IsNullOrWhiteSpace(levelStartLevelsAssetFolder))
+        {
+            levelStartLevelsAssetFolder = DefaultLevelsAssetFolder;
+        }
+
+        var guids = UnityEditor.AssetDatabase.FindAssets($"t:{nameof(LevelData)}", new[] { levelStartLevelsAssetFolder });
+        if (guids == null || guids.Length == 0)
+        {
+            return;
+        }
+
+        var foundLevels = new List<LevelData>(guids.Length);
+        for (var i = 0; i < guids.Length; i++)
+        {
+            var path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[i]);
+            var level = UnityEditor.AssetDatabase.LoadAssetAtPath<LevelData>(path);
+            if (level != null && !foundLevels.Contains(level))
+            {
+                foundLevels.Add(level);
+            }
+        }
+
+        foundLevels.Sort(CompareLevelsByNumber);
+
+        if (HaveSameLevels(levelStartLevels, foundLevels))
+        {
+            return;
+        }
+
+        levelStartLevels.Clear();
+        levelStartLevels.AddRange(foundLevels);
+        UnityEditor.EditorUtility.SetDirty(this);
+    }
+
+    private static int CompareLevelsByNumber(LevelData first, LevelData second)
+    {
+        if (first == second)
+        {
+            return 0;
+        }
+
+        if (first == null)
+        {
+            return 1;
+        }
+
+        if (second == null)
+        {
+            return -1;
+        }
+
+        var numberComparison = first.LevelNumber.CompareTo(second.LevelNumber);
+        return numberComparison != 0
+            ? numberComparison
+            : string.CompareOrdinal(first.name, second.name);
+    }
+
+    private static bool HaveSameLevels(IReadOnlyList<LevelData> first, IReadOnlyList<LevelData> second)
+    {
+        if (first == null || second == null || first.Count != second.Count)
+        {
+            return false;
+        }
+
+        for (var i = 0; i < first.Count; i++)
+        {
+            if (first[i] != second[i])
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+#endif
 }

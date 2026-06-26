@@ -23,12 +23,12 @@ public sealed class UICurrencyView : MonoBehaviour
     {
         if (coinsText != null)
         {
-            coinsText.text = coins.ToString();
+            coinsText.text = $"Coins: {coins}";
         }
 
         if (starsText != null)
         {
-            starsText.text = stars.ToString();
+            starsText.text = $"Stars: {stars}";
         }
     }
 }
