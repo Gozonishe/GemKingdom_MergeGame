@@ -7,6 +7,7 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
     [Header("References")]
     [SerializeField] private MergeItem item;
     [SerializeField] private BoardManager boardManager;
+    [SerializeField] private BottomItemTrayController bottomItemTrayController;
     [SerializeField] private Canvas parentCanvas;
     [SerializeField] private RectTransform dragRoot;
 
@@ -25,21 +26,18 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
     {
         rectTransform = transform as RectTransform;
         item = item != null ? item : GetComponent<MergeItem>();
-        boardManager = boardManager != null ? boardManager : GetComponentInParent<BoardManager>();
+        ResolveReferences();
         parentCanvas = parentCanvas != null ? parentCanvas : GetComponentInParent<Canvas>();
         canvasGroup = GetComponent<CanvasGroup>();
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (boardManager == null)
-        {
-            boardManager = GetComponentInParent<BoardManager>();
-        }
+        ResolveReferences();
 
         if (boardManager == null)
         {
-            Debug.LogError($"{nameof(ItemDragHandler)} on '{name}' cannot start drag because {nameof(boardManager)} is not assigned and no parent {nameof(BoardManager)} was found.", this);
+            Debug.LogError($"{nameof(ItemDragHandler)} on '{name}' cannot start drag because {nameof(boardManager)} is not assigned and no {nameof(BoardManager)} was found.", this);
             isDragging = false;
             return;
         }
@@ -96,9 +94,49 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
         }
 
         var targetCell = FindTargetCell(eventData);
-        var targetItem = targetCell != null ? targetCell.CurrentItem : null;
 
-        if (!CanDropMerge(targetCell, targetItem) || boardManager == null || !boardManager.TryMerge(item, targetItem))
+        if (CanDropFromTray(targetCell))
+        {
+            var sourceWasGeneratedSlot = IsGeneratedSlot(sourceCell);
+            var targetIsBoardCell = IsBoardCell(targetCell);
+            var targetIsFrozenSlot = IsFrozenSlot(targetCell);
+
+            if (targetIsBoardCell
+                && (bottomItemTrayController == null || !bottomItemTrayController.TrySpendMoveForBoardPlacement()))
+            {
+                ReturnToSourceCell();
+                sourceCell = null;
+                startParent = null;
+                return;
+            }
+
+            targetCell.SetItem(item);
+
+            if (targetIsBoardCell && boardManager != null)
+            {
+                boardManager.TryMergeWithAdjacentItem(targetCell);
+                boardManager.RefreshOrders();
+
+                if (sourceWasGeneratedSlot && bottomItemTrayController != null)
+                {
+                    bottomItemTrayController.GenerateFreeItemInGeneratedSlot();
+                }
+            }
+            else if (sourceWasGeneratedSlot && targetIsFrozenSlot && bottomItemTrayController != null)
+            {
+                bottomItemTrayController.GenerateFreeItemInGeneratedSlot();
+            }
+        }
+        else if (CanDropBoardItemForAdjacentMerge(targetCell))
+        {
+            targetCell.SetItem(item);
+
+            if (boardManager == null || !boardManager.TryMergeWithAdjacentItem(targetCell))
+            {
+                ReturnToSourceCell();
+            }
+        }
+        else
         {
             ReturnToSourceCell();
         }
@@ -107,26 +145,56 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
         startParent = null;
     }
 
-    private bool CanDropMerge(BoardCell targetCell, MergeItem targetItem)
+    private bool CanDropFromTray(BoardCell targetCell)
     {
-        return targetCell != null
-            && sourceCell != null
+        if (sourceCell == null || targetCell == null || targetCell == sourceCell || item == null)
+        {
+            return false;
+        }
+
+        if (!IsTraySlot(sourceCell))
+        {
+            return false;
+        }
+
+        if (IsBoardCell(targetCell))
+        {
+            return targetCell.IsEmpty();
+        }
+
+        return IsGeneratedSlot(sourceCell)
+            && IsFrozenSlot(targetCell)
+            && targetCell.IsEmpty();
+    }
+
+    private bool CanDropBoardItemForAdjacentMerge(BoardCell targetCell)
+    {
+        return sourceCell != null
+            && targetCell != null
             && targetCell != sourceCell
-            && AreNeighborCells(sourceCell, targetCell)
-            && targetItem != null
             && item != null
-            && (boardManager != null ? boardManager.CanMerge(sourceCell, targetCell) : item.CanMergeWith(targetItem));
+            && boardManager != null
+            && IsBoardCell(sourceCell)
+            && IsBoardCell(targetCell)
+            && targetCell.IsEmpty();
     }
 
     private BoardCell FindTargetCell(PointerEventData eventData)
     {
-        if (boardManager == null)
+        ResolveReferences();
+
+        var uiCamera = GetUICamera(eventData);
+        var trayCell = bottomItemTrayController != null
+            ? bottomItemTrayController.GetSlotAtScreenPosition(eventData.position, uiCamera)
+            : null;
+
+        if (trayCell != null)
         {
-            boardManager = FindFirstObjectByType<BoardManager>();
+            return trayCell;
         }
 
         return boardManager != null
-            ? boardManager.GetCellAtScreenPosition(eventData.position, GetUICamera(eventData))
+            ? boardManager.GetCellAtScreenPosition(eventData.position, uiCamera)
             : null;
     }
 
@@ -201,6 +269,54 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
         {
             canvasGroup.blocksRaycasts = blocksRaycasts;
         }
+    }
+
+    private void ResolveReferences()
+    {
+        if (boardManager == null)
+        {
+            boardManager = GetComponentInParent<BoardManager>();
+        }
+
+        if (boardManager == null)
+        {
+            boardManager = FindFirstObjectByType<BoardManager>();
+        }
+
+        if (bottomItemTrayController == null)
+        {
+            bottomItemTrayController = GetComponentInParent<BottomItemTrayController>();
+        }
+
+        if (bottomItemTrayController == null)
+        {
+            bottomItemTrayController = FindFirstObjectByType<BottomItemTrayController>(FindObjectsInactive.Include);
+        }
+
+        if (parentCanvas == null)
+        {
+            parentCanvas = GetComponentInParent<Canvas>();
+        }
+    }
+
+    private bool IsBoardCell(BoardCell cell)
+    {
+        return boardManager != null && boardManager.ContainsCell(cell);
+    }
+
+    private bool IsTraySlot(BoardCell cell)
+    {
+        return bottomItemTrayController != null && bottomItemTrayController.IsTraySlot(cell);
+    }
+
+    private bool IsGeneratedSlot(BoardCell cell)
+    {
+        return bottomItemTrayController != null && bottomItemTrayController.IsGeneratedItemSlot(cell);
+    }
+
+    private bool IsFrozenSlot(BoardCell cell)
+    {
+        return bottomItemTrayController != null && bottomItemTrayController.IsFrozenItemSlot(cell);
     }
 
     private static bool AreNeighborCells(BoardCell firstCell, BoardCell secondCell)

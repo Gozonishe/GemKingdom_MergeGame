@@ -24,6 +24,7 @@ public sealed class OrderManager : MonoBehaviour
 
     public IReadOnlyList<OrderRuntimeData> ActiveOrders => runtimeOrders;
     public bool AreAllOrdersClaimed => runtimeOrders.Count > 0 && AreEveryRuntimeOrderClaimed();
+    public bool AreAllOrdersReadyOrClaimed => runtimeOrders.Count > 0 && AreEveryRuntimeOrderReadyOrClaimed();
     public bool IsAutoClaimingCompletedOrders => isAutoClaimingCompletedOrders;
 
     private void Start()
@@ -112,9 +113,8 @@ public sealed class OrderManager : MonoBehaviour
             Debug.LogError($"{nameof(OrderManager)} on '{name}' will claim the order without showing rewards because {nameof(rewardPopup)} is not assigned.", this);
         }
 
-        var shouldRefreshBoard = false;
-
         // Orders claim: collect orders consume the required amount, destroy orders only pay rewards after gameplay progress.
+        // In the new board flow removed collect items leave empty cells; refill is reserved for debug tools.
         if (order.ObjectiveType == OrderObjectiveType.CollectOnBoard)
         {
             var removedCount = RemoveRequiredItems(order.RequiredItem, order.RequiredAmount);
@@ -123,8 +123,6 @@ public sealed class OrderManager : MonoBehaviour
                 RefreshOrders();
                 return false;
             }
-
-            shouldRefreshBoard = removedCount > 0;
         }
 
         currencyManager.AddReward(order.CoinReward, order.StarReward);
@@ -132,12 +130,6 @@ public sealed class OrderManager : MonoBehaviour
         if (rewardPopup != null)
         {
             rewardPopup.Show(order.CoinReward, order.StarReward);
-        }
-
-        if (shouldRefreshBoard)
-        {
-            boardManager.CollapseColumns();
-            boardManager.RefillBoard();
         }
 
         order.MarkClaimed();

@@ -13,8 +13,13 @@ MonoBehaviour:
   m_Name: Level_001
   m_EditorClassIdentifier: Assembly-CSharp::LevelData
   levelNumber: 1
-  movesCount: 4
-  weightedSpawnableItems:
+  movesCount: 7
+  boardColumns: 6
+  boardRows: 6
+  initialBoardItems:
+  - itemData: {fileID: 11400000, guid: 50e17eb973d2a4f4887adf1dc8160eb9, type: 2}
+    count: 3
+  generatorSpawnableItems:
   - itemData: {fileID: 11400000, guid: 50e17eb973d2a4f4887adf1dc8160eb9, type: 2}
     weight: 1
   spawnableItems:
@@ -22,7 +27,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 67b4da7ec2bd3f0409dd1296ee237360, type: 2}
   - {fileID: 11400000, guid: d85d5deb5f360d14586c93295decef84, type: 2}
   orders:
-  - requiredItem: {fileID: 11400000, guid: 67b4da7ec2bd3f0409dd1296ee237360, type: 2}
-    requiredAmount: 3
+  - objectiveType: 0
+    requiredItem: {fileID: 11400000, guid: 67b4da7ec2bd3f0409dd1296ee237360, type: 2}
+    requiredAmount: 2
     coinReward: 10
     starReward: 10

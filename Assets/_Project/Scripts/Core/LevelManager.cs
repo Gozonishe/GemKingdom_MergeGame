@@ -22,6 +22,7 @@ public sealed class LevelManager : MonoBehaviour
     [SerializeField] private BoardManager boardManager;
     [SerializeField] private EnergyManager energyManager;
     [SerializeField] private OrderManager orderManager;
+    [SerializeField] private BottomItemTrayController bottomItemTrayController;
     [SerializeField] private RewardPopup rewardPopup;
     [SerializeField] private TMP_Text levelText;
     [SerializeField] private GameObject loosePopup;
@@ -164,6 +165,9 @@ public sealed class LevelManager : MonoBehaviour
 
         if (boardManager != null)
         {
+            boardManager.SetBoardSize(level.BoardColumns, level.BoardRows);
+            boardManager.SetInitialBoardItems(level.InitialBoardItems);
+
             if (level.HasWeightedSpawnableItems)
             {
                 boardManager.SetSpawnableItems(level.WeightedSpawnableItems);
@@ -178,6 +182,11 @@ public sealed class LevelManager : MonoBehaviour
         else
         {
             Debug.LogError($"{nameof(LevelManager)} on '{name}' cannot apply board balance because {nameof(boardManager)} is not assigned.", this);
+        }
+
+        if (bottomItemTrayController != null)
+        {
+            bottomItemTrayController.PrepareForLevel(level.GeneratorSpawnableItems);
         }
 
         isLoadingLevel = false;
@@ -233,6 +242,11 @@ public sealed class LevelManager : MonoBehaviour
         if (orderManager == null)
         {
             orderManager = FindFirstObjectByType<OrderManager>();
+        }
+
+        if (bottomItemTrayController == null)
+        {
+            bottomItemTrayController = FindFirstObjectByType<BottomItemTrayController>(FindObjectsInactive.Include);
         }
 
         if (rewardPopup == null)
@@ -331,6 +345,7 @@ public sealed class LevelManager : MonoBehaviour
     {
         return energyManager != null
             && energyManager.CurrentEnergy <= 0
+            && (orderManager == null || !orderManager.AreAllOrdersReadyOrClaimed)
             && (boardManager == null || !boardManager.IsBusy)
             && (rewardPopup == null || !rewardPopup.IsVisible);
     }

@@ -5,7 +5,9 @@ using UnityEngine;
 public sealed class BoardManager : MonoBehaviour
 {
     private const int DefaultColumns = 6;
-    private const int DefaultRows = 7;
+    private const int DefaultRows = 6;
+    private const int RequiredConnectedMergeItemCount = 3;
+    private const int MaxCascadeMergeSteps = 32;
 
     [Header("Board Size")]
     [SerializeField] private int columns = DefaultColumns;
@@ -15,8 +17,8 @@ public sealed class BoardManager : MonoBehaviour
     [SerializeField] private Transform boardRoot;
     [SerializeField] private BoardCell cellPrefab;
     [SerializeField] private MergeItem itemPrefab;
-    [SerializeField] private EnergyManager energyManager;
     [SerializeField] private OrderManager orderManager;
+    [SerializeField] private List<InitialBoardItemDefinition> initialBoardItems = new List<InitialBoardItemDefinition>();
     [SerializeField] private List<SpawnableItemDefinition> weightedSpawnableItems = new List<SpawnableItemDefinition>();
     [HideInInspector]
     [SerializeField] private List<MergeItemData> spawnableItems = new List<MergeItemData>();
@@ -65,13 +67,7 @@ public sealed class BoardManager : MonoBehaviour
 
         if (itemPrefab == null)
         {
-            Debug.LogError($"{nameof(BoardManager)} on '{name}' cannot fill a board because {nameof(itemPrefab)} is not assigned.", this);
-            return;
-        }
-
-        if (!HasValidSpawnableItems())
-        {
-            Debug.LogError($"{nameof(BoardManager)} on '{name}' cannot fill a board because no spawnable items are configured.", this);
+            Debug.LogError($"{nameof(BoardManager)} on '{name}' cannot create start items because {nameof(itemPrefab)} is not assigned.", this);
             return;
         }
 
@@ -89,11 +85,36 @@ public sealed class BoardManager : MonoBehaviour
             {
                 var cell = CreateCell(x, y);
                 cells[x, y] = cell;
-                SpawnItemInCell(cell);
             }
         }
 
+        FillInitialBoard();
         RefreshOrders();
+    }
+
+    public void SetBoardSize(int newColumns, int newRows)
+    {
+        columns = Mathf.Max(1, newColumns);
+        rows = Mathf.Max(1, newRows);
+    }
+
+    public void SetInitialBoardItems(IReadOnlyList<InitialBoardItemDefinition> items)
+    {
+        initialBoardItems.Clear();
+
+        if (items == null)
+        {
+            return;
+        }
+
+        for (var i = 0; i < items.Count; i++)
+        {
+            var item = items[i];
+            if (item != null && item.ItemData != null && item.Count > 0)
+            {
+                initialBoardItems.Add(item);
+            }
+        }
     }
 
     public void SetSpawnableItems(IReadOnlyList<MergeItemData> items)
@@ -145,6 +166,23 @@ public sealed class BoardManager : MonoBehaviour
         return TryMerge(firstCell.CurrentItem, secondCell.CurrentItem);
     }
 
+    public bool TryMergeWithAdjacentItem(BoardCell placedItemCell)
+    {
+        if (IsBusy || placedItemCell == null || !ContainsCell(placedItemCell) || placedItemCell.CurrentItem == null)
+        {
+            return false;
+        }
+
+        var placedItem = placedItemCell.CurrentItem;
+        var adjacentDestroyCell = FindAdjacentDestroyBothCell(placedItemCell, placedItem);
+        if (adjacentDestroyCell != null)
+        {
+            return TryMerge(placedItem, adjacentDestroyCell.CurrentItem);
+        }
+
+        return TryResolveConnectedMergeCascade(placedItemCell);
+    }
+
     public bool TryMerge(MergeItem sourceItem, MergeItem targetItem)
     {
         if (IsBusy)
@@ -161,6 +199,11 @@ public sealed class BoardManager : MonoBehaviour
         var targetCell = targetItem.CurrentCell;
 
         if (sourceCell == null || targetCell == null || sourceCell == targetCell)
+        {
+            return false;
+        }
+
+        if (!ContainsCell(sourceCell) || !ContainsCell(targetCell))
         {
             return false;
         }
@@ -182,47 +225,17 @@ public sealed class BoardManager : MonoBehaviour
             return TryDestroyBothByAnyNeighborMerge(sourceCell, targetCell, sourceItem, targetItem);
         }
 
-        if (sourceData.ReactToAdjacentMerge
-            || targetData.ReactToAdjacentMerge
-            || sourceData != targetData
-            || sourceData.NextLevelItem == null)
-        {
-            return false;
-        }
-
-        if (!TrySpendMergeEnergy())
-        {
-            Debug.Log("Not enough energy", this);
-            return false;
-        }
-
-        IsBusy = true;
-
-        // Merge logic: dragged source item upgrades the target item, then the source cell becomes empty.
-        targetItem.SetData(sourceData.NextLevelItem);
-        targetCell.SetItem(targetItem);
-        targetItem.PlayMergePopEffect();
-        sourceCell.Clear();
-        Destroy(sourceItem.gameObject);
-        ApplyAdjacentMergeReactions(targetCell);
-
-        if (animateGravity && isActiveAndEnabled)
-        {
-            StartCoroutine(ResolveBoardAfterMergeCoroutine());
-        }
-        else
-        {
-            CollapseColumns();
-            RefillBoard();
-            IsBusy = false;
-        }
-
-        return true;
+        return false;
     }
 
     public bool CanMerge(BoardCell firstCell, BoardCell secondCell)
     {
         if (firstCell == null || secondCell == null || firstCell == secondCell)
+        {
+            return false;
+        }
+
+        if (!ContainsCell(firstCell) || !ContainsCell(secondCell))
         {
             return false;
         }
@@ -236,7 +249,31 @@ public sealed class BoardManager : MonoBehaviour
         var secondItem = secondCell.CurrentItem;
         return firstItem != null
             && secondItem != null
-            && (CanDestroyBothByAnyNeighborMerge(firstItem.Data, secondItem.Data) || firstItem.CanMergeWith(secondItem));
+            && CanDestroyBothByAnyNeighborMerge(firstItem.Data, secondItem.Data);
+    }
+
+    public bool HasMergeableAdjacentItem(BoardCell placedItemCell)
+    {
+        if (placedItemCell == null || !ContainsCell(placedItemCell) || placedItemCell.CurrentItem == null)
+        {
+            return false;
+        }
+
+        var item = placedItemCell.CurrentItem;
+        if (FindAdjacentDestroyBothCell(placedItemCell, item) != null)
+        {
+            return true;
+        }
+
+        var itemData = item.Data;
+        if (itemData == null || itemData.ReactToAdjacentMerge || itemData.NextLevelItem == null)
+        {
+            return false;
+        }
+
+        var connectedCells = new List<BoardCell>(RequiredConnectedMergeItemCount);
+        CollectConnectedMatchingCells(placedItemCell, itemData, connectedCells);
+        return connectedCells.Count >= RequiredConnectedMergeItemCount;
     }
 
     public BoardCell GetCellAtScreenPosition(Vector2 screenPosition, Camera uiCamera)
@@ -356,7 +393,7 @@ public sealed class BoardManager : MonoBehaviour
                 var item = columnItems[itemIndex];
                 var startWorldPosition = item.transform.position;
                 columnCells[itemIndex].SetItem(item);
-                PlayFallFromWorldPosition(item, startWorldPosition, animateItems, animatedItems);
+                PlayFallFromWorldPosition(item, startWorldPosition, animateGravity && animateItems, animatedItems);
             }
         }
     }
@@ -385,7 +422,7 @@ public sealed class BoardManager : MonoBehaviour
                 var cell = cells[x, y];
                 if (cell != null && cell.IsEmpty())
                 {
-                    SpawnItemInCell(cell, animateItems, animatedItems);
+                    SpawnItemInCell(cell, animateGravity && animateItems, animatedItems);
                 }
             }
         }
@@ -477,6 +514,27 @@ public sealed class BoardManager : MonoBehaviour
         return cell != null ? cell.CurrentItem : null;
     }
 
+    public bool ContainsCell(BoardCell targetCell)
+    {
+        if (targetCell == null || cells == null)
+        {
+            return false;
+        }
+
+        for (var y = 0; y < rows; y++)
+        {
+            for (var x = 0; x < columns; x++)
+            {
+                if (cells[x, y] == targetCell)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public void SetItemAt(int x, int y, MergeItem item)
     {
         var cell = GetCell(x, y);
@@ -486,6 +544,40 @@ public sealed class BoardManager : MonoBehaviour
         }
 
         cell.SetItem(item);
+    }
+
+    public MergeItem CreateItemInCell(BoardCell cell, MergeItemData itemData, bool replaceExistingItem)
+    {
+        if (cell == null || itemData == null)
+        {
+            return null;
+        }
+
+        if (itemPrefab == null)
+        {
+            Debug.LogError($"{nameof(BoardManager)} on '{name}' cannot create item because {nameof(itemPrefab)} is not assigned.", this);
+            return null;
+        }
+
+        if (!cell.IsEmpty())
+        {
+            if (!replaceExistingItem)
+            {
+                return null;
+            }
+
+            var existingItem = cell.RemoveItem();
+            if (existingItem != null)
+            {
+                Destroy(existingItem.gameObject);
+            }
+        }
+
+        var item = Instantiate(itemPrefab, cell.RectTransform);
+        item.name = $"Item_{itemData.ItemId}_{cell.X}_{cell.Y}";
+        item.SetData(itemData);
+        cell.SetItem(item);
+        return item;
     }
 
     private BoardCell CreateCell(int x, int y)
@@ -500,6 +592,11 @@ public sealed class BoardManager : MonoBehaviour
     private void SpawnItemInCell(BoardCell cell)
     {
         SpawnItemInCell(cell, false, null);
+    }
+
+    private void SpawnSpecificItemInCell(BoardCell cell, MergeItemData itemData)
+    {
+        CreateItemInCell(cell, itemData, true);
     }
 
     private void SpawnItemInCell(BoardCell cell, bool animateItem, List<MergeItem> animatedItems)
@@ -521,30 +618,73 @@ public sealed class BoardManager : MonoBehaviour
         }
     }
 
-    private bool TrySpendMergeEnergy()
+    private void FillInitialBoard()
     {
-        if (energyManager == null)
+        if (cells == null || initialBoardItems == null || initialBoardItems.Count == 0)
         {
-            energyManager = FindFirstObjectByType<EnergyManager>();
+            return;
         }
 
-        if (energyManager == null)
+        var freeCells = new List<BoardCell>(columns * rows);
+        for (var y = 0; y < rows; y++)
         {
-            Debug.LogError($"{nameof(BoardManager)} on '{name}' cannot merge because {nameof(energyManager)} is not assigned and no {nameof(EnergyManager)} exists in the scene.", this);
-            return false;
+            for (var x = 0; x < columns; x++)
+            {
+                var cell = cells[x, y];
+                if (cell != null && cell.IsEmpty())
+                {
+                    freeCells.Add(cell);
+                }
+            }
         }
 
-        return energyManager.SpendEnergy();
+        Shuffle(freeCells);
+
+        var requestedItemsCount = CountInitialBoardItemRequests();
+        var nextFreeCellIndex = 0;
+        for (var i = 0; i < initialBoardItems.Count && nextFreeCellIndex < freeCells.Count; i++)
+        {
+            var definition = initialBoardItems[i];
+            if (definition == null || definition.ItemData == null || definition.Count <= 0)
+            {
+                continue;
+            }
+
+            for (var count = 0; count < definition.Count && nextFreeCellIndex < freeCells.Count; count++)
+            {
+                SpawnSpecificItemInCell(freeCells[nextFreeCellIndex], definition.ItemData);
+                nextFreeCellIndex++;
+            }
+        }
+
+        if (requestedItemsCount > freeCells.Count)
+        {
+            Debug.LogWarning($"{nameof(BoardManager)} on '{name}' has {requestedItemsCount} requested start items for {freeCells.Count} board cells. Extra items were skipped.", this);
+        }
+    }
+
+    private int CountInitialBoardItemRequests()
+    {
+        if (initialBoardItems == null)
+        {
+            return 0;
+        }
+
+        var count = 0;
+        for (var i = 0; i < initialBoardItems.Count; i++)
+        {
+            var item = initialBoardItems[i];
+            if (item != null && item.ItemData != null && item.Count > 0)
+            {
+                count += item.Count;
+            }
+        }
+
+        return count;
     }
 
     private bool TryDestroyBothByAnyNeighborMerge(BoardCell sourceCell, BoardCell targetCell, MergeItem sourceItem, MergeItem targetItem)
     {
-        if (!TrySpendMergeEnergy())
-        {
-            Debug.Log("Not enough energy", this);
-            return false;
-        }
-
         IsBusy = true;
 
         var sourceData = sourceItem != null ? sourceItem.Data : null;
@@ -557,17 +697,8 @@ public sealed class BoardManager : MonoBehaviour
         Destroy(sourceItem.gameObject);
         Destroy(targetItem.gameObject);
         ApplyAdjacentMergeReactions(targetCell);
-
-        if (animateGravity && isActiveAndEnabled)
-        {
-            StartCoroutine(ResolveBoardAfterMergeCoroutine());
-        }
-        else
-        {
-            CollapseColumns();
-            RefillBoard();
-            IsBusy = false;
-        }
+        RefreshOrders();
+        IsBusy = false;
 
         return true;
     }
@@ -579,7 +710,7 @@ public sealed class BoardManager : MonoBehaviour
             && (firstData.DestroyBothOnAnyNeighborMerge || secondData.DestroyBothOnAnyNeighborMerge);
     }
 
-    private void RefreshOrders()
+    public void RefreshOrders()
     {
         if (orderManager == null)
         {
@@ -680,6 +811,204 @@ public sealed class BoardManager : MonoBehaviour
         {
             targetCells.Add(cell);
         }
+    }
+
+    private BoardCell FindAdjacentDestroyBothCell(BoardCell placedItemCell, MergeItem placedItem)
+    {
+        if (placedItemCell == null || placedItem == null || placedItem.Data == null)
+        {
+            return null;
+        }
+
+        var rightCell = GetCell(placedItemCell.X + 1, placedItemCell.Y);
+        if (CanDestroyBothWithCell(placedItem, rightCell))
+        {
+            return rightCell;
+        }
+
+        var leftCell = GetCell(placedItemCell.X - 1, placedItemCell.Y);
+        if (CanDestroyBothWithCell(placedItem, leftCell))
+        {
+            return leftCell;
+        }
+
+        var topCell = GetCell(placedItemCell.X, placedItemCell.Y + 1);
+        if (CanDestroyBothWithCell(placedItem, topCell))
+        {
+            return topCell;
+        }
+
+        var bottomCell = GetCell(placedItemCell.X, placedItemCell.Y - 1);
+        if (CanDestroyBothWithCell(placedItem, bottomCell))
+        {
+            return bottomCell;
+        }
+
+        return null;
+    }
+
+    private bool CanDestroyBothWithCell(MergeItem placedItem, BoardCell targetCell)
+    {
+        var targetItem = targetCell != null ? targetCell.CurrentItem : null;
+        return placedItem != null
+            && targetItem != null
+            && CanDestroyBothByAnyNeighborMerge(placedItem.Data, targetItem.Data);
+    }
+
+    private void CollectConnectedMatchingCells(BoardCell startCell, MergeItemData itemData, List<BoardCell> result)
+    {
+        if (startCell == null || itemData == null || result == null)
+        {
+            return;
+        }
+
+        result.Clear();
+
+        var visitedCells = new HashSet<BoardCell>();
+        var pendingCells = new List<BoardCell> { startCell };
+        visitedCells.Add(startCell);
+
+        for (var index = 0; index < pendingCells.Count; index++)
+        {
+            var cell = pendingCells[index];
+            if (!DoesCellContainItemData(cell, itemData))
+            {
+                continue;
+            }
+
+            result.Add(cell);
+            AddMatchingNeighborCell(cell.X + 1, cell.Y, itemData, visitedCells, pendingCells);
+            AddMatchingNeighborCell(cell.X - 1, cell.Y, itemData, visitedCells, pendingCells);
+            AddMatchingNeighborCell(cell.X, cell.Y + 1, itemData, visitedCells, pendingCells);
+            AddMatchingNeighborCell(cell.X, cell.Y - 1, itemData, visitedCells, pendingCells);
+        }
+    }
+
+    private void AddMatchingNeighborCell(
+        int x,
+        int y,
+        MergeItemData itemData,
+        HashSet<BoardCell> visitedCells,
+        List<BoardCell> pendingCells)
+    {
+        var cell = GetCell(x, y);
+        if (cell == null || visitedCells == null || pendingCells == null || visitedCells.Contains(cell))
+        {
+            return;
+        }
+
+        visitedCells.Add(cell);
+
+        if (DoesCellContainItemData(cell, itemData))
+        {
+            pendingCells.Add(cell);
+        }
+    }
+
+    private static bool DoesCellContainItemData(BoardCell cell, MergeItemData itemData)
+    {
+        var item = cell != null ? cell.CurrentItem : null;
+        return item != null && item.Data == itemData;
+    }
+
+    private bool TryMergeConnectedGroup(BoardCell mergeResultCell, List<BoardCell> connectedCells, MergeItemData nextLevelItem)
+    {
+        if (mergeResultCell == null || connectedCells == null || connectedCells.Count < RequiredConnectedMergeItemCount || nextLevelItem == null)
+        {
+            return false;
+        }
+
+        var resultItem = mergeResultCell.CurrentItem;
+        if (resultItem == null)
+        {
+            return false;
+        }
+
+        for (var i = 0; i < connectedCells.Count; i++)
+        {
+            var cell = connectedCells[i];
+            if (cell == null || cell == mergeResultCell)
+            {
+                continue;
+            }
+
+            var item = cell.CurrentItem;
+            cell.Clear();
+
+            if (item != null)
+            {
+                Destroy(item.gameObject);
+            }
+        }
+
+        resultItem.SetData(nextLevelItem);
+        mergeResultCell.SetItem(resultItem);
+        resultItem.PlayMergePopEffect();
+        ApplyAdjacentMergeReactions(mergeResultCell);
+        return true;
+    }
+
+    private bool TryResolveConnectedMergeCascade(BoardCell mergeResultCell)
+    {
+        IsBusy = true;
+
+        var didMerge = false;
+        var mergeSteps = 0;
+        var connectedCells = new List<BoardCell>(columns * rows);
+
+        try
+        {
+            while (mergeSteps < MaxCascadeMergeSteps
+                && TryCollectConnectedMergeGroup(mergeResultCell, connectedCells, out var nextLevelItem))
+            {
+                // Merge logic: the last placed/generated item stays in place and upgrades.
+                // If that upgrade creates another connected group, the same cell upgrades again.
+                if (!TryMergeConnectedGroup(mergeResultCell, connectedCells, nextLevelItem))
+                {
+                    break;
+                }
+
+                didMerge = true;
+                mergeSteps++;
+            }
+
+            if (mergeSteps >= MaxCascadeMergeSteps)
+            {
+                Debug.LogWarning($"{nameof(BoardManager)} stopped cascade merge after {MaxCascadeMergeSteps} steps. Check item data chains for loops.", this);
+            }
+
+            if (didMerge)
+            {
+                RefreshOrders();
+            }
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+
+        return didMerge;
+    }
+
+    private bool TryCollectConnectedMergeGroup(BoardCell mergeResultCell, List<BoardCell> connectedCells, out MergeItemData nextLevelItem)
+    {
+        nextLevelItem = null;
+
+        var resultItem = mergeResultCell != null ? mergeResultCell.CurrentItem : null;
+        var resultData = resultItem != null ? resultItem.Data : null;
+        if (resultData == null || resultData.ReactToAdjacentMerge || resultData.NextLevelItem == null)
+        {
+            return false;
+        }
+
+        CollectConnectedMatchingCells(mergeResultCell, resultData, connectedCells);
+        if (connectedCells.Count < RequiredConnectedMergeItemCount)
+        {
+            return false;
+        }
+
+        nextLevelItem = resultData.NextLevelItem;
+        return true;
     }
 
     private void ApplyAdjacentMergeReaction(BoardCell cell)
