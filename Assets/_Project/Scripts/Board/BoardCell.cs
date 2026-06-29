@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public sealed class BoardCell : MonoBehaviour
 {
@@ -8,9 +9,15 @@ public sealed class BoardCell : MonoBehaviour
 
     [Header("UI")]
     [SerializeField] private RectTransform rectTransform;
+    [SerializeField] private Image backgroundImage;
+    [SerializeField] private bool dimBackgroundWhenOccupied = true;
+    [SerializeField, Range(0f, 1f)] private float occupiedDarkenAmount = 0.333f;
 
     [Header("Runtime Item")]
     [SerializeField] private MergeItem currentItem;
+
+    private Color emptyBackgroundColor = Color.white;
+    private bool hasCachedBackgroundColor;
 
     public int X => x;
     public int Y => y;
@@ -22,16 +29,22 @@ public sealed class BoardCell : MonoBehaviour
     private void Awake()
     {
         CacheRectTransform();
+        CacheBackgroundImage();
+        RefreshBackgroundColor();
     }
 
     private void Reset()
     {
         CacheRectTransform();
+        CacheBackgroundImage();
+        RefreshBackgroundColor();
     }
 
     private void OnValidate()
     {
         CacheRectTransform();
+        CacheBackgroundImage();
+        RefreshBackgroundColor();
     }
 
     public bool IsEmpty()
@@ -51,6 +64,7 @@ public sealed class BoardCell : MonoBehaviour
         if (currentItem == item)
         {
             AttachItemToCell(item);
+            RefreshBackgroundColor();
             return;
         }
 
@@ -68,11 +82,13 @@ public sealed class BoardCell : MonoBehaviour
 
         if (currentItem == null)
         {
+            RefreshBackgroundColor();
             return;
         }
 
         currentItem.SetCell(this);
         AttachItemToCell(currentItem);
+        RefreshBackgroundColor();
     }
 
     public MergeItem RemoveItem()
@@ -85,6 +101,7 @@ public sealed class BoardCell : MonoBehaviour
             removedItem.SetCell(null);
         }
 
+        RefreshBackgroundColor();
         return removedItem;
     }
 
@@ -96,6 +113,51 @@ public sealed class BoardCell : MonoBehaviour
     private void CacheRectTransform()
     {
         rectTransform = rectTransform != null ? rectTransform : transform as RectTransform;
+    }
+
+    private void CacheBackgroundImage()
+    {
+        backgroundImage = backgroundImage != null ? backgroundImage : GetComponent<Image>();
+
+        if (backgroundImage != null && !Application.isPlaying)
+        {
+            emptyBackgroundColor = backgroundImage.color;
+            hasCachedBackgroundColor = true;
+        }
+
+        if (backgroundImage != null && !hasCachedBackgroundColor)
+        {
+            emptyBackgroundColor = backgroundImage.color;
+            hasCachedBackgroundColor = true;
+        }
+    }
+
+    private void RefreshBackgroundColor()
+    {
+        if (backgroundImage == null)
+        {
+            return;
+        }
+
+        if (!hasCachedBackgroundColor)
+        {
+            emptyBackgroundColor = backgroundImage.color;
+            hasCachedBackgroundColor = true;
+        }
+
+        backgroundImage.color = currentItem != null && dimBackgroundWhenOccupied
+            ? GetDarkenedColor(emptyBackgroundColor, occupiedDarkenAmount)
+            : emptyBackgroundColor;
+    }
+
+    private static Color GetDarkenedColor(Color sourceColor, float darkenAmount)
+    {
+        var multiplier = 1f - Mathf.Clamp01(darkenAmount);
+        return new Color(
+            sourceColor.r * multiplier,
+            sourceColor.g * multiplier,
+            sourceColor.b * multiplier,
+            sourceColor.a);
     }
 
     private void AttachItemToCell(MergeItem item)

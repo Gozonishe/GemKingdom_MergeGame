@@ -34,8 +34,25 @@ public sealed class BoardManager : MonoBehaviour
     [SerializeField] private float fallBouncePixels = 14f;
     [SerializeField] private float refillFallOffset = 220f;
 
+    [Header("Merge Animation")]
+    [SerializeField] private bool animateConnectedMerge = true;
+    [SerializeField, Min(0f)] private float connectedMergeMoveDuration = 0.16f;
+    [SerializeField, Min(0f)] private float connectedMergeResultDelay = 0.06f;
+    [SerializeField, Range(0f, 1f)] private float connectedMergeEndAlpha = 0.25f;
+    [SerializeField, Range(0.1f, 1f)] private float connectedMergeEndScale = 0.75f;
+
     private BoardCell[,] cells;
     private bool isInitialized;
+
+    private struct MovingMergeItem
+    {
+        public MergeItem Item;
+        public RectTransform RectTransform;
+        public CanvasGroup CanvasGroup;
+        public Vector3 StartWorldPosition;
+        public Vector3 StartScale;
+        public float StartAlpha;
+    }
 
     public BoardCell[,] Cells => cells;
     public int Columns => columns;
@@ -226,6 +243,45 @@ public sealed class BoardManager : MonoBehaviour
         }
 
         return false;
+    }
+
+    public bool TryUseDestroyBothItemOnCell(MergeItem destroyItem, BoardCell targetCell)
+    {
+        if (IsBusy || destroyItem == null || targetCell == null || !ContainsCell(targetCell))
+        {
+            return false;
+        }
+
+        var targetItem = targetCell.CurrentItem;
+        var destroyItemData = destroyItem.Data;
+        var targetItemData = targetItem != null ? targetItem.Data : null;
+
+        if (destroyItemData == null
+            || targetItem == null
+            || targetItem == destroyItem
+            || !destroyItemData.DestroyBothOnAnyNeighborMerge)
+        {
+            return false;
+        }
+
+        IsBusy = true;
+
+        var sourceCell = destroyItem.CurrentCell;
+        if (sourceCell != null)
+        {
+            sourceCell.Clear();
+        }
+
+        targetCell.Clear();
+        NotifyItemDestroyed(destroyItemData);
+        NotifyItemDestroyed(targetItemData);
+        Destroy(destroyItem.gameObject);
+        Destroy(targetItem.gameObject);
+        ApplyAdjacentMergeReactions(targetCell);
+        RefreshOrders();
+        IsBusy = false;
+
+        return true;
     }
 
     public bool CanMerge(BoardCell firstCell, BoardCell secondCell)
@@ -950,44 +1006,210 @@ public sealed class BoardManager : MonoBehaviour
 
     private bool TryResolveConnectedMergeCascade(BoardCell mergeResultCell)
     {
-        IsBusy = true;
+        var connectedCells = new List<BoardCell>(columns * rows);
+        if (!TryCollectConnectedMergeGroup(mergeResultCell, connectedCells, out _))
+        {
+            return false;
+        }
 
+        IsBusy = true;
+        StartCoroutine(ResolveConnectedMergeCascadeCoroutine(mergeResultCell));
+        return true;
+    }
+
+    private IEnumerator ResolveConnectedMergeCascadeCoroutine(BoardCell mergeResultCell)
+    {
         var didMerge = false;
         var mergeSteps = 0;
         var connectedCells = new List<BoardCell>(columns * rows);
+        var consumedItems = new List<MergeItem>(columns * rows);
 
-        try
+        while (mergeSteps < MaxCascadeMergeSteps
+            && TryCollectConnectedMergeGroup(mergeResultCell, connectedCells, out var nextLevelItem))
         {
-            while (mergeSteps < MaxCascadeMergeSteps
-                && TryCollectConnectedMergeGroup(mergeResultCell, connectedCells, out var nextLevelItem))
+            // Merge logic: the last placed/generated item stays in place and upgrades.
+            // Other matched items visually slide into it before the upgraded sprite appears.
+            if (!ExtractConnectedMergeItems(mergeResultCell, connectedCells, consumedItems))
             {
-                // Merge logic: the last placed/generated item stays in place and upgrades.
-                // If that upgrade creates another connected group, the same cell upgrades again.
-                if (!TryMergeConnectedGroup(mergeResultCell, connectedCells, nextLevelItem))
+                break;
+            }
+
+            yield return PlayConnectedMergeStep(mergeResultCell, consumedItems, nextLevelItem);
+
+            didMerge = true;
+            mergeSteps++;
+        }
+
+        if (mergeSteps >= MaxCascadeMergeSteps)
+        {
+            Debug.LogWarning($"{nameof(BoardManager)} stopped cascade merge after {MaxCascadeMergeSteps} steps. Check item data chains for loops.", this);
+        }
+
+        if (didMerge)
+        {
+            RefreshOrders();
+        }
+
+        IsBusy = false;
+    }
+
+    private bool ExtractConnectedMergeItems(BoardCell mergeResultCell, List<BoardCell> connectedCells, List<MergeItem> consumedItems)
+    {
+        consumedItems.Clear();
+
+        if (mergeResultCell == null || mergeResultCell.CurrentItem == null || connectedCells == null)
+        {
+            return false;
+        }
+
+        for (var i = 0; i < connectedCells.Count; i++)
+        {
+            var cell = connectedCells[i];
+            if (cell == null || cell == mergeResultCell)
+            {
+                continue;
+            }
+
+            var item = cell.RemoveItem();
+            if (item != null)
+            {
+                consumedItems.Add(item);
+            }
+        }
+
+        return consumedItems.Count > 0;
+    }
+
+    private IEnumerator PlayConnectedMergeStep(BoardCell mergeResultCell, List<MergeItem> consumedItems, MergeItemData nextLevelItem)
+    {
+        var resultItem = mergeResultCell != null ? mergeResultCell.CurrentItem : null;
+        if (resultItem == null || nextLevelItem == null)
+        {
+            DestroyConsumedItems(consumedItems);
+            yield break;
+        }
+
+        if (animateConnectedMerge && connectedMergeMoveDuration > 0f)
+        {
+            yield return MoveConsumedItemsToResult(consumedItems, resultItem);
+        }
+
+        DestroyConsumedItems(consumedItems);
+
+        if (connectedMergeResultDelay > 0f)
+        {
+            yield return new WaitForSeconds(connectedMergeResultDelay);
+        }
+
+        resultItem.SetData(nextLevelItem);
+        mergeResultCell.SetItem(resultItem);
+        resultItem.PlayMergePopEffect();
+        ApplyAdjacentMergeReactions(mergeResultCell);
+    }
+
+    private IEnumerator MoveConsumedItemsToResult(List<MergeItem> consumedItems, MergeItem resultItem)
+    {
+        if (consumedItems == null || consumedItems.Count == 0 || resultItem == null)
+        {
+            yield break;
+        }
+
+        var resultTransform = resultItem.transform as RectTransform;
+        if (resultTransform == null)
+        {
+            yield break;
+        }
+
+        var movingItems = new List<MovingMergeItem>(consumedItems.Count);
+        var targetWorldPosition = resultTransform.position;
+
+        for (var i = 0; i < consumedItems.Count; i++)
+        {
+            var item = consumedItems[i];
+            if (item == null || item.transform is not RectTransform itemRectTransform)
+            {
+                continue;
+            }
+
+            var canvasGroup = item.GetComponent<CanvasGroup>();
+            movingItems.Add(new MovingMergeItem
+            {
+                Item = item,
+                RectTransform = itemRectTransform,
+                CanvasGroup = canvasGroup,
+                StartWorldPosition = itemRectTransform.position,
+                StartScale = itemRectTransform.localScale,
+                StartAlpha = canvasGroup != null ? canvasGroup.alpha : 1f
+            });
+
+            itemRectTransform.SetParent(boardRoot, true);
+            itemRectTransform.SetAsLastSibling();
+        }
+
+        if (movingItems.Count == 0)
+        {
+            yield break;
+        }
+
+        var elapsed = 0f;
+        var duration = Mathf.Max(0.01f, connectedMergeMoveDuration);
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            var progress = Mathf.Clamp01(elapsed / duration);
+            var easedProgress = 1f - Mathf.Pow(1f - progress, 3f);
+
+            for (var i = 0; i < movingItems.Count; i++)
+            {
+                var movingItem = movingItems[i];
+                if (movingItem.RectTransform == null)
                 {
-                    break;
+                    continue;
                 }
 
-                didMerge = true;
-                mergeSteps++;
+                movingItem.RectTransform.position = Vector3.LerpUnclamped(movingItem.StartWorldPosition, targetWorldPosition, easedProgress);
+                movingItem.RectTransform.localScale = Vector3.LerpUnclamped(
+                    movingItem.StartScale,
+                    movingItem.StartScale * connectedMergeEndScale,
+                    easedProgress);
+
+                if (movingItem.CanvasGroup != null)
+                {
+                    movingItem.CanvasGroup.alpha = Mathf.Lerp(movingItem.StartAlpha, connectedMergeEndAlpha, easedProgress);
+                }
             }
 
-            if (mergeSteps >= MaxCascadeMergeSteps)
-            {
-                Debug.LogWarning($"{nameof(BoardManager)} stopped cascade merge after {MaxCascadeMergeSteps} steps. Check item data chains for loops.", this);
-            }
-
-            if (didMerge)
-            {
-                RefreshOrders();
-            }
+            yield return null;
         }
-        finally
+
+        for (var i = 0; i < movingItems.Count; i++)
         {
-            IsBusy = false;
+            var movingItem = movingItems[i];
+            if (movingItem.RectTransform != null)
+            {
+                movingItem.RectTransform.position = targetWorldPosition;
+            }
+        }
+    }
+
+    private static void DestroyConsumedItems(List<MergeItem> consumedItems)
+    {
+        if (consumedItems == null)
+        {
+            return;
         }
 
-        return didMerge;
+        for (var i = 0; i < consumedItems.Count; i++)
+        {
+            var item = consumedItems[i];
+            if (item != null)
+            {
+                Destroy(item.gameObject);
+            }
+        }
+
+        consumedItems.Clear();
     }
 
     private bool TryCollectConnectedMergeGroup(BoardCell mergeResultCell, List<BoardCell> connectedCells, out MergeItemData nextLevelItem)

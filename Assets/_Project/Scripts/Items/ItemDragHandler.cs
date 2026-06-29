@@ -95,7 +95,28 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
 
         var targetCell = FindTargetCell(eventData);
 
-        if (CanDropFromTray(targetCell))
+        if (CanUseTrayDestroyItemOnBoardTarget(targetCell))
+        {
+            var sourceWasGeneratedSlot = IsGeneratedSlot(sourceCell);
+
+            if (bottomItemTrayController == null || !bottomItemTrayController.TrySpendMoveForBoardPlacement())
+            {
+                ReturnToSourceCell();
+                sourceCell = null;
+                startParent = null;
+                return;
+            }
+
+            if (boardManager == null || !boardManager.TryUseDestroyBothItemOnCell(item, targetCell))
+            {
+                ReturnToSourceCell();
+            }
+            else if (sourceWasGeneratedSlot && bottomItemTrayController != null)
+            {
+                bottomItemTrayController.GenerateFreeItemInGeneratedSlot();
+            }
+        }
+        else if (CanDropFromTray(targetCell))
         {
             var sourceWasGeneratedSlot = IsGeneratedSlot(sourceCell);
             var targetIsBoardCell = IsBoardCell(targetCell);
@@ -114,8 +135,11 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
 
             if (targetIsBoardCell && boardManager != null)
             {
-                boardManager.TryMergeWithAdjacentItem(targetCell);
-                boardManager.RefreshOrders();
+                var didMerge = boardManager.TryMergeWithAdjacentItem(targetCell);
+                if (!didMerge)
+                {
+                    boardManager.RefreshOrders();
+                }
 
                 if (sourceWasGeneratedSlot && bottomItemTrayController != null)
                 {
@@ -159,7 +183,7 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
 
         if (IsBoardCell(targetCell))
         {
-            return targetCell.IsEmpty();
+            return targetCell.IsEmpty() && !IsDestroyBothItem(item);
         }
 
         return IsGeneratedSlot(sourceCell)
@@ -177,6 +201,18 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
             && IsBoardCell(sourceCell)
             && IsBoardCell(targetCell)
             && targetCell.IsEmpty();
+    }
+
+    private bool CanUseTrayDestroyItemOnBoardTarget(BoardCell targetCell)
+    {
+        return sourceCell != null
+            && targetCell != null
+            && targetCell != sourceCell
+            && item != null
+            && IsTraySlot(sourceCell)
+            && IsBoardCell(targetCell)
+            && !targetCell.IsEmpty()
+            && IsDestroyBothItem(item);
     }
 
     private BoardCell FindTargetCell(PointerEventData eventData)
@@ -317,6 +353,13 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
     private bool IsFrozenSlot(BoardCell cell)
     {
         return bottomItemTrayController != null && bottomItemTrayController.IsFrozenItemSlot(cell);
+    }
+
+    private static bool IsDestroyBothItem(MergeItem targetItem)
+    {
+        return targetItem != null
+            && targetItem.Data != null
+            && targetItem.Data.DestroyBothOnAnyNeighborMerge;
     }
 
     private static bool AreNeighborCells(BoardCell firstCell, BoardCell secondCell)

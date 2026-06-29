@@ -104,6 +104,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MergeItem
   data: {fileID: 0}
   iconImage: {fileID: 2412884397171048438}
+  playPopOnMerge: 1
+  popDuration: 0.25
+  popScale: 1.2
+  defaultFallDuration: 0.22
+  defaultFallBouncePixels: 7
   <CurrentCell>k__BackingField: {fileID: 0}
 --- !u!114 &8373861964423065685
 MonoBehaviour:
@@ -119,6 +124,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemDragHandler
   item: {fileID: 0}
   boardManager: {fileID: 0}
+  bottomItemTrayController: {fileID: 0}
   parentCanvas: {fileID: 0}
   dragRoot: {fileID: 0}
   returnToStartOnInvalidDrop: 1

@@ -794,6 +794,11 @@ MonoBehaviour:
   fallDuration: 0.22
   fallBouncePixels: 14
   refillFallOffset: 220
+  animateConnectedMerge: 1
+  connectedMergeMoveDuration: 0.25
+  connectedMergeResultDelay: 0
+  connectedMergeEndAlpha: 0.9
+  connectedMergeEndScale: 0.9
 --- !u!114 &174095287
 MonoBehaviour:
   m_ObjectHideFlags: 0
