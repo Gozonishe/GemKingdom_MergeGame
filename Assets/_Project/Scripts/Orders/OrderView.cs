@@ -12,6 +12,7 @@ public sealed class OrderView : MonoBehaviour
 
     [Header("Layout")]
     [SerializeField] private RectTransform topContent;
+    [SerializeField] private RectTransform rewardInfo;
     [SerializeField] private RectTransform claimContent;
 
     private OrderManager orderManager;
@@ -19,8 +20,8 @@ public sealed class OrderView : MonoBehaviour
 
     private void Awake()
     {
+        ResolveReferences();
         ValidateReferences();
-        ApplyDefaultLayout();
     }
 
     private void OnEnable()
@@ -91,6 +92,8 @@ public sealed class OrderView : MonoBehaviour
 
     private void ValidateReferences()
     {
+        ResolveReferences();
+
         if (requiredItemIcon == null)
         {
             Debug.LogError($"{nameof(OrderView)} on '{name}' is missing {nameof(requiredItemIcon)}.", this);
@@ -112,13 +115,38 @@ public sealed class OrderView : MonoBehaviour
         }
     }
 
+    private void ResolveReferences()
+    {
+        topContent = topContent != null ? topContent : FindRectTransform("TopContent");
+        rewardInfo = rewardInfo != null ? rewardInfo : FindRectTransform("RewardInfo");
+        claimContent = claimContent != null ? claimContent : FindRectTransform("ClaimContent");
+
+        requiredItemIcon = requiredItemIcon != null
+            ? requiredItemIcon
+            : FindComponentInChild<Image>("TopContent/RequiredItemIcon");
+
+        amountText = amountText != null
+            ? amountText
+            : FindComponentInChild<TMP_Text>("TopContent/AmountText");
+
+        rewardText = rewardText != null
+            ? rewardText
+            : FindComponentInChild<TMP_Text>("RewardInfo/RewardText");
+
+        claimButton = claimButton != null
+            ? claimButton
+            : FindComponentInChild<Button>("ClaimButton");
+    }
+
     [ContextMenu("Apply Default Layout")]
     private void ApplyDefaultLayout()
     {
         topContent = EnsureChildRect(topContent, "TopContent", 0);
-        claimContent = EnsureChildRect(claimContent, "ClaimContent", 1);
+        rewardInfo = EnsureChildRect(rewardInfo, "RewardInfo", 1);
+        claimContent = EnsureChildRect(claimContent, "ClaimContent", 2);
 
-        SetStretch(topContent, new Vector2(0f, 0.44f), Vector2.one, new Vector2(8f, 4f), new Vector2(-8f, -8f));
+        SetStretch(topContent, new Vector2(0f, 0.5f), Vector2.one, new Vector2(8f, 4f), new Vector2(-8f, -8f));
+        SetStretch(rewardInfo, new Vector2(0f, 0.34f), new Vector2(1f, 0.5f), new Vector2(8f, 2f), new Vector2(-8f, -2f));
         SetStretch(claimContent, Vector2.zero, new Vector2(1f, 0.44f), new Vector2(8f, 8f), new Vector2(-8f, -4f));
 
         if (requiredItemIcon != null)
@@ -140,8 +168,8 @@ public sealed class OrderView : MonoBehaviour
         if (rewardText != null)
         {
             var rewardRect = rewardText.rectTransform;
-            rewardRect.SetParent(topContent, false);
-            SetStretch(rewardRect, new Vector2(0.36f, 0f), new Vector2(1f, 0.5f), new Vector2(6f, 4f), new Vector2(-8f, 0f));
+            rewardRect.SetParent(rewardInfo, false);
+            SetStretch(rewardRect, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
             rewardText.alignment = TextAlignmentOptions.Center;
         }
 
@@ -191,5 +219,22 @@ public sealed class OrderView : MonoBehaviour
         rectTransform.pivot = new Vector2(0.5f, 0.5f);
         rectTransform.offsetMin = offsetMin;
         rectTransform.offsetMax = offsetMax;
+    }
+
+    private RectTransform FindRectTransform(string childPath)
+    {
+        var child = transform.Find(childPath);
+        return child as RectTransform;
+    }
+
+    private T FindComponentInChild<T>(string childPath) where T : Component
+    {
+        var child = transform.Find(childPath);
+        if (child != null && child.TryGetComponent<T>(out var component))
+        {
+            return component;
+        }
+
+        return GetComponentInChildren<T>(true);
     }
 }

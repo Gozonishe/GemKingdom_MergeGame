@@ -1223,6 +1223,11 @@ public sealed class BoardManager : MonoBehaviour
             return false;
         }
 
+        if (!CanCreateMergeResultForOrders(resultData, resultData.NextLevelItem))
+        {
+            return false;
+        }
+
         CollectConnectedMatchingCells(mergeResultCell, resultData, connectedCells);
         if (connectedCells.Count < RequiredConnectedMergeItemCount)
         {
@@ -1231,6 +1236,16 @@ public sealed class BoardManager : MonoBehaviour
 
         nextLevelItem = resultData.NextLevelItem;
         return true;
+    }
+
+    private bool CanCreateMergeResultForOrders(MergeItemData sourceItem, MergeItemData resultItem)
+    {
+        if (orderManager == null)
+        {
+            orderManager = FindFirstObjectByType<OrderManager>();
+        }
+
+        return orderManager == null || orderManager.CanCreateMergeResult(sourceItem, resultItem);
     }
 
     private void ApplyAdjacentMergeReaction(BoardCell cell)

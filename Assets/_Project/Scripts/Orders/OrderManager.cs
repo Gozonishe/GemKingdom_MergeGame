@@ -14,6 +14,8 @@ public sealed class OrderManager : MonoBehaviour
     [SerializeField] private BoardManager boardManager;
     [SerializeField] private CurrencyManager currencyManager;
     [SerializeField] private RewardPopup rewardPopup;
+    [SerializeField] private Transform orderViewsRoot;
+    [SerializeField] private OrderView orderViewPrefab;
     [SerializeField] private List<OrderView> orderViews = new List<OrderView>();
 
     [Header("Rewards")]
@@ -27,10 +29,46 @@ public sealed class OrderManager : MonoBehaviour
     public bool AreAllOrdersReadyOrClaimed => runtimeOrders.Count > 0 && AreEveryRuntimeOrderReadyOrClaimed();
     public bool IsAutoClaimingCompletedOrders => isAutoClaimingCompletedOrders;
 
+    public bool CanCreateMergeResult(MergeItemData sourceItem, MergeItemData resultItem)
+    {
+        if (sourceItem == null || resultItem == null || !AreItemsInSameChain(sourceItem, resultItem))
+        {
+            return false;
+        }
+
+        var maxRequiredLevel = GetMaxRequiredLevelForItemFamily(sourceItem);
+        return maxRequiredLevel < 0 || resultItem.Level <= maxRequiredLevel;
+    }
+
+    public int GetMaxRequiredLevelForItemFamily(MergeItemData itemData)
+    {
+        if (itemData == null)
+        {
+            return -1;
+        }
+
+        BuildRuntimeOrdersIfNeeded();
+
+        var maxLevel = -1;
+        for (var i = 0; i < runtimeOrders.Count; i++)
+        {
+            var order = runtimeOrders[i];
+            var requiredItem = order != null && !order.IsClaimed ? order.RequiredItem : null;
+
+            if (requiredItem != null && AreItemsInSameChain(itemData, requiredItem))
+            {
+                maxLevel = Mathf.Max(maxLevel, requiredItem.Level);
+            }
+        }
+
+        return maxLevel;
+    }
+
     private void Start()
     {
         ResolveReferences();
         BuildRuntimeOrdersIfNeeded();
+        EnsureOrderViews();
         BindViews();
         RefreshOrders();
     }
@@ -51,6 +89,7 @@ public sealed class OrderManager : MonoBehaviour
         }
 
         BuildRuntimeOrdersFromDefinitions(orderDefinitions);
+        EnsureOrderViews();
         BindViews();
         RefreshOrders(false);
     }
@@ -152,7 +191,7 @@ public sealed class OrderManager : MonoBehaviour
             if (order == null
                 || order.IsClaimed
                 || order.ObjectiveType != OrderObjectiveType.DestroyItems
-                || !DoesDestroyedItemMatchRequirement(itemData, order.RequiredItem))
+                || !AreItemsInSameChain(itemData, order.RequiredItem))
             {
                 continue;
             }
@@ -164,16 +203,16 @@ public sealed class OrderManager : MonoBehaviour
         TryAutoClaimAllCompletedOrders();
     }
 
-    private static bool DoesDestroyedItemMatchRequirement(MergeItemData destroyedItem, MergeItemData requiredItem)
+    private static bool AreItemsInSameChain(MergeItemData firstItem, MergeItemData secondItem)
     {
-        if (destroyedItem == null || requiredItem == null)
+        if (firstItem == null || secondItem == null)
         {
             return false;
         }
 
-        return destroyedItem == requiredItem
-            || IsLinkedThroughNextLevel(destroyedItem, requiredItem)
-            || IsLinkedThroughNextLevel(requiredItem, destroyedItem);
+        return firstItem == secondItem
+            || IsLinkedThroughNextLevel(firstItem, secondItem)
+            || IsLinkedThroughNextLevel(secondItem, firstItem);
     }
 
     private static bool IsLinkedThroughNextLevel(MergeItemData startItem, MergeItemData targetItem)
@@ -303,6 +342,8 @@ public sealed class OrderManager : MonoBehaviour
 
     private void BindViews()
     {
+        EnsureOrderViews();
+
         for (var i = 0; i < orderViews.Count; i++)
         {
             var view = orderViews[i];
@@ -317,6 +358,8 @@ public sealed class OrderManager : MonoBehaviour
 
     private void RefreshViews()
     {
+        EnsureOrderViews();
+
         for (var i = 0; i < orderViews.Count; i++)
         {
             var view = orderViews[i];
@@ -326,6 +369,93 @@ public sealed class OrderManager : MonoBehaviour
             {
                 view.Refresh(order);
             }
+        }
+    }
+
+    private void EnsureOrderViews()
+    {
+        ResolveOrderViewsRoot();
+        RemoveNullOrderViews();
+
+        var requiredCount = runtimeOrders.Count;
+        for (var i = orderViews.Count; i < requiredCount; i++)
+        {
+            var view = CreateOrderView(i);
+            if (view == null)
+            {
+                break;
+            }
+
+            orderViews.Add(view);
+        }
+
+        for (var i = 0; i < orderViews.Count; i++)
+        {
+            var view = orderViews[i];
+            if (view == null)
+            {
+                continue;
+            }
+
+            if (orderViewsRoot != null && view.transform.parent != orderViewsRoot)
+            {
+                view.transform.SetParent(orderViewsRoot, false);
+            }
+
+            view.transform.SetSiblingIndex(i);
+            view.name = $"OrderView_{i + 1}";
+
+            if (i >= requiredCount)
+            {
+                view.Bind(this, null);
+            }
+        }
+    }
+
+    private OrderView CreateOrderView(int index)
+    {
+        var prefab = orderViewPrefab != null ? orderViewPrefab : GetFallbackOrderViewTemplate();
+        if (prefab == null)
+        {
+            Debug.LogError($"{nameof(OrderManager)} on '{name}' cannot create OrderView_{index + 1} because no {nameof(orderViewPrefab)} is assigned.", this);
+            return null;
+        }
+
+        var parent = orderViewsRoot != null ? orderViewsRoot : transform;
+        var view = Instantiate(prefab, parent);
+        view.name = $"OrderView_{index + 1}";
+        return view;
+    }
+
+    private OrderView GetFallbackOrderViewTemplate()
+    {
+        for (var i = 0; i < orderViews.Count; i++)
+        {
+            if (orderViews[i] != null)
+            {
+                return orderViews[i];
+            }
+        }
+
+        return GetComponentInChildren<OrderView>(true);
+    }
+
+    private void RemoveNullOrderViews()
+    {
+        for (var i = orderViews.Count - 1; i >= 0; i--)
+        {
+            if (orderViews[i] == null)
+            {
+                orderViews.RemoveAt(i);
+            }
+        }
+    }
+
+    private void ResolveOrderViewsRoot()
+    {
+        if (orderViewsRoot == null)
+        {
+            orderViewsRoot = transform;
         }
     }
 
@@ -521,5 +651,7 @@ public sealed class OrderManager : MonoBehaviour
         {
             rewardPopup = FindFirstObjectByType<RewardPopup>(FindObjectsInactive.Include);
         }
+
+        ResolveOrderViewsRoot();
     }
 }
