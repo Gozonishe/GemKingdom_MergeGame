@@ -12,6 +12,7 @@ public sealed class BoardCell : MonoBehaviour
     [SerializeField] private Image backgroundImage;
     [SerializeField] private bool dimBackgroundWhenOccupied = true;
     [SerializeField, Range(0f, 1f)] private float occupiedDarkenAmount = 0.333f;
+    [SerializeField] private GameObject dropHighlightObject;
 
     [Header("Runtime Item")]
     [SerializeField] private MergeItem currentItem;
@@ -30,20 +31,25 @@ public sealed class BoardCell : MonoBehaviour
     {
         CacheRectTransform();
         CacheBackgroundImage();
+        CacheDropHighlightObject();
         RefreshBackgroundColor();
+        SetDropHighlightActive(false);
     }
 
     private void Reset()
     {
         CacheRectTransform();
         CacheBackgroundImage();
+        CacheDropHighlightObject();
         RefreshBackgroundColor();
+        SetDropHighlightActive(false);
     }
 
     private void OnValidate()
     {
         CacheRectTransform();
         CacheBackgroundImage();
+        CacheDropHighlightObject();
         RefreshBackgroundColor();
     }
 
@@ -110,6 +116,14 @@ public sealed class BoardCell : MonoBehaviour
         RemoveItem();
     }
 
+    public void SetDropHighlightActive(bool isActive)
+    {
+        if (dropHighlightObject != null && dropHighlightObject.activeSelf != isActive)
+        {
+            dropHighlightObject.SetActive(isActive);
+        }
+    }
+
     private void CacheRectTransform()
     {
         rectTransform = rectTransform != null ? rectTransform : transform as RectTransform;
@@ -129,6 +143,25 @@ public sealed class BoardCell : MonoBehaviour
         {
             emptyBackgroundColor = backgroundImage.color;
             hasCachedBackgroundColor = true;
+        }
+    }
+
+    private void CacheDropHighlightObject()
+    {
+        if (dropHighlightObject != null)
+        {
+            return;
+        }
+
+        var lightTransform = transform.Find("light");
+        if (lightTransform == null)
+        {
+            lightTransform = transform.Find("Light");
+        }
+
+        if (lightTransform != null)
+        {
+            dropHighlightObject = lightTransform.gameObject;
         }
     }
 

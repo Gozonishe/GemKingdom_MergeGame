@@ -21,6 +21,7 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
     private int startSiblingIndex;
     private Vector2 startAnchoredPosition;
     private bool isDragging;
+    private BoardCell highlightedDropCell;
 
     private void Awake()
     {
@@ -65,6 +66,7 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
         rectTransform.SetAsLastSibling();
         SetBlocksRaycasts(false);
         MoveToPointer(eventData);
+        RefreshDropHighlight(eventData);
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -75,6 +77,7 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
         }
 
         MoveToPointer(eventData);
+        RefreshDropHighlight(eventData);
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -86,6 +89,7 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
 
         isDragging = false;
         SetBlocksRaycasts(true);
+        ClearDropHighlight();
 
         if (item == null || sourceCell == null)
         {
@@ -169,6 +173,11 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
         startParent = null;
     }
 
+    private void OnDisable()
+    {
+        ClearDropHighlight();
+    }
+
     private bool CanDropFromTray(BoardCell targetCell)
     {
         if (sourceCell == null || targetCell == null || targetCell == sourceCell || item == null)
@@ -213,6 +222,45 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
             && IsBoardCell(targetCell)
             && !targetCell.IsEmpty()
             && IsDestroyBothItem(item);
+    }
+
+    private void RefreshDropHighlight(PointerEventData eventData)
+    {
+        var targetCell = FindTargetCell(eventData);
+        var nextHighlightedCell = CanHighlightFreeBoardCell(targetCell) ? targetCell : null;
+
+        if (highlightedDropCell == nextHighlightedCell)
+        {
+            return;
+        }
+
+        ClearDropHighlight();
+
+        highlightedDropCell = nextHighlightedCell;
+        if (highlightedDropCell != null)
+        {
+            highlightedDropCell.SetDropHighlightActive(true);
+        }
+    }
+
+    private bool CanHighlightFreeBoardCell(BoardCell targetCell)
+    {
+        return sourceCell != null
+            && targetCell != null
+            && item != null
+            && IsTraySlot(sourceCell)
+            && IsBoardCell(targetCell)
+            && targetCell.IsEmpty()
+            && !IsDestroyBothItem(item);
+    }
+
+    private void ClearDropHighlight()
+    {
+        if (highlightedDropCell != null)
+        {
+            highlightedDropCell.SetDropHighlightActive(false);
+            highlightedDropCell = null;
+        }
     }
 
     private BoardCell FindTargetCell(PointerEventData eventData)
