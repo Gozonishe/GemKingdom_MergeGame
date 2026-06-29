@@ -13,6 +13,8 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
 
     [Header("Drag Settings")]
     [SerializeField] private bool returnToStartOnInvalidDrop = true;
+    [SerializeField] private bool offsetTrayDragAbovePointer = true;
+    [SerializeField, Min(0f)] private float trayDragVerticalOffsetMultiplier = 1f;
 
     private RectTransform rectTransform;
     private CanvasGroup canvasGroup;
@@ -55,8 +57,15 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
             return;
         }
 
-        isDragging = true;
         sourceCell = item.CurrentCell;
+        if (!CanStartDragFromCell(sourceCell))
+        {
+            isDragging = false;
+            sourceCell = null;
+            return;
+        }
+
+        isDragging = true;
         startParent = rectTransform.parent;
         startSiblingIndex = rectTransform.GetSiblingIndex();
         startAnchoredPosition = rectTransform.anchoredPosition;
@@ -178,6 +187,13 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
         ClearDropHighlight();
     }
 
+    private bool CanStartDragFromCell(BoardCell cell)
+    {
+        return cell != null
+            && bottomItemTrayController != null
+            && bottomItemTrayController.IsTraySlot(cell);
+    }
+
     private bool CanDropFromTray(BoardCell targetCell)
     {
         if (sourceCell == null || targetCell == null || targetCell == sourceCell || item == null)
@@ -227,7 +243,7 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
     private void RefreshDropHighlight(PointerEventData eventData)
     {
         var targetCell = FindTargetCell(eventData);
-        var nextHighlightedCell = CanHighlightFreeBoardCell(targetCell) ? targetCell : null;
+        var nextHighlightedCell = CanHighlightBoardCell(targetCell) ? targetCell : null;
 
         if (highlightedDropCell == nextHighlightedCell)
         {
@@ -243,15 +259,23 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
         }
     }
 
-    private bool CanHighlightFreeBoardCell(BoardCell targetCell)
+    private bool CanHighlightBoardCell(BoardCell targetCell)
     {
-        return sourceCell != null
-            && targetCell != null
-            && item != null
-            && IsTraySlot(sourceCell)
-            && IsBoardCell(targetCell)
-            && targetCell.IsEmpty()
-            && !IsDestroyBothItem(item);
+        if (sourceCell == null
+            || targetCell == null
+            || item == null
+            || !IsTraySlot(sourceCell)
+            || !IsBoardCell(targetCell))
+        {
+            return false;
+        }
+
+        if (IsDestroyBothItem(item))
+        {
+            return !targetCell.IsEmpty();
+        }
+
+        return targetCell.IsEmpty();
     }
 
     private void ClearDropHighlight()
@@ -278,8 +302,18 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
         }
 
         return boardManager != null
-            ? boardManager.GetCellAtScreenPosition(eventData.position, uiCamera)
+            ? boardManager.GetCellAtScreenPosition(GetBoardTargetScreenPosition(eventData, uiCamera), uiCamera)
             : null;
+    }
+
+    private Vector2 GetBoardTargetScreenPosition(PointerEventData eventData, Camera uiCamera)
+    {
+        if (!ShouldUseOffsetDragPositionForBoardTarget())
+        {
+            return eventData.position;
+        }
+
+        return RectTransformUtility.WorldToScreenPoint(uiCamera, rectTransform.position);
     }
 
     private void MoveToPointer(PointerEventData eventData)
@@ -297,8 +331,26 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
 
         if (RectTransformUtility.ScreenPointToLocalPointInRectangle(root, eventData.position, GetUICamera(eventData), out var localPoint))
         {
-            rectTransform.anchoredPosition = localPoint;
+            rectTransform.anchoredPosition = localPoint + GetDragPointerOffset();
         }
+    }
+
+    private Vector2 GetDragPointerOffset()
+    {
+        if (!ShouldUseOffsetDragPositionForBoardTarget())
+        {
+            return Vector2.zero;
+        }
+
+        return Vector2.up * rectTransform.rect.height * trayDragVerticalOffsetMultiplier;
+    }
+
+    private bool ShouldUseOffsetDragPositionForBoardTarget()
+    {
+        return offsetTrayDragAbovePointer
+            && sourceCell != null
+            && IsTraySlot(sourceCell)
+            && rectTransform != null;
     }
 
     private void ReturnToSourceCell()
