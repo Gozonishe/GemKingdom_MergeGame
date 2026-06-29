@@ -14,10 +14,12 @@ public sealed class DebugPanel : MonoBehaviour
     [Header("Buttons")]
     [SerializeField] private Button addEnergyButton;
     [SerializeField] private Button shuffleBoardButton;
-    [SerializeField] private Button completeRandomOrderButton;
+    [FormerlySerializedAs("completeRandomOrderButton")]
+    [SerializeField] private Button previousLevelButton;
     [FormerlySerializedAs("refillBoardButton")]
     [SerializeField] private Button resetProgressButton;
-    [SerializeField] private Button resetBoardButton;
+    [FormerlySerializedAs("resetBoardButton")]
+    [SerializeField] private Button nextLevelButton;
 
     [Header("Debug Values")]
     [SerializeField] private int addEnergyAmount = 10;
@@ -50,10 +52,10 @@ public sealed class DebugPanel : MonoBehaviour
         boardManager?.ShuffleBoard();
     }
 
-    private void CompleteRandomOrder()
+    private void LoadPreviousLevel()
     {
         ResolveReferences();
-        orderManager?.CompleteRandomOrderDebug();
+        levelManager?.LoadPreviousLevel();
     }
 
     private void ResetProgress()
@@ -63,10 +65,10 @@ public sealed class DebugPanel : MonoBehaviour
         levelManager?.ResetProgressAndLoadFirstLevel();
     }
 
-    private void ResetBoard()
+    private void LoadNextLevel()
     {
         ResolveReferences();
-        boardManager?.ResetBoard();
+        levelManager?.LoadNextLevel();
     }
 
     private void SubscribeButtons()
@@ -81,9 +83,9 @@ public sealed class DebugPanel : MonoBehaviour
             shuffleBoardButton.onClick.AddListener(ShuffleBoard);
         }
 
-        if (completeRandomOrderButton != null)
+        if (previousLevelButton != null)
         {
-            completeRandomOrderButton.onClick.AddListener(CompleteRandomOrder);
+            previousLevelButton.onClick.AddListener(LoadPreviousLevel);
         }
 
         if (resetProgressButton != null)
@@ -91,9 +93,9 @@ public sealed class DebugPanel : MonoBehaviour
             resetProgressButton.onClick.AddListener(ResetProgress);
         }
 
-        if (resetBoardButton != null)
+        if (nextLevelButton != null)
         {
-            resetBoardButton.onClick.AddListener(ResetBoard);
+            nextLevelButton.onClick.AddListener(LoadNextLevel);
         }
     }
 
@@ -109,9 +111,9 @@ public sealed class DebugPanel : MonoBehaviour
             shuffleBoardButton.onClick.RemoveListener(ShuffleBoard);
         }
 
-        if (completeRandomOrderButton != null)
+        if (previousLevelButton != null)
         {
-            completeRandomOrderButton.onClick.RemoveListener(CompleteRandomOrder);
+            previousLevelButton.onClick.RemoveListener(LoadPreviousLevel);
         }
 
         if (resetProgressButton != null)
@@ -119,9 +121,9 @@ public sealed class DebugPanel : MonoBehaviour
             resetProgressButton.onClick.RemoveListener(ResetProgress);
         }
 
-        if (resetBoardButton != null)
+        if (nextLevelButton != null)
         {
-            resetBoardButton.onClick.RemoveListener(ResetBoard);
+            nextLevelButton.onClick.RemoveListener(LoadNextLevel);
         }
     }
 
@@ -165,9 +167,9 @@ public sealed class DebugPanel : MonoBehaviour
             Debug.LogError($"{nameof(DebugPanel)} on '{name}' is missing {nameof(shuffleBoardButton)}.", this);
         }
 
-        if (completeRandomOrderButton == null)
+        if (previousLevelButton == null)
         {
-            Debug.LogError($"{nameof(DebugPanel)} on '{name}' is missing {nameof(completeRandomOrderButton)}.", this);
+            Debug.LogError($"{nameof(DebugPanel)} on '{name}' is missing {nameof(previousLevelButton)}.", this);
         }
 
         if (resetProgressButton == null)
@@ -175,9 +177,9 @@ public sealed class DebugPanel : MonoBehaviour
             Debug.LogError($"{nameof(DebugPanel)} on '{name}' is missing {nameof(resetProgressButton)}.", this);
         }
 
-        if (resetBoardButton == null)
+        if (nextLevelButton == null)
         {
-            Debug.LogError($"{nameof(DebugPanel)} on '{name}' is missing {nameof(resetBoardButton)}.", this);
+            Debug.LogError($"{nameof(DebugPanel)} on '{name}' is missing {nameof(nextLevelButton)}.", this);
         }
     }
 }

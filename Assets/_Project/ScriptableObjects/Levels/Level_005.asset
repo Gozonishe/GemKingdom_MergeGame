@@ -27,17 +27,17 @@ MonoBehaviour:
     count: 3
   generatorSpawnableItems:
   - itemData: {fileID: 11400000, guid: 50e17eb973d2a4f4887adf1dc8160eb9, type: 2}
-    weight: 14
+    weight: 10
   - itemData: {fileID: 11400000, guid: a33c1beba84795444a695fc2ce6cf7e1, type: 2}
-    weight: 2
+    weight: 5
   - itemData: {fileID: 11400000, guid: 67b4da7ec2bd3f0409dd1296ee237360, type: 2}
-    weight: 3
-  - itemData: {fileID: 11400000, guid: c5f8e9419e692b54ca62a99be1e5350e, type: 2}
-    weight: 3
-  - itemData: {fileID: 11400000, guid: 4a536f1015a7c2a4ea47c94d21d15ce3, type: 2}
-    weight: 3
-  - itemData: {fileID: 11400000, guid: da200a52036e13f44b6d84a28c6de0e9, type: 2}
     weight: 1
+  - itemData: {fileID: 11400000, guid: c5f8e9419e692b54ca62a99be1e5350e, type: 2}
+    weight: 1
+  - itemData: {fileID: 11400000, guid: 4a536f1015a7c2a4ea47c94d21d15ce3, type: 2}
+    weight: 1
+  - itemData: {fileID: 11400000, guid: da200a52036e13f44b6d84a28c6de0e9, type: 2}
+    weight: 2
   spawnableItems:
   - {fileID: 11400000, guid: 7619562684c9c4747812645ab6705f6c, type: 2}
   - {fileID: 11400000, guid: 50e17eb973d2a4f4887adf1dc8160eb9, type: 2}

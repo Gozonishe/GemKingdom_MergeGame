@@ -204,6 +204,18 @@ public sealed class LevelManager : MonoBehaviour
         LoadLevel(nextLevelIndex);
     }
 
+    public void LoadPreviousLevel()
+    {
+        var previousLevelIndex = currentLevelIndex - 1;
+        if (!IsInsideLevels(previousLevelIndex))
+        {
+            Debug.Log("Already at first level", this);
+            return;
+        }
+
+        LoadLevel(previousLevelIndex);
+    }
+
     public void RestartLevel()
     {
         LoadLevel(currentLevelIndex);
