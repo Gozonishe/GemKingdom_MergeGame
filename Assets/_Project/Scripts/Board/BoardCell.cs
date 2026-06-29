@@ -9,6 +9,7 @@ public sealed class BoardCell : MonoBehaviour
 
     [Header("UI")]
     [SerializeField] private RectTransform rectTransform;
+    [SerializeField] private RectTransform itemRoot;
     [SerializeField] private Image backgroundImage;
     [SerializeField] private bool dimBackgroundWhenOccupied = true;
     [SerializeField, Range(0f, 1f)] private float occupiedDarkenAmount = 0.333f;
@@ -24,12 +25,13 @@ public sealed class BoardCell : MonoBehaviour
     public int Y => y;
     public Vector2Int GridPosition => new Vector2Int(x, y);
     public RectTransform RectTransform => rectTransform;
-    public Transform ItemRoot => rectTransform;
+    public Transform ItemRoot => itemRoot != null ? itemRoot : rectTransform;
     public MergeItem CurrentItem => currentItem;
 
     private void Awake()
     {
         CacheRectTransform();
+        CacheItemRoot();
         CacheBackgroundImage();
         CacheDropHighlightObject();
         RefreshBackgroundColor();
@@ -39,6 +41,7 @@ public sealed class BoardCell : MonoBehaviour
     private void Reset()
     {
         CacheRectTransform();
+        CacheItemRoot();
         CacheBackgroundImage();
         CacheDropHighlightObject();
         RefreshBackgroundColor();
@@ -48,6 +51,7 @@ public sealed class BoardCell : MonoBehaviour
     private void OnValidate()
     {
         CacheRectTransform();
+        CacheItemRoot();
         CacheBackgroundImage();
         CacheDropHighlightObject();
         RefreshBackgroundColor();
@@ -129,6 +133,20 @@ public sealed class BoardCell : MonoBehaviour
         rectTransform = rectTransform != null ? rectTransform : transform as RectTransform;
     }
 
+    private void CacheItemRoot()
+    {
+        if (itemRoot != null)
+        {
+            return;
+        }
+
+        var itemRootTransform = transform.Find("ItemRoot");
+        if (itemRootTransform != null)
+        {
+            itemRoot = itemRootTransform as RectTransform;
+        }
+    }
+
     private void CacheBackgroundImage()
     {
         backgroundImage = backgroundImage != null ? backgroundImage : GetComponent<Image>();
@@ -201,7 +219,7 @@ public sealed class BoardCell : MonoBehaviour
         }
 
         var itemTransform = item.transform;
-        itemTransform.SetParent(rectTransform, false);
+        itemTransform.SetParent(ItemRoot, false);
         itemTransform.localRotation = Quaternion.identity;
         itemTransform.localScale = Vector3.one;
 
