@@ -151,6 +151,7 @@ public sealed class ItemDragHandler : MonoBehaviour, IBeginDragHandler, IDragHan
                 var didMerge = boardManager.TryMergeWithAdjacentItem(targetCell);
                 if (!didMerge)
                 {
+                    boardManager.ResolveSpidersAfterPlayerPlacement();
                     boardManager.RefreshOrders();
                 }
 

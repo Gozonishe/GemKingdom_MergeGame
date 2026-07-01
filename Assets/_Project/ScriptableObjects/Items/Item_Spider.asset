@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acabc977b4b391648adaea8db66beaa4, type: 3}
+  m_Name: Item_Spider
+  m_EditorClassIdentifier: Assembly-CSharp::MergeItemData
+  itemId: spider
+  displayName: Spider
+  level: 1
+  icon: {fileID: -7587680375674875981, guid: 3c5b2a8d69a379d4fbddce7be6fa400a, type: 3}
+  nextLevelItem: {fileID: 0}
+  reactToAdjacentMerge: 0
+  destroyBothOnAnyNeighborMerge: 0
+  isSpider: 1

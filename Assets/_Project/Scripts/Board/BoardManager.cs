@@ -8,6 +8,8 @@ public sealed class BoardManager : MonoBehaviour
     private const int DefaultRows = 6;
     private const int RequiredConnectedMergeItemCount = 3;
     private const int MaxCascadeMergeSteps = 32;
+    private const string SpiderRemovedByDynamiteReason = "Dynamite";
+    private const string SpiderRemovedByTrapReason = "Trapped";
 
     [Header("Board Size")]
     [SerializeField] private int columns = DefaultColumns;
@@ -41,6 +43,10 @@ public sealed class BoardManager : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float connectedMergeEndAlpha = 0.25f;
     [SerializeField, Range(0.1f, 1f)] private float connectedMergeEndScale = 0.75f;
 
+    [Header("Spider Movement")]
+    [SerializeField] private bool animateSpiderMovement = true;
+    [SerializeField, Min(0f)] private float spiderMoveDuration = 0.18f;
+
     private BoardCell[,] cells;
     private bool isInitialized;
 
@@ -53,6 +59,9 @@ public sealed class BoardManager : MonoBehaviour
         public Vector3 StartScale;
         public float StartAlpha;
     }
+
+    private readonly List<MergeItem> spiderMovementBuffer = new List<MergeItem>(8);
+    private readonly List<BoardCell> spiderNeighborBuffer = new List<BoardCell>(4);
 
     public BoardCell[,] Cells => cells;
     public int Columns => columns;
@@ -277,7 +286,13 @@ public sealed class BoardManager : MonoBehaviour
         NotifyItemDestroyed(targetItemData);
         Destroy(destroyItem.gameObject);
         Destroy(targetItem.gameObject);
+        if (targetItemData != null && targetItemData.IsSpider)
+        {
+            Debug.Log($"{nameof(BoardManager)} removed spider: {SpiderRemovedByDynamiteReason}.", this);
+        }
+
         ApplyAdjacentMergeReactions(targetCell);
+        ResolveSpidersAfterPlayerPlacement();
         RefreshOrders();
         IsBusy = false;
 
@@ -330,6 +345,40 @@ public sealed class BoardManager : MonoBehaviour
         var connectedCells = new List<BoardCell>(RequiredConnectedMergeItemCount);
         CollectConnectedMatchingCells(placedItemCell, itemData, connectedCells);
         return connectedCells.Count >= RequiredConnectedMergeItemCount;
+    }
+
+    public void ResolveSpidersAfterPlayerPlacement()
+    {
+        if (cells == null)
+        {
+            return;
+        }
+
+        CollectSpidersOnBoard(spiderMovementBuffer);
+
+        for (var i = 0; i < spiderMovementBuffer.Count; i++)
+        {
+            var spider = spiderMovementBuffer[i];
+            if (!IsActiveSpiderOnBoard(spider))
+            {
+                continue;
+            }
+
+            var spiderCell = spider.CurrentCell;
+            GetFreeOrthogonalNeighbors(spiderCell, spiderNeighborBuffer);
+
+            if (spiderNeighborBuffer.Count == 0)
+            {
+                RemoveSpider(spider, SpiderRemovedByTrapReason);
+                continue;
+            }
+
+            var targetCell = spiderNeighborBuffer[Random.Range(0, spiderNeighborBuffer.Count)];
+            MoveSpider(spider, targetCell);
+        }
+
+        spiderMovementBuffer.Clear();
+        spiderNeighborBuffer.Clear();
     }
 
     public BoardCell GetCellAtScreenPosition(Vector2 screenPosition, Camera uiCamera)
@@ -753,6 +802,7 @@ public sealed class BoardManager : MonoBehaviour
         Destroy(sourceItem.gameObject);
         Destroy(targetItem.gameObject);
         ApplyAdjacentMergeReactions(targetCell);
+        ResolveSpidersAfterPlayerPlacement();
         RefreshOrders();
         IsBusy = false;
 
@@ -763,6 +813,8 @@ public sealed class BoardManager : MonoBehaviour
     {
         return firstData != null
             && secondData != null
+            && !firstData.IsSpider
+            && !secondData.IsSpider
             && (firstData.DestroyBothOnAnyNeighborMerge || secondData.DestroyBothOnAnyNeighborMerge);
     }
 
@@ -1047,6 +1099,7 @@ public sealed class BoardManager : MonoBehaviour
 
         if (didMerge)
         {
+            ResolveSpidersAfterPlayerPlacement();
             RefreshOrders();
         }
 
@@ -1218,7 +1271,7 @@ public sealed class BoardManager : MonoBehaviour
 
         var resultItem = mergeResultCell != null ? mergeResultCell.CurrentItem : null;
         var resultData = resultItem != null ? resultItem.Data : null;
-        if (resultData == null || resultData.ReactToAdjacentMerge || resultData.NextLevelItem == null)
+        if (resultData == null || resultData.IsSpider || resultData.ReactToAdjacentMerge || resultData.NextLevelItem == null)
         {
             return false;
         }
@@ -1286,6 +1339,140 @@ public sealed class BoardManager : MonoBehaviour
         if (orderManager != null)
         {
             orderManager.RegisterItemDestroyed(itemData);
+        }
+    }
+
+    private void CollectSpidersOnBoard(List<MergeItem> result)
+    {
+        result.Clear();
+
+        if (cells == null)
+        {
+            return;
+        }
+
+        for (var y = 0; y < rows; y++)
+        {
+            for (var x = 0; x < columns; x++)
+            {
+                var item = GetItemAt(x, y);
+                if (IsSpiderItem(item))
+                {
+                    result.Add(item);
+                }
+            }
+        }
+    }
+
+    private void GetFreeOrthogonalNeighbors(BoardCell centerCell, List<BoardCell> result)
+    {
+        result.Clear();
+
+        if (centerCell == null)
+        {
+            return;
+        }
+
+        AddFreeSpiderNeighbor(centerCell.X + 1, centerCell.Y, result);
+        AddFreeSpiderNeighbor(centerCell.X - 1, centerCell.Y, result);
+        AddFreeSpiderNeighbor(centerCell.X, centerCell.Y + 1, result);
+        AddFreeSpiderNeighbor(centerCell.X, centerCell.Y - 1, result);
+    }
+
+    private void AddFreeSpiderNeighbor(int x, int y, List<BoardCell> result)
+    {
+        var cell = GetCell(x, y);
+        if (IsCellFreeForSpider(cell))
+        {
+            result.Add(cell);
+        }
+    }
+
+    private bool IsCellFreeForSpider(BoardCell cell)
+    {
+        return cell != null && ContainsCell(cell) && cell.IsEmpty();
+    }
+
+    private bool IsActiveSpiderOnBoard(MergeItem spider)
+    {
+        return IsSpiderItem(spider)
+            && spider.CurrentCell != null
+            && ContainsCell(spider.CurrentCell)
+            && spider.CurrentCell.CurrentItem == spider;
+    }
+
+    private static bool IsSpiderItem(MergeItem item)
+    {
+        return item != null && item.Data != null && item.Data.IsSpider;
+    }
+
+    private void MoveSpider(MergeItem spider, BoardCell targetCell)
+    {
+        if (!IsActiveSpiderOnBoard(spider) || !IsCellFreeForSpider(targetCell))
+        {
+            return;
+        }
+
+        var startWorldPosition = spider.transform.position;
+        targetCell.SetItem(spider);
+        PlaySpiderMoveFromWorldPosition(spider, startWorldPosition);
+    }
+
+    private void RemoveSpider(MergeItem spider, string reason)
+    {
+        if (!IsActiveSpiderOnBoard(spider))
+        {
+            return;
+        }
+
+        var spiderData = spider.Data;
+        var spiderCell = spider.CurrentCell;
+        spiderCell.Clear();
+        NotifyItemDestroyed(spiderData);
+        Destroy(spider.gameObject);
+        Debug.Log($"{nameof(BoardManager)} removed spider: {reason}.", this);
+    }
+
+    private void PlaySpiderMoveFromWorldPosition(MergeItem spider, Vector3 startWorldPosition)
+    {
+        if (!animateSpiderMovement || spiderMoveDuration <= 0f || spider == null || spider.transform is not RectTransform spiderRectTransform)
+        {
+            return;
+        }
+
+        var targetWorldPosition = spiderRectTransform.position;
+        if ((targetWorldPosition - startWorldPosition).sqrMagnitude < 0.01f)
+        {
+            return;
+        }
+
+        spiderRectTransform.position = startWorldPosition;
+        StartCoroutine(MoveSpiderToCellCoroutine(spiderRectTransform, startWorldPosition, targetWorldPosition));
+    }
+
+    private IEnumerator MoveSpiderToCellCoroutine(RectTransform spiderRectTransform, Vector3 startWorldPosition, Vector3 targetWorldPosition)
+    {
+        var elapsed = 0f;
+        var duration = Mathf.Max(0.01f, spiderMoveDuration);
+
+        while (elapsed < duration)
+        {
+            if (spiderRectTransform == null)
+            {
+                yield break;
+            }
+
+            elapsed += Time.deltaTime;
+            var progress = Mathf.Clamp01(elapsed / duration);
+            var easedProgress = 1f - Mathf.Pow(1f - progress, 3f);
+            spiderRectTransform.position = Vector3.LerpUnclamped(startWorldPosition, targetWorldPosition, easedProgress);
+            yield return null;
+        }
+
+        if (spiderRectTransform != null)
+        {
+            spiderRectTransform.position = targetWorldPosition;
+            spiderRectTransform.anchoredPosition = Vector2.zero;
         }
     }
 

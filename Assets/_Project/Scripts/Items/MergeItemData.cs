@@ -20,6 +20,9 @@ public sealed class MergeItemData : ScriptableObject
     [Header("Special Merge")]
     [SerializeField] private bool destroyBothOnAnyNeighborMerge;
 
+    [Header("Board Object")]
+    [SerializeField] private bool isSpider;
+
     public string ItemId => itemId;
     public string DisplayName => displayName;
     public int Level => level;
@@ -27,6 +30,7 @@ public sealed class MergeItemData : ScriptableObject
     public MergeItemData NextLevelItem => nextLevelItem;
     public bool ReactToAdjacentMerge => reactToAdjacentMerge;
     public bool DestroyBothOnAnyNeighborMerge => destroyBothOnAnyNeighborMerge;
+    public bool IsSpider => isSpider;
     public bool IsMaxLevel => nextLevelItem == null;
     public bool CanMergeToNextLevel => nextLevelItem != null;
 }

@@ -71,10 +71,12 @@ public sealed class MergeItem : MonoBehaviour
 
         if (data.DestroyBothOnAnyNeighborMerge || otherItem.Data.DestroyBothOnAnyNeighborMerge)
         {
-            return true;
+            return !data.IsSpider && !otherItem.Data.IsSpider;
         }
 
-        return !data.ReactToAdjacentMerge
+        return !data.IsSpider
+            && !otherItem.Data.IsSpider
+            && !data.ReactToAdjacentMerge
             && !otherItem.Data.ReactToAdjacentMerge
             && data.CanMergeToNextLevel
             && data == otherItem.Data;
