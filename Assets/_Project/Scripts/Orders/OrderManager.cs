@@ -17,6 +17,7 @@ public sealed class OrderManager : MonoBehaviour
     [SerializeField] private Transform orderViewsRoot;
     [SerializeField] private OrderView orderViewPrefab;
     [SerializeField] private List<OrderView> orderViews = new List<OrderView>();
+    [SerializeField] private AdaptiveHorizontalScrollLayout adaptiveHorizontalLayout;
 
     [Header("Rewards")]
     [SerializeField, Min(0f)] private float autoRewardPopupDelay = 1f;
@@ -124,6 +125,8 @@ public sealed class OrderManager : MonoBehaviour
         {
             TryAutoClaimAllCompletedOrders();
         }
+
+        RefreshAdaptiveOrderLayout();
     }
 
     public bool ClaimOrder(OrderRuntimeData order)
@@ -354,6 +357,8 @@ public sealed class OrderManager : MonoBehaviour
                 view.Bind(this, order);
             }
         }
+
+        RefreshAdaptiveOrderLayout();
     }
 
     private void RefreshViews()
@@ -370,6 +375,8 @@ public sealed class OrderManager : MonoBehaviour
                 view.Refresh(order);
             }
         }
+
+        RefreshAdaptiveOrderLayout();
     }
 
     private void EnsureOrderViews()
@@ -456,6 +463,16 @@ public sealed class OrderManager : MonoBehaviour
         if (orderViewsRoot == null)
         {
             orderViewsRoot = transform;
+        }
+    }
+
+    private void RefreshAdaptiveOrderLayout()
+    {
+        ResolveAdaptiveHorizontalLayout();
+
+        if (adaptiveHorizontalLayout != null)
+        {
+            adaptiveHorizontalLayout.RefreshLayoutDelayed();
         }
     }
 
@@ -653,5 +670,25 @@ public sealed class OrderManager : MonoBehaviour
         }
 
         ResolveOrderViewsRoot();
+        ResolveAdaptiveHorizontalLayout();
+    }
+
+    private void ResolveAdaptiveHorizontalLayout()
+    {
+        if (adaptiveHorizontalLayout != null)
+        {
+            return;
+        }
+
+        adaptiveHorizontalLayout = GetComponent<AdaptiveHorizontalScrollLayout>();
+        if (adaptiveHorizontalLayout == null)
+        {
+            adaptiveHorizontalLayout = GetComponentInChildren<AdaptiveHorizontalScrollLayout>(true);
+        }
+
+        if (adaptiveHorizontalLayout == null && orderViewsRoot != null)
+        {
+            adaptiveHorizontalLayout = orderViewsRoot.GetComponentInParent<AdaptiveHorizontalScrollLayout>();
+        }
     }
 }
