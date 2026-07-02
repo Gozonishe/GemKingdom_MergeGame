@@ -9,6 +9,8 @@ public sealed class LevelManager : MonoBehaviour
     private const string SavedLevelIndexKey = "MergeGame.NextLevelIndex";
     private const string DefaultMainMenuSceneName = "MainMenuScreen";
     private const string DefaultLevelsAssetFolder = "Assets/_Project/ScriptableObjects/Levels";
+    private const string LoosePanelName = "LoosePanel";
+    private const string LevelWindowStartName = "LevelWindowStart";
 
     [Header("Levels")]
     [SerializeField] private List<LevelData> levels = new List<LevelData>();
@@ -26,7 +28,14 @@ public sealed class LevelManager : MonoBehaviour
     [SerializeField] private RewardPopup rewardPopup;
     [SerializeField] private TMP_Text levelText;
     [SerializeField] private GameObject loosePopup;
+    [SerializeField] private GameObject loosePanel;
+    [SerializeField] private GameObject loseLevelWindowStart;
+    [SerializeField] private TMP_Text loseLevelWindowHeaderLabel;
+    [SerializeField] private RectTransform loseLevelWindowTaskItemsRoot;
+    [SerializeField] private GameObject loseLevelWindowTaskItemPrefab;
     [SerializeField] private Button loosePopupQuitButton;
+    [SerializeField] private Button loseLevelStartButton;
+    [SerializeField] private Button loseLevelExitButton;
     [SerializeField] private Button exitLevelButton;
 
     [Header("Scene Flow")]
@@ -36,6 +45,7 @@ public sealed class LevelManager : MonoBehaviour
     private bool levelCompleteHandled;
     private bool levelLoseHandled;
     private bool waitingRewardPopupClose;
+    private bool waitingLoosePanelTap;
 
     public IReadOnlyList<LevelData> Levels => levels;
     public int CurrentLevelIndex => currentLevelIndex;
@@ -83,6 +93,12 @@ public sealed class LevelManager : MonoBehaviour
 
     private void Update()
     {
+        if (waitingLoosePanelTap && IsTapStarted())
+        {
+            ShowLoseLevelStartWindow();
+            return;
+        }
+
         if (isLoadingLevel || levelCompleteHandled || levelLoseHandled || orderManager == null || orderManager.IsAutoClaimingCompletedOrders)
         {
             return;
@@ -114,6 +130,16 @@ public sealed class LevelManager : MonoBehaviour
             loosePopupQuitButton.onClick.RemoveListener(LoadMainMenuScene);
         }
 
+        if (loseLevelStartButton != null)
+        {
+            loseLevelStartButton.onClick.RemoveListener(RestartLevelFromLoseWindow);
+        }
+
+        if (loseLevelExitButton != null)
+        {
+            loseLevelExitButton.onClick.RemoveListener(ExitLoseWindowToMainMenu);
+        }
+
         if (exitLevelButton != null)
         {
             exitLevelButton.onClick.RemoveListener(ExitLevelToMainMenu);
@@ -142,7 +168,10 @@ public sealed class LevelManager : MonoBehaviour
         levelCompleteHandled = false;
         levelLoseHandled = false;
         waitingRewardPopupClose = false;
+        waitingLoosePanelTap = false;
         SetLoosePopupActive(false);
+        SetLoosePanelActive(false);
+        SetLoseLevelWindowActive(false);
         RefreshLevelText(level);
 
         if (energyManager != null)
@@ -271,6 +300,18 @@ public sealed class LevelManager : MonoBehaviour
             loosePopup = FindSceneObject("LoosePopup");
         }
 
+        if (loosePanel == null)
+        {
+            loosePanel = FindChildObject(loosePopup, LoosePanelName);
+        }
+
+        if (loseLevelWindowStart == null)
+        {
+            loseLevelWindowStart = FindChildObject(loosePopup, LevelWindowStartName);
+        }
+
+        ResolveLoseLevelWindowReferences();
+
         if (loosePopupQuitButton == null)
         {
             loosePopupQuitButton = FindButtonInRoot(loosePopup, "QuitButton");
@@ -280,6 +321,18 @@ public sealed class LevelManager : MonoBehaviour
         {
             loosePopupQuitButton.onClick.RemoveListener(LoadMainMenuScene);
             loosePopupQuitButton.onClick.AddListener(LoadMainMenuScene);
+        }
+
+        if (loseLevelStartButton != null)
+        {
+            loseLevelStartButton.onClick.RemoveListener(RestartLevelFromLoseWindow);
+            loseLevelStartButton.onClick.AddListener(RestartLevelFromLoseWindow);
+        }
+
+        if (loseLevelExitButton != null)
+        {
+            loseLevelExitButton.onClick.RemoveListener(ExitLoseWindowToMainMenu);
+            loseLevelExitButton.onClick.AddListener(ExitLoseWindowToMainMenu);
         }
 
         if (exitLevelButton == null)
@@ -350,6 +403,9 @@ public sealed class LevelManager : MonoBehaviour
             mainMenuSceneName = DefaultMainMenuSceneName;
         }
 
+#if UNITY_EDITOR
+        UnityEditor.Selection.activeObject = null;
+#endif
         SceneManager.LoadScene(mainMenuSceneName, LoadSceneMode.Single);
     }
 
@@ -374,6 +430,32 @@ public sealed class LevelManager : MonoBehaviour
         }
 
         SetLoosePopupActive(true);
+        SetLoosePanelActive(true);
+        SetLoseLevelWindowActive(false);
+        waitingLoosePanelTap = true;
+    }
+
+    private void ShowLoseLevelStartWindow()
+    {
+        waitingLoosePanelTap = false;
+        ResolveReferences();
+        RefreshLoseLevelWindow(CurrentLevel);
+        SetLoosePanelActive(false);
+        SetLoseLevelWindowActive(true);
+    }
+
+    private void RestartLevelFromLoseWindow()
+    {
+        waitingLoosePanelTap = false;
+        SetLoosePopupActive(false);
+        RestartLevel();
+    }
+
+    private void ExitLoseWindowToMainMenu()
+    {
+        waitingLoosePanelTap = false;
+        SetLoosePopupActive(false);
+        LoadMainMenuScene();
     }
 
     private void SetLoosePopupActive(bool isActive)
@@ -382,6 +464,181 @@ public sealed class LevelManager : MonoBehaviour
         {
             loosePopup.SetActive(isActive);
         }
+    }
+
+    private void SetLoosePanelActive(bool isActive)
+    {
+        if (loosePanel != null && loosePanel.activeSelf != isActive)
+        {
+            loosePanel.SetActive(isActive);
+        }
+    }
+
+    private void SetLoseLevelWindowActive(bool isActive)
+    {
+        if (loseLevelWindowStart != null && loseLevelWindowStart.activeSelf != isActive)
+        {
+            loseLevelWindowStart.SetActive(isActive);
+        }
+    }
+
+    private void ResolveLoseLevelWindowReferences()
+    {
+        if (loseLevelWindowStart == null)
+        {
+            return;
+        }
+
+        if (loseLevelWindowHeaderLabel == null)
+        {
+            loseLevelWindowHeaderLabel = FindTextInRoot(loseLevelWindowStart, "HeaderLabel");
+        }
+
+        if (loseLevelWindowTaskItemsRoot == null)
+        {
+            loseLevelWindowTaskItemsRoot = FindRectInRoot(loseLevelWindowStart, "TasksItems");
+            loseLevelWindowTaskItemsRoot = loseLevelWindowTaskItemsRoot != null ? loseLevelWindowTaskItemsRoot : FindRectInRoot(loseLevelWindowStart, "Task Items");
+        }
+
+        if (loseLevelStartButton == null)
+        {
+            loseLevelStartButton = FindButtonInRoot(loseLevelWindowStart, "BtnStartLevel");
+            loseLevelStartButton = loseLevelStartButton != null ? loseLevelStartButton : FindButtonInRoot(loseLevelWindowStart, "ButtonBG");
+        }
+
+        if (loseLevelExitButton == null)
+        {
+            loseLevelExitButton = FindButtonInRoot(loseLevelWindowStart, "BtnRed");
+        }
+    }
+
+    private void RefreshLoseLevelWindow(LevelData level)
+    {
+        ResolveLoseLevelWindowReferences();
+
+        if (level == null)
+        {
+            return;
+        }
+
+        if (loseLevelWindowHeaderLabel != null)
+        {
+            loseLevelWindowHeaderLabel.text = $"Level {level.LevelNumber}";
+        }
+
+        if (loseLevelWindowTaskItemsRoot == null)
+        {
+            return;
+        }
+
+        var template = ResolveLoseLevelTaskItemTemplate();
+        if (template == null)
+        {
+            Debug.LogWarning($"{nameof(LevelManager)} on '{name}' cannot fill {LevelWindowStartName} because TaskItem template was not found.", this);
+            return;
+        }
+
+        ClearLoseLevelTaskItems(template);
+
+        var orders = level.Orders;
+        for (var i = 0; i < orders.Count; i++)
+        {
+            var order = orders[i];
+            if (order == null)
+            {
+                continue;
+            }
+
+            var taskItem = Instantiate(template, loseLevelWindowTaskItemsRoot);
+            taskItem.name = $"TaskItem_{i + 1}";
+            taskItem.SetActive(true);
+            ApplyTaskItem(taskItem, order);
+        }
+
+        SetSceneTemplateActive(template, false);
+    }
+
+    private GameObject ResolveLoseLevelTaskItemTemplate()
+    {
+        if (loseLevelWindowTaskItemPrefab != null)
+        {
+            return loseLevelWindowTaskItemPrefab;
+        }
+
+        if (loseLevelWindowTaskItemsRoot == null)
+        {
+            return null;
+        }
+
+        var existing = loseLevelWindowTaskItemsRoot.Find("TaskItem");
+        if (existing != null)
+        {
+            return existing.gameObject;
+        }
+
+        return loseLevelWindowTaskItemsRoot.childCount > 0
+            ? loseLevelWindowTaskItemsRoot.GetChild(0).gameObject
+            : null;
+    }
+
+    private void ClearLoseLevelTaskItems(GameObject template)
+    {
+        if (loseLevelWindowTaskItemsRoot == null)
+        {
+            return;
+        }
+
+        for (var i = loseLevelWindowTaskItemsRoot.childCount - 1; i >= 0; i--)
+        {
+            var child = loseLevelWindowTaskItemsRoot.GetChild(i);
+            if (template != null && template.scene.IsValid() && child == template.transform)
+            {
+                continue;
+            }
+
+            Destroy(child.gameObject);
+        }
+    }
+
+    private static void ApplyTaskItem(GameObject taskItem, OrderDefinition order)
+    {
+        if (taskItem == null || order == null)
+        {
+            return;
+        }
+
+        var taskImage = FindChildImage(taskItem.transform, "TaskImage");
+        taskImage = taskImage != null ? taskImage : FindChildImage(taskItem.transform, "Image");
+        if (taskImage != null)
+        {
+            taskImage.sprite = order.RequiredItem != null ? order.RequiredItem.Icon : null;
+            taskImage.enabled = taskImage.sprite != null;
+            taskImage.preserveAspect = true;
+        }
+
+        var itemCount = FindChildText(taskItem.transform, "ItemCount");
+        if (itemCount != null)
+        {
+            itemCount.text = order.RequiredAmount.ToString();
+        }
+    }
+
+    private static bool IsTapStarted()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            return true;
+        }
+
+        for (var i = 0; i < Input.touchCount; i++)
+        {
+            if (Input.GetTouch(i).phase == TouchPhase.Began)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private bool IsInsideLevels(int index)
@@ -456,6 +713,114 @@ public sealed class LevelManager : MonoBehaviour
         }
 
         return null;
+    }
+
+    private static GameObject FindChildObject(GameObject root, string childName)
+    {
+        if (root == null || string.IsNullOrEmpty(childName))
+        {
+            return null;
+        }
+
+        var transforms = root.GetComponentsInChildren<Transform>(true);
+        for (var i = 0; i < transforms.Length; i++)
+        {
+            var target = transforms[i];
+            if (target != null && target.name == childName)
+            {
+                return target.gameObject;
+            }
+        }
+
+        return null;
+    }
+
+    private static TMP_Text FindTextInRoot(GameObject root, string textName)
+    {
+        if (root == null)
+        {
+            return null;
+        }
+
+        var texts = root.GetComponentsInChildren<TMP_Text>(true);
+        for (var i = 0; i < texts.Length; i++)
+        {
+            var text = texts[i];
+            if (text != null && text.name == textName)
+            {
+                return text;
+            }
+        }
+
+        return null;
+    }
+
+    private static RectTransform FindRectInRoot(GameObject root, string rectName)
+    {
+        if (root == null)
+        {
+            return null;
+        }
+
+        var rects = root.GetComponentsInChildren<RectTransform>(true);
+        for (var i = 0; i < rects.Length; i++)
+        {
+            var rect = rects[i];
+            if (rect != null && rect.name == rectName)
+            {
+                return rect;
+            }
+        }
+
+        return null;
+    }
+
+    private static Image FindChildImage(Transform root, string childName)
+    {
+        if (root == null)
+        {
+            return null;
+        }
+
+        var images = root.GetComponentsInChildren<Image>(true);
+        for (var i = 0; i < images.Length; i++)
+        {
+            var image = images[i];
+            if (image != null && image.name == childName)
+            {
+                return image;
+            }
+        }
+
+        return null;
+    }
+
+    private static TMP_Text FindChildText(Transform root, string childName)
+    {
+        if (root == null)
+        {
+            return null;
+        }
+
+        var texts = root.GetComponentsInChildren<TMP_Text>(true);
+        for (var i = 0; i < texts.Length; i++)
+        {
+            var text = texts[i];
+            if (text != null && text.name == childName)
+            {
+                return text;
+            }
+        }
+
+        return null;
+    }
+
+    private static void SetSceneTemplateActive(GameObject template, bool isActive)
+    {
+        if (template != null && template.scene.IsValid() && template.activeSelf != isActive)
+        {
+            template.SetActive(isActive);
+        }
     }
 
 #if UNITY_EDITOR

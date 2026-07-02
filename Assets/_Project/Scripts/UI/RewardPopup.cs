@@ -2,12 +2,21 @@ using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public sealed class RewardPopup : MonoBehaviour
+public sealed class RewardPopup : MonoBehaviour, IPointerClickHandler
 {
+    private enum PopupStage
+    {
+        Hidden,
+        Victory,
+        Rewards
+    }
+
     private const string RewardsOverlayWindowName = "RewardsOverlayWindow";
     private const string RewardsContainerName = "RewardsContainer";
+    private const string VictoryPanelName = "VictoryPanel";
     private const string GeneratedSpriteShineName = "SpriteShineSweep";
 
     [SerializeField] private GameObject root;
@@ -20,6 +29,9 @@ public sealed class RewardPopup : MonoBehaviour
     [SerializeField, Min(0f)] private float openFadeDuration = 0.25f;
     [SerializeField, Min(0f)] private float closeFadeDuration = 0.2f;
 
+    [Header("Victory")]
+    [SerializeField] private GameObject victoryPanel;
+
     [Header("Rewards Overlay")]
     [SerializeField] private GameObject rewardsOverlayWindow;
     [SerializeField] private Transform rewardsContainer;
@@ -28,12 +40,35 @@ public sealed class RewardPopup : MonoBehaviour
     [SerializeField] private Sprite starsIcon;
 
     private bool isVisible;
+    private PopupStage stage = PopupStage.Hidden;
+    private int pendingCoins;
+    private int pendingStars;
     private CanvasGroup rootCanvasGroup;
     private Coroutine fadeCoroutine;
+    private Button[] victoryAdvanceButtons = Array.Empty<Button>();
     private Button[] overlayCloseButtons = Array.Empty<Button>();
 
     public event Action Hidden;
     public bool IsVisible => isVisible;
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (!isVisible)
+        {
+            return;
+        }
+
+        if (stage == PopupStage.Victory)
+        {
+            ShowRewardsAfterVictory();
+            return;
+        }
+
+        if (stage == PopupStage.Rewards)
+        {
+            Hide();
+        }
+    }
 
     private void Awake()
     {
@@ -43,7 +78,7 @@ public sealed class RewardPopup : MonoBehaviour
         }
 
         rootCanvasGroup = GetOrAddCanvasGroup(root);
-        ResolveRewardsOverlayReferences();
+        ResolvePopupReferences();
         ValidateReferences();
 
         if (!isVisible && root != null)
@@ -54,21 +89,13 @@ public sealed class RewardPopup : MonoBehaviour
 
     private void OnEnable()
     {
-        if (claimButton != null)
-        {
-            claimButton.onClick.AddListener(Hide);
-        }
-
+        AddVictoryAdvanceListeners();
         AddOverlayCloseListeners();
     }
 
     private void OnDisable()
     {
-        if (claimButton != null)
-        {
-            claimButton.onClick.RemoveListener(Hide);
-        }
-
+        RemoveVictoryAdvanceListeners();
         RemoveOverlayCloseListeners();
 
         if (fadeCoroutine != null)
@@ -81,6 +108,9 @@ public sealed class RewardPopup : MonoBehaviour
     public void Show(int coins, int stars)
     {
         isVisible = true;
+        stage = PopupStage.Victory;
+        pendingCoins = coins;
+        pendingStars = stars;
 
         if (titleText != null)
         {
@@ -102,7 +132,11 @@ public sealed class RewardPopup : MonoBehaviour
             root.SetActive(true);
         }
 
-        ShowRewardItems(coins, stars);
+        ResolvePopupReferences();
+        SetVictoryPanelActive(true);
+        SetRewardsOverlayActive(false);
+        ClearRewardItems();
+        AddVictoryAdvanceListeners();
         AddOverlayCloseListeners();
         FadeIn();
     }
@@ -115,7 +149,21 @@ public sealed class RewardPopup : MonoBehaviour
         }
 
         isVisible = false;
+        stage = PopupStage.Hidden;
         FadeOut();
+    }
+
+    private void ShowRewardsAfterVictory()
+    {
+        if (!isVisible || stage != PopupStage.Victory)
+        {
+            return;
+        }
+
+        stage = PopupStage.Rewards;
+        SetVictoryPanelActive(false);
+        ShowRewardItems(pendingCoins, pendingStars);
+        AddOverlayCloseListeners();
     }
 
     private void FadeIn()
@@ -193,6 +241,8 @@ public sealed class RewardPopup : MonoBehaviour
     private void CompleteHide()
     {
         RemoveOverlayCloseListeners();
+        RemoveVictoryAdvanceListeners();
+        stage = PopupStage.Hidden;
 
         if (rootCanvasGroup != null)
         {
@@ -211,14 +261,14 @@ public sealed class RewardPopup : MonoBehaviour
 
     private void ShowRewardItems(int coins, int stars)
     {
-        ResolveRewardsOverlayReferences();
+        ResolvePopupReferences();
 
         if (rewardsOverlayWindow == null)
         {
             return;
         }
 
-        rewardsOverlayWindow.SetActive(true);
+        SetRewardsOverlayActive(true);
         EnsureSpriteRenderersVisibleInUI();
         ClearRewardItems();
 
@@ -324,8 +374,14 @@ public sealed class RewardPopup : MonoBehaviour
         return target != null && target.name.IndexOf(GeneratedSpriteShineName, StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
-    private void ResolveRewardsOverlayReferences()
+    private void ResolvePopupReferences()
     {
+        if (victoryPanel == null)
+        {
+            var victoryTransform = FindDeepChild(transform, VictoryPanelName);
+            victoryPanel = victoryTransform != null ? victoryTransform.gameObject : null;
+        }
+
         if (rewardsOverlayWindow == null)
         {
             var overlayTransform = FindDeepChild(transform, RewardsOverlayWindowName);
@@ -339,9 +395,63 @@ public sealed class RewardPopup : MonoBehaviour
         }
     }
 
+    private void SetVictoryPanelActive(bool isActive)
+    {
+        ResolvePopupReferences();
+
+        if (victoryPanel != null && victoryPanel.activeSelf != isActive)
+        {
+            victoryPanel.SetActive(isActive);
+        }
+    }
+
+    private void SetRewardsOverlayActive(bool isActive)
+    {
+        ResolvePopupReferences();
+
+        if (rewardsOverlayWindow != null && rewardsOverlayWindow.activeSelf != isActive)
+        {
+            rewardsOverlayWindow.SetActive(isActive);
+        }
+    }
+
+    private void AddVictoryAdvanceListeners()
+    {
+        ResolvePopupReferences();
+
+        if (victoryPanel == null)
+        {
+            return;
+        }
+
+        RemoveVictoryAdvanceListeners();
+        victoryAdvanceButtons = victoryPanel.GetComponentsInChildren<Button>(true);
+
+        for (var i = 0; i < victoryAdvanceButtons.Length; i++)
+        {
+            if (victoryAdvanceButtons[i] != null)
+            {
+                victoryAdvanceButtons[i].onClick.AddListener(ShowRewardsAfterVictory);
+            }
+        }
+    }
+
+    private void RemoveVictoryAdvanceListeners()
+    {
+        for (var i = 0; i < victoryAdvanceButtons.Length; i++)
+        {
+            if (victoryAdvanceButtons[i] != null)
+            {
+                victoryAdvanceButtons[i].onClick.RemoveListener(ShowRewardsAfterVictory);
+            }
+        }
+
+        victoryAdvanceButtons = Array.Empty<Button>();
+    }
+
     private void AddOverlayCloseListeners()
     {
-        ResolveRewardsOverlayReferences();
+        ResolvePopupReferences();
 
         if (rewardsOverlayWindow == null)
         {

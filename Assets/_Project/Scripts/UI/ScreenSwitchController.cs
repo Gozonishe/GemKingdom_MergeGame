@@ -241,6 +241,9 @@ public sealed class ScreenSwitchController : MonoBehaviour
             return;
         }
 
+#if UNITY_EDITOR
+        UnityEditor.Selection.activeObject = null;
+#endif
         SceneManager.LoadScene(mergeGameSceneName, LoadSceneMode.Single);
     }
 
