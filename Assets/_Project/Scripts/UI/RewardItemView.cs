@@ -8,12 +8,20 @@ public sealed class RewardItemView : MonoBehaviour
     [SerializeField] private TMP_Text amountText;
     [SerializeField] private GameObject appearEffectPrefab;
 
+    [Header("Icon Shine")]
+    [SerializeField] private bool ensureIconShineSweep = true;
+    [SerializeField] private Vector2 shineInitialDelayRange = new(0.15f, 0.35f);
+    [SerializeField] private Vector2 shineRepeatDelayRange = new(2f, 3f);
+    [SerializeField, Min(1f)] private float shineStripeWidth = 34f;
+    [SerializeField, Range(0f, 1f)] private float shineMaxAlpha = 0.42f;
+
     public void Set(Sprite icon, int amount)
     {
         if (iconImage != null)
         {
             iconImage.sprite = icon;
             iconImage.enabled = icon != null;
+            EnsureIconShineSweep();
         }
 
         if (amountText != null)
@@ -50,5 +58,22 @@ public sealed class RewardItemView : MonoBehaviour
         }
 
         Destroy(effect, destroyDelay > 0f ? destroyDelay + 0.1f : 1f);
+    }
+
+    private void EnsureIconShineSweep()
+    {
+        if (!ensureIconShineSweep || iconImage == null || iconImage.sprite == null)
+        {
+            return;
+        }
+
+        var shineSweep = iconImage.GetComponent<IconEventShineSweep>();
+        if (shineSweep == null)
+        {
+            shineSweep = iconImage.gameObject.AddComponent<IconEventShineSweep>();
+        }
+
+        shineSweep.Configure(shineInitialDelayRange, shineRepeatDelayRange, shineStripeWidth, shineMaxAlpha);
+        shineSweep.RestartSweep(Random.Range(shineInitialDelayRange.x, shineInitialDelayRange.y));
     }
 }

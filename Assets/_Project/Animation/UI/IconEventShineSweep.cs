@@ -32,9 +32,23 @@ public sealed class IconEventShineSweep : MonoBehaviour
 
     private void OnEnable()
     {
+        RestartSweep(GetInitialDelay());
+    }
+
+    public void Configure(Vector2 initialDelay, Vector2 repeatDelay, float width, float alpha)
+    {
+        initialDelayRange = initialDelay;
+        minDelay = Mathf.Max(0f, repeatDelay.x);
+        maxDelay = Mathf.Max(minDelay, repeatDelay.y);
+        stripeWidth = Mathf.Max(1f, width);
+        maxAlpha = Mathf.Clamp01(alpha);
+    }
+
+    public void RestartSweep(float delay)
+    {
         isSweeping = false;
         timer = 0f;
-        nextDelay = GetInitialDelay();
+        nextDelay = Mathf.Max(0f, delay);
         SetShineAlpha(0f);
     }
 
