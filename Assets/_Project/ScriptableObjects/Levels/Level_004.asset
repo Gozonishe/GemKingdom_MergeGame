@@ -23,7 +23,7 @@ MonoBehaviour:
     count: 1
   - itemData: {fileID: 11400000, guid: a33c1beba84795444a695fc2ce6cf7e1, type: 2}
     count: 4
-  - itemData: {fileID: 11400000, guid: d159175d4c24bad408a9aca90aec8d58, type: 2}
+  - itemData: {fileID: 11400000, guid: da200a52036e13f44b6d84a28c6de0e9, type: 2}
     count: 1
   generatorSpawnableItems:
   - itemData: {fileID: 11400000, guid: 50e17eb973d2a4f4887adf1dc8160eb9, type: 2}
@@ -51,7 +51,7 @@ MonoBehaviour:
     coinReward: 20
     starReward: 20
   - objectiveType: 1
-    requiredItem: {fileID: 11400000, guid: d159175d4c24bad408a9aca90aec8d58, type: 2}
+    requiredItem: {fileID: 11400000, guid: da200a52036e13f44b6d84a28c6de0e9, type: 2}
     requiredAmount: 1
     coinReward: 10
     starReward: 10

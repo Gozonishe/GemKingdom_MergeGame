@@ -53,7 +53,7 @@ MonoBehaviour:
     coinReward: 25
     starReward: 25
   - objectiveType: 1
-    requiredItem: {fileID: 11400000, guid: d159175d4c24bad408a9aca90aec8d58, type: 2}
+    requiredItem: {fileID: 11400000, guid: da200a52036e13f44b6d84a28c6de0e9, type: 2}
     requiredAmount: 3
     coinReward: 25
     starReward: 25
