@@ -15,6 +15,7 @@ public sealed class AdaptiveHorizontalScrollLayout : MonoBehaviour
     [SerializeField, Min(0f)] private float fitTolerance = 0.5f;
     [SerializeField] private bool refreshOnEnable = true;
     [SerializeField] private bool refreshOnSizeChange = true;
+    [SerializeField] private bool preserveContentHeight = true;
     [SerializeField] private bool overrideMovementType;
     [SerializeField] private ScrollRect.MovementType movementType = ScrollRect.MovementType.Clamped;
 
@@ -67,17 +68,12 @@ public sealed class AdaptiveHorizontalScrollLayout : MonoBehaviour
 
         var viewportWidth = viewport.rect.width;
         var preferredContentWidth = LayoutUtility.GetPreferredWidth(content);
-        var contentHeight = Mathf.Max(content.rect.height, viewport.rect.height);
+        var contentHeight = preserveContentHeight
+            ? content.rect.height
+            : Mathf.Max(content.rect.height, viewport.rect.height);
 
         var shouldScroll = preferredContentWidth > viewportWidth + fitTolerance;
-        if (shouldScroll)
-        {
-            ApplyScrollableLayout(preferredContentWidth, contentHeight);
-        }
-        else
-        {
-            ApplyCenteredLayout(preferredContentWidth, contentHeight);
-        }
+        ApplyLeftAlignedLayout(preferredContentWidth, contentHeight, shouldScroll);
 
         RebuildNow();
     }
@@ -104,20 +100,9 @@ public sealed class AdaptiveHorizontalScrollLayout : MonoBehaviour
         delayedRefreshCoroutine = null;
     }
 
-    private void ApplyCenteredLayout(float preferredContentWidth, float contentHeight)
+    private void ApplyLeftAlignedLayout(float preferredContentWidth, float contentHeight, bool shouldScroll)
     {
-        scrollRect.horizontal = false;
-        scrollRect.velocity = Vector2.zero;
-
-        horizontalLayoutGroup.childAlignment = TextAnchor.MiddleCenter;
-        SetContentHorizontalTransform(0.5f, 0.5f, 0.5f, preferredContentWidth, contentHeight);
-
-        scrollRect.horizontalNormalizedPosition = 0.5f;
-    }
-
-    private void ApplyScrollableLayout(float preferredContentWidth, float contentHeight)
-    {
-        scrollRect.horizontal = true;
+        scrollRect.horizontal = shouldScroll;
         scrollRect.velocity = Vector2.zero;
 
         horizontalLayoutGroup.childAlignment = TextAnchor.MiddleLeft;

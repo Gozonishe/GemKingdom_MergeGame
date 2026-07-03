@@ -9,11 +9,6 @@ public sealed class OrderView : MonoBehaviour
     [SerializeField] private TMP_Text amountText;
     [SerializeField] private TMP_Text rewardText;
     [SerializeField] private Button claimButton;
-    [SerializeField] private Graphic claimButtonGraphic;
-
-    [Header("Claim Button Colors")]
-    [SerializeField] private Color unavailableClaimColor = new Color32(0x3A, 0x3A, 0x3A, 0xFF);
-    [SerializeField] private Color availableClaimColor = new Color32(0x0F, 0x9F, 0x1A, 0xFF);
 
     [Header("Layout")]
     [SerializeField] private RectTransform topContent;
@@ -83,10 +78,10 @@ public sealed class OrderView : MonoBehaviour
 
         if (claimButton != null)
         {
-            claimButton.interactable = order.CanClaim;
+            var canClaim = order.CanClaim;
+            claimButton.gameObject.SetActive(canClaim);
+            claimButton.interactable = canClaim;
         }
-
-        ApplyClaimButtonState();
     }
 
     private void Claim()
@@ -143,23 +138,6 @@ public sealed class OrderView : MonoBehaviour
         claimButton = claimButton != null
             ? claimButton
             : FindComponentInChild<Button>("ClaimButton");
-
-        claimButtonGraphic = claimButtonGraphic != null
-            ? claimButtonGraphic
-            : claimButton != null
-                ? claimButton.targetGraphic
-                : FindComponentInChild<Graphic>("ClaimButton");
-    }
-
-    private void ApplyClaimButtonState()
-    {
-        if (claimButtonGraphic == null)
-        {
-            return;
-        }
-
-        var canClaim = order != null && order.CanClaim;
-        claimButtonGraphic.color = canClaim ? availableClaimColor : unavailableClaimColor;
     }
 
     [ContextMenu("Apply Default Layout")]

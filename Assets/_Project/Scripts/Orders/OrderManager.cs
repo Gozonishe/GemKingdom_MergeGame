@@ -24,6 +24,8 @@ public sealed class OrderManager : MonoBehaviour
 
     private readonly List<OrderRuntimeData> runtimeOrders = new List<OrderRuntimeData>();
     private bool isAutoClaimingCompletedOrders;
+    private int pendingCompletedRewardCoins;
+    private int pendingCompletedRewardStars;
 
     public IReadOnlyList<OrderRuntimeData> ActiveOrders => runtimeOrders;
     public bool AreAllOrdersClaimed => runtimeOrders.Count > 0 && AreEveryRuntimeOrderClaimed();
@@ -90,6 +92,7 @@ public sealed class OrderManager : MonoBehaviour
         }
 
         BuildRuntimeOrdersFromDefinitions(orderDefinitions);
+        ResetPendingCompletedRewards();
         EnsureOrderViews();
         BindViews();
         RefreshOrders(false);
@@ -168,13 +171,10 @@ public sealed class OrderManager : MonoBehaviour
         }
 
         currencyManager.AddReward(order.CoinReward, order.StarReward);
-
-        if (rewardPopup != null)
-        {
-            rewardPopup.Show(order.CoinReward, order.StarReward);
-        }
-
+        AddPendingCompletedReward(order.CoinReward, order.StarReward);
         order.MarkClaimed();
+
+        ShowCompletedLevelRewardIfReady();
         RefreshOrders();
         return true;
     }
@@ -268,12 +268,9 @@ public sealed class OrderManager : MonoBehaviour
             currencyManager.AddReward(selectedOrder.CoinReward, selectedOrder.StarReward);
         }
 
-        if (rewardPopup != null)
-        {
-            rewardPopup.Show(selectedOrder.CoinReward, selectedOrder.StarReward);
-        }
-
+        AddPendingCompletedReward(selectedOrder.CoinReward, selectedOrder.StarReward);
         selectedOrder.MarkClaimed();
+        ShowCompletedLevelRewardIfReady();
         RefreshOrders();
         return true;
     }
@@ -297,6 +294,7 @@ public sealed class OrderManager : MonoBehaviour
     private void BuildRuntimeOrdersFromDefinitions(IReadOnlyList<OrderDefinition> definitions)
     {
         runtimeOrders.Clear();
+        ResetPendingCompletedRewards();
 
         if (definitions == null)
         {
@@ -316,6 +314,7 @@ public sealed class OrderManager : MonoBehaviour
     private void BuildRuntimeOrdersFromLegacyOrders()
     {
         runtimeOrders.Clear();
+        ResetPendingCompletedRewards();
 
         for (var i = 0; i < activeOrders.Count; i++)
         {
@@ -472,6 +471,7 @@ public sealed class OrderManager : MonoBehaviour
 
         if (adaptiveHorizontalLayout != null)
         {
+            adaptiveHorizontalLayout.RefreshLayout();
             adaptiveHorizontalLayout.RefreshLayoutDelayed();
         }
     }
@@ -623,6 +623,7 @@ public sealed class OrderManager : MonoBehaviour
         if (claimedCount > 0)
         {
             currencyManager.AddReward(totalCoins, totalStars);
+            ResetPendingCompletedRewards();
 
             if (rewardPopup != null)
             {
@@ -636,6 +637,39 @@ public sealed class OrderManager : MonoBehaviour
 
         isAutoClaimingCompletedOrders = false;
         RefreshViews();
+    }
+
+    private void AddPendingCompletedReward(int coins, int stars)
+    {
+        pendingCompletedRewardCoins += Mathf.Max(0, coins);
+        pendingCompletedRewardStars += Mathf.Max(0, stars);
+    }
+
+    private void ResetPendingCompletedRewards()
+    {
+        pendingCompletedRewardCoins = 0;
+        pendingCompletedRewardStars = 0;
+    }
+
+    private void ShowCompletedLevelRewardIfReady()
+    {
+        if (!AreEveryRuntimeOrderClaimed())
+        {
+            return;
+        }
+
+        ResolveReferences();
+
+        if (rewardPopup != null)
+        {
+            rewardPopup.Show(pendingCompletedRewardCoins, pendingCompletedRewardStars);
+        }
+        else
+        {
+            Debug.LogError($"{nameof(OrderManager)} on '{name}' completed all orders without showing rewards because {nameof(rewardPopup)} is not assigned.", this);
+        }
+
+        ResetPendingCompletedRewards();
     }
 
     private bool AreEveryRuntimeOrderReadyOrClaimed()
