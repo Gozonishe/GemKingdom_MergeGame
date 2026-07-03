@@ -113,11 +113,6 @@ public sealed class RewardPopup : MonoBehaviour, IPointerClickHandler
         pendingCoins = coins;
         pendingStars = stars;
 
-        if (titleText != null)
-        {
-            titleText.text = "Reward";
-        }
-
         if (coinsText != null)
         {
             coinsText.text = coins.ToString();

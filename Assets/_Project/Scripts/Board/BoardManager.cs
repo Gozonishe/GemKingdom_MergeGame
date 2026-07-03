@@ -43,6 +43,12 @@ public sealed class BoardManager : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float connectedMergeEndAlpha = 0.25f;
     [SerializeField, Range(0.1f, 1f)] private float connectedMergeEndScale = 0.75f;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip playerPlaceSound;
+    [SerializeField] private AudioClip mergeSound;
+    [SerializeField, Min(0f)] private float mergeSoundDelay = 0.06f;
+    [SerializeField] private AudioClip dynamiteSound;
+
     [Header("Spider Movement")]
     [SerializeField] private bool animateSpiderMovement = true;
     [SerializeField, Min(0f)] private float spiderMoveDuration = 0.18f;
@@ -284,6 +290,7 @@ public sealed class BoardManager : MonoBehaviour
         targetCell.Clear();
         NotifyItemDestroyed(destroyItemData);
         NotifyItemDestroyed(targetItemData);
+        PlayDynamiteSound();
         Destroy(destroyItem.gameObject);
         Destroy(targetItem.gameObject);
         if (targetItemData != null && targetItemData.IsSpider)
@@ -1051,6 +1058,7 @@ public sealed class BoardManager : MonoBehaviour
 
         resultItem.SetData(nextLevelItem);
         mergeResultCell.SetItem(resultItem);
+        PlayMergeSound();
         resultItem.PlayMergePopEffect();
         ApplyAdjacentMergeReactions(mergeResultCell);
         return true;
@@ -1142,6 +1150,8 @@ public sealed class BoardManager : MonoBehaviour
             yield break;
         }
 
+        PlayMergeSound();
+
         if (animateConnectedMerge && connectedMergeMoveDuration > 0f)
         {
             yield return MoveConsumedItemsToResult(consumedItems, resultItem);
@@ -1158,6 +1168,48 @@ public sealed class BoardManager : MonoBehaviour
         mergeResultCell.SetItem(resultItem);
         resultItem.PlayMergePopEffect();
         ApplyAdjacentMergeReactions(mergeResultCell);
+    }
+
+    private void PlayMergeSound()
+    {
+        if (mergeSound == null)
+        {
+            return;
+        }
+
+        if (mergeSoundDelay <= 0f)
+        {
+            UIAudioController.Instance?.PlayUISound(mergeSound);
+            return;
+        }
+
+        StartCoroutine(PlayMergeSoundDelayed(mergeSound, mergeSoundDelay));
+    }
+
+    public void PlayPlayerPlaceSound()
+    {
+        if (playerPlaceSound == null)
+        {
+            return;
+        }
+
+        UIAudioController.Instance?.PlayUISound(playerPlaceSound);
+    }
+
+    private IEnumerator PlayMergeSoundDelayed(AudioClip clip, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        UIAudioController.Instance?.PlayUISound(clip);
+    }
+
+    private void PlayDynamiteSound()
+    {
+        if (dynamiteSound == null)
+        {
+            return;
+        }
+
+        UIAudioController.Instance?.PlayUISound(dynamiteSound);
     }
 
     private IEnumerator MoveConsumedItemsToResult(List<MergeItem> consumedItems, MergeItem resultItem)
