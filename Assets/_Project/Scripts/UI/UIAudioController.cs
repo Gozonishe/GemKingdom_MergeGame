@@ -85,6 +85,19 @@ public sealed class UIAudioController : MonoBehaviour
         PlayUISound(defaultButtonClickClip);
     }
 
+    public void ConfigureAudioClips(AudioClip buttonClickClip, AudioClip musicClip)
+    {
+        if (buttonClickClip != null)
+        {
+            defaultButtonClickClip = buttonClickClip;
+        }
+
+        if (musicClip != null)
+        {
+            menuMusicClip = musicClip;
+        }
+    }
+
     public void PlayUISound(AudioClip clip, float volumeScale = 1f)
     {
         if (uiSoundsMuted || clip == null)

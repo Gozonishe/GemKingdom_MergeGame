@@ -38,6 +38,7 @@ public sealed class RewardPopup : MonoBehaviour, IPointerClickHandler
     [SerializeField] private RewardItemView rewardItemPrefab;
     [SerializeField] private Sprite coinsIcon;
     [SerializeField] private Sprite starsIcon;
+    [SerializeField] private AudioClip rewardsOverlayOpenSound;
 
     private bool isVisible;
     private PopupStage stage = PopupStage.Hidden;
@@ -269,6 +270,7 @@ public sealed class RewardPopup : MonoBehaviour, IPointerClickHandler
         }
 
         SetRewardsOverlayActive(true);
+        PlayRewardsOverlayOpenSound();
         EnsureSpriteRenderersVisibleInUI();
         ClearRewardItems();
 
@@ -299,6 +301,16 @@ public sealed class RewardPopup : MonoBehaviour, IPointerClickHandler
         var rewardItem = Instantiate(rewardItemPrefab, rewardsContainer);
         rewardItem.Set(icon, amount);
         rewardItem.PlayAppearEffect();
+    }
+
+    private void PlayRewardsOverlayOpenSound()
+    {
+        if (rewardsOverlayOpenSound == null)
+        {
+            return;
+        }
+
+        UIAudioController.Instance?.PlayUISound(rewardsOverlayOpenSound);
     }
 
     private void ClearRewardItems()
