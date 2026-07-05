@@ -1,5 +1,5 @@
-Production-like mobile game main menu with HUD elements, event entry buttons, bottom navigation, modal event popup, background dim overlay, and lightweight VFX feedback.
-The goal was to create a production-like mobile live event flow:
+Production-like mobile merge game
+The goal was to create a production-like mobile live event game:
 
 *Main Menu → Event Button → Event Popup → Close / Return*
 
