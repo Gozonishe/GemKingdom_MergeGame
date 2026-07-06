@@ -31,8 +31,10 @@ public sealed class ScreenSwitchController : MonoBehaviour
     [SerializeField] private Button playerGoldButton;
     [SerializeField] private Button getLivesClanButton;
     [SerializeField] private Button continueRaceButton;
+    [SerializeField] private Button mainLevelButton;
     [SerializeField] private Button mergeGameButton;
     [SerializeField] private TMP_Text mergeGameLevelText;
+    [SerializeField] private List<TMP_Text> levelObjectNumberTexts = new List<TMP_Text>();
     [SerializeField] private TMP_Text levelStartWindowHeaderLabel;
     [SerializeField] private List<LevelData> levelStartLevels = new List<LevelData>();
     [SerializeField] private RectTransform levelStartTaskItemsRoot;
@@ -57,6 +59,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
     private Vector2 locationButtonContentDefaultPosition;
     private Vector2 rankingButtonContentDefaultPosition;
     private Button subscribedContinueRaceButton;
+    private Button subscribedMainLevelButton;
     private Button subscribedMergeGameButton;
 
 #if UNITY_EDITOR
@@ -94,6 +97,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
     private void Start()
     {
         ResolveMissingReferences();
+        SubscribeMainLevelButton();
         SubscribeMergeGameButton();
         RefreshMergeGameLevelText();
         RefreshLevelStartTasks();
@@ -152,6 +156,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
         }
 
         SubscribeContinueRaceButton();
+        SubscribeMainLevelButton();
         SubscribeMergeGameButton();
 
         if (clanButton != null)
@@ -193,6 +198,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
         }
 
         UnsubscribeContinueRaceButton();
+        UnsubscribeMainLevelButton();
         UnsubscribeMergeGameButton();
 
         if (clanButton != null)
@@ -263,10 +269,13 @@ public sealed class ScreenSwitchController : MonoBehaviour
         playerGoldButton = playerGoldButton != null ? playerGoldButton : FindSceneButton("BtnPlayerGold");
         getLivesClanButton = getLivesClanButton != null ? getLivesClanButton : FindSceneButtonInRoot("GetLivesScreen", "BtnGreen");
         continueRaceButton = continueRaceButton != null ? continueRaceButton : FindSceneButtonInRoot("RankingScreen", "BtnContinueRace");
+        mainLevelButton = mainLevelButton != null ? mainLevelButton : FindSceneButtonInRoot("MainScreen", "BtnMain");
+        mainLevelButton = mainLevelButton != null ? mainLevelButton : FindSceneButton("BtnMain");
         mergeGameButton = mergeGameButton != null ? mergeGameButton : FindSceneButtonInRoot("LevelStartWindow", "BtnStartLevel");
         mergeGameButton = mergeGameButton != null ? mergeGameButton : FindSceneButton("BtnStartLevel");
         mergeGameLevelText = mergeGameLevelText != null ? mergeGameLevelText : FindTextInButton(FindSceneButtonInRoot("MainScreen", "BtnMain"), "TextNumber");
         mergeGameLevelText = mergeGameLevelText != null ? mergeGameLevelText : FindSceneTextInRoot("MainScreen", "TextNumber");
+        ResolveLevelObjectNumberTexts();
         levelStartWindowHeaderLabel = levelStartWindowHeaderLabel != null ? levelStartWindowHeaderLabel : FindSceneTextByPath("LevelStartWindow", "Bg/HeaderLabel");
         levelStartWindowHeaderLabel = levelStartWindowHeaderLabel != null ? levelStartWindowHeaderLabel : FindSceneTextInRoot("LevelStartWindow", "HeaderLabel");
         levelStartTaskItemsRoot = levelStartTaskItemsRoot != null ? levelStartTaskItemsRoot : FindSceneRectByPath("LevelStartWindow", "Content/TaskPlane/TasksItems");
@@ -308,10 +317,74 @@ public sealed class ScreenSwitchController : MonoBehaviour
             mergeGameLevelText.text = levelText;
         }
 
+        RefreshLevelObjectNumberTexts(levelNumber);
+
         if (levelStartWindowHeaderLabel != null)
         {
             levelStartWindowHeaderLabel.text = levelText;
         }
+    }
+
+    private void RefreshLevelObjectNumberTexts(int currentLevelNumber)
+    {
+        if (HasMissingLevelObjectNumberTexts())
+        {
+            ResolveLevelObjectNumberTexts();
+        }
+
+        for (var i = 0; i < 3; i++)
+        {
+            var levelObjectNumberText = levelObjectNumberTexts[i];
+            if (levelObjectNumberText != null)
+            {
+                levelObjectNumberText.text = (currentLevelNumber + i).ToString();
+            }
+        }
+    }
+
+    private void ResolveLevelObjectNumberTexts()
+    {
+        if (levelObjectNumberTexts == null)
+        {
+            levelObjectNumberTexts = new List<TMP_Text>();
+        }
+
+        while (levelObjectNumberTexts.Count < 3)
+        {
+            levelObjectNumberTexts.Add(null);
+        }
+
+        for (var i = 0; i < 3; i++)
+        {
+            if (levelObjectNumberTexts[i] != null)
+            {
+                continue;
+            }
+
+            var levelObjectName = $"LevelObject_{i + 1}";
+            levelObjectNumberTexts[i] = FindSceneTextByPath(levelObjectName, "LvlNumber");
+            levelObjectNumberTexts[i] = levelObjectNumberTexts[i] != null
+                ? levelObjectNumberTexts[i]
+                : FindSceneTextInRoot(levelObjectName, "LvlNumber");
+        }
+    }
+
+    private bool HasMissingLevelObjectNumberTexts()
+    {
+        if (levelObjectNumberTexts == null || levelObjectNumberTexts.Count < 3)
+        {
+            return true;
+        }
+
+        for (var i = 0; i < 3; i++)
+        {
+            if (levelObjectNumberTexts[i] == null)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void RefreshLevelStartTasks()
@@ -517,6 +590,23 @@ public sealed class ScreenSwitchController : MonoBehaviour
         subscribedMergeGameButton = mergeGameButton;
     }
 
+    private void SubscribeMainLevelButton()
+    {
+        if (mainLevelButton == null)
+        {
+            return;
+        }
+
+        if (subscribedMainLevelButton == mainLevelButton)
+        {
+            return;
+        }
+
+        UnsubscribeMainLevelButton();
+        mainLevelButton.onClick.AddListener(LoadMergeGameScreen);
+        subscribedMainLevelButton = mainLevelButton;
+    }
+
     private void UnsubscribeContinueRaceButton()
     {
         if (subscribedContinueRaceButton == null)
@@ -537,6 +627,17 @@ public sealed class ScreenSwitchController : MonoBehaviour
 
         subscribedMergeGameButton.onClick.RemoveListener(LoadMergeGameScreen);
         subscribedMergeGameButton = null;
+    }
+
+    private void UnsubscribeMainLevelButton()
+    {
+        if (subscribedMainLevelButton == null)
+        {
+            return;
+        }
+
+        subscribedMainLevelButton.onClick.RemoveListener(LoadMergeGameScreen);
+        subscribedMainLevelButton = null;
     }
 
     private void CacheDefaultPositions()
