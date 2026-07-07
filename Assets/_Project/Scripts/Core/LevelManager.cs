@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -46,6 +47,7 @@ public sealed class LevelManager : MonoBehaviour
     private bool levelLoseHandled;
     private bool waitingRewardPopupClose;
     private bool waitingLoosePanelTap;
+    private bool lifeConsumedForCurrentLevel;
 
     public IReadOnlyList<LevelData> Levels => levels;
     public int CurrentLevelIndex => currentLevelIndex;
@@ -114,6 +116,7 @@ public sealed class LevelManager : MonoBehaviour
         if (IsOutOfMoves())
         {
             levelLoseHandled = true;
+            ConsumeLifeForFailedAttempt();
             ShowLoosePopup();
         }
     }
@@ -167,6 +170,7 @@ public sealed class LevelManager : MonoBehaviour
         currentLevelIndex = index;
         levelCompleteHandled = false;
         levelLoseHandled = false;
+        lifeConsumedForCurrentLevel = false;
         waitingRewardPopupClose = false;
         waitingLoosePanelTap = false;
         SetLoosePopupActive(false);
@@ -265,6 +269,7 @@ public sealed class LevelManager : MonoBehaviour
 
     public void ExitLevelToMainMenu()
     {
+        ConsumeLifeForFailedAttempt();
         LoadMainMenuScene();
     }
 
@@ -456,6 +461,17 @@ public sealed class LevelManager : MonoBehaviour
         waitingLoosePanelTap = false;
         SetLoosePopupActive(false);
         LoadMainMenuScene();
+    }
+
+    private void ConsumeLifeForFailedAttempt()
+    {
+        if (lifeConsumedForCurrentLevel || levelCompleteHandled)
+        {
+            return;
+        }
+
+        lifeConsumedForCurrentLevel = true;
+        PlayerLives.ConsumeLife();
     }
 
     private void SetLoosePopupActive(bool isActive)
@@ -901,4 +917,144 @@ public sealed class LevelManager : MonoBehaviour
         return true;
     }
 #endif
+}
+
+public static class PlayerLives
+{
+    public const int MaxLives = 5;
+    public const int RestoreIntervalSeconds = 30 * 60;
+
+    private const string LivesKey = "PlayerLives.Current";
+    private const string NextLifeTicksKey = "PlayerLives.NextLifeUtcTicks";
+
+    private static readonly long RestoreIntervalTicks = TimeSpan.FromSeconds(RestoreIntervalSeconds).Ticks;
+
+    public static int CurrentLives
+    {
+        get
+        {
+            RefreshState();
+            return GetStoredLives();
+        }
+    }
+
+    public static bool HasLives => CurrentLives > 0;
+    public static bool IsMaxLives => CurrentLives >= MaxLives;
+
+    public static TimeSpan TimeUntilNextLife
+    {
+        get
+        {
+            RefreshState();
+
+            if (GetStoredLives() >= MaxLives)
+            {
+                return TimeSpan.Zero;
+            }
+
+            var nextLifeTicks = GetNextLifeTicks();
+            if (nextLifeTicks <= 0)
+            {
+                return TimeSpan.FromSeconds(RestoreIntervalSeconds);
+            }
+
+            var remainingTicks = Math.Max(0L, nextLifeTicks - DateTime.UtcNow.Ticks);
+            return TimeSpan.FromTicks(remainingTicks);
+        }
+    }
+
+    public static bool ConsumeLife()
+    {
+        RefreshState();
+
+        var lives = GetStoredLives();
+        if (lives <= 0)
+        {
+            return false;
+        }
+
+        lives--;
+        var nextLifeTicks = GetNextLifeTicks();
+        if (lives < MaxLives && nextLifeTicks <= 0)
+        {
+            nextLifeTicks = DateTime.UtcNow.Ticks + RestoreIntervalTicks;
+        }
+
+        SaveState(lives, nextLifeTicks);
+        return true;
+    }
+
+    public static void RestoreToMax()
+    {
+        SaveState(MaxLives, 0L);
+    }
+
+    public static void RefreshState()
+    {
+        if (!PlayerPrefs.HasKey(LivesKey))
+        {
+            SaveState(MaxLives, 0L);
+            return;
+        }
+
+        var storedLives = PlayerPrefs.GetInt(LivesKey, MaxLives);
+        var lives = Mathf.Clamp(storedLives, 0, MaxLives);
+        var nextLifeTicks = GetNextLifeTicks();
+        var originalLives = lives;
+        var originalNextLifeTicks = nextLifeTicks;
+
+        if (lives >= MaxLives)
+        {
+            if (storedLives != MaxLives || nextLifeTicks != 0L)
+            {
+                SaveState(MaxLives, 0L);
+            }
+
+            return;
+        }
+
+        var nowTicks = DateTime.UtcNow.Ticks;
+        if (nextLifeTicks <= 0)
+        {
+            nextLifeTicks = nowTicks + RestoreIntervalTicks;
+        }
+
+        while (lives < MaxLives && nowTicks >= nextLifeTicks)
+        {
+            lives++;
+            nextLifeTicks = lives < MaxLives ? nextLifeTicks + RestoreIntervalTicks : 0L;
+        }
+
+        if (storedLives != originalLives || lives != originalLives || nextLifeTicks != originalNextLifeTicks)
+        {
+            SaveState(lives, nextLifeTicks);
+        }
+    }
+
+    private static int GetStoredLives()
+    {
+        return Mathf.Clamp(PlayerPrefs.GetInt(LivesKey, MaxLives), 0, MaxLives);
+    }
+
+    private static long GetNextLifeTicks()
+    {
+        var rawTicks = PlayerPrefs.GetString(NextLifeTicksKey, string.Empty);
+        return long.TryParse(rawTicks, out var ticks) ? ticks : 0L;
+    }
+
+    private static void SaveState(int lives, long nextLifeTicks)
+    {
+        PlayerPrefs.SetInt(LivesKey, Mathf.Clamp(lives, 0, MaxLives));
+
+        if (nextLifeTicks > 0)
+        {
+            PlayerPrefs.SetString(NextLifeTicksKey, nextLifeTicks.ToString());
+        }
+        else
+        {
+            PlayerPrefs.DeleteKey(NextLifeTicksKey);
+        }
+
+        PlayerPrefs.Save();
+    }
 }

@@ -33,8 +33,14 @@ public sealed class ScreenSwitchController : MonoBehaviour
     [SerializeField] private Button continueRaceButton;
     [SerializeField] private Button mainLevelButton;
     [SerializeField] private Button mergeGameButton;
+    [SerializeField] private Button playerLivesButton;
     [SerializeField] private TMP_Text mergeGameLevelText;
     [SerializeField] private List<TMP_Text> levelObjectNumberTexts = new List<TMP_Text>();
+    [SerializeField] private TMP_Text playerLivesAmountText;
+    [SerializeField] private GameObject livesCounterRoot;
+    [SerializeField] private TMP_Text livesCounterAmountText;
+    [SerializeField] private GameObject livesAddWindowRoot;
+    [SerializeField] private Button livesAddWindowBuyButton;
     [SerializeField] private TMP_Text levelStartWindowHeaderLabel;
     [SerializeField] private List<LevelData> levelStartLevels = new List<LevelData>();
     [SerializeField] private RectTransform levelStartTaskItemsRoot;
@@ -52,6 +58,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
     [SerializeField] private float selectedContentYOffset = 50f;
     [SerializeField] private ScreenId defaultScreen = ScreenId.Main;
     [SerializeField] private bool showDefaultScreenOnAwake = true;
+    [SerializeField] private float livesUiRefreshInterval = 0.25f;
 
     private Vector2 mainButtonContentDefaultPosition;
     private Vector2 shopButtonContentDefaultPosition;
@@ -61,6 +68,11 @@ public sealed class ScreenSwitchController : MonoBehaviour
     private Button subscribedContinueRaceButton;
     private Button subscribedMainLevelButton;
     private Button subscribedMergeGameButton;
+    private Button subscribedPlayerLivesButton;
+    private Button subscribedLivesAddWindowBuyButton;
+    private readonly List<Button> levelButtons = new List<Button>();
+    private readonly List<Button> subscribedLevelButtons = new List<Button>();
+    private float nextLivesUiRefreshTime;
 
 #if UNITY_EDITOR
     private void OnValidate()
@@ -85,6 +97,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
 
         RefreshMergeGameLevelText();
         RefreshLevelStartTasks();
+        RefreshPlayerLivesUi();
     }
 
     private void OnEnable()
@@ -92,6 +105,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
         transform.SetAsLastSibling();
         RefreshMergeGameLevelText();
         RefreshLevelStartTasks();
+        RefreshPlayerLivesUi();
     }
 
     private void Start()
@@ -99,8 +113,23 @@ public sealed class ScreenSwitchController : MonoBehaviour
         ResolveMissingReferences();
         SubscribeMainLevelButton();
         SubscribeMergeGameButton();
+        SubscribePlayerLivesButton();
+        SubscribeLevelButtons();
+        SubscribeLivesAddWindowBuyButton();
         RefreshMergeGameLevelText();
         RefreshLevelStartTasks();
+        RefreshPlayerLivesUi();
+    }
+
+    private void Update()
+    {
+        if (Time.unscaledTime < nextLivesUiRefreshTime)
+        {
+            return;
+        }
+
+        nextLivesUiRefreshTime = Time.unscaledTime + livesUiRefreshInterval;
+        RefreshPlayerLivesUi();
     }
 
     private void OnDestroy()
@@ -158,6 +187,9 @@ public sealed class ScreenSwitchController : MonoBehaviour
         SubscribeContinueRaceButton();
         SubscribeMainLevelButton();
         SubscribeMergeGameButton();
+        SubscribePlayerLivesButton();
+        SubscribeLevelButtons();
+        SubscribeLivesAddWindowBuyButton();
 
         if (clanButton != null)
         {
@@ -200,6 +232,9 @@ public sealed class ScreenSwitchController : MonoBehaviour
         UnsubscribeContinueRaceButton();
         UnsubscribeMainLevelButton();
         UnsubscribeMergeGameButton();
+        UnsubscribePlayerLivesButton();
+        UnsubscribeLevelButtons();
+        UnsubscribeLivesAddWindowBuyButton();
 
         if (clanButton != null)
         {
@@ -232,6 +267,19 @@ public sealed class ScreenSwitchController : MonoBehaviour
 
         UpdateButtonContentOffsets(screenId);
         transform.SetAsLastSibling();
+    }
+
+    private void TryLoadMergeGameScreen()
+    {
+        PlayerLives.RefreshState();
+
+        if (!PlayerLives.HasLives)
+        {
+            OpenLivesAddWindow();
+            return;
+        }
+
+        LoadMergeGameScreen();
     }
 
     private void LoadMergeGameScreen()
@@ -273,9 +321,17 @@ public sealed class ScreenSwitchController : MonoBehaviour
         mainLevelButton = mainLevelButton != null ? mainLevelButton : FindSceneButton("BtnMain");
         mergeGameButton = mergeGameButton != null ? mergeGameButton : FindSceneButtonInRoot("LevelStartWindow", "BtnStartLevel");
         mergeGameButton = mergeGameButton != null ? mergeGameButton : FindSceneButton("BtnStartLevel");
+        playerLivesButton = playerLivesButton != null ? playerLivesButton : FindSceneButton("BtnPlayerLives");
         mergeGameLevelText = mergeGameLevelText != null ? mergeGameLevelText : FindTextInButton(FindSceneButtonInRoot("MainScreen", "BtnMain"), "TextNumber");
         mergeGameLevelText = mergeGameLevelText != null ? mergeGameLevelText : FindSceneTextInRoot("MainScreen", "TextNumber");
         ResolveLevelObjectNumberTexts();
+        playerLivesAmountText = playerLivesAmountText != null ? playerLivesAmountText : FindTextInButton(playerLivesButton, "AmountText");
+        livesCounterRoot = livesCounterRoot != null ? livesCounterRoot : FindSceneObject("LivesCounter");
+        livesCounterAmountText = livesCounterAmountText != null ? livesCounterAmountText : FindSceneTextInRoot("BtnPlayerLives", "LivesCounter");
+        livesCounterAmountText = livesCounterAmountText != null ? livesCounterAmountText : FindSceneTextInRoot("LivesCounter", "LivesCounter");
+        livesAddWindowRoot = livesAddWindowRoot != null ? livesAddWindowRoot : FindSceneObject("LivesAddWindow");
+        livesAddWindowBuyButton = livesAddWindowBuyButton != null ? livesAddWindowBuyButton : FindSceneButtonOrChildButtonInRoot("LivesAddWindow", "BtnBuy");
+        ResolveLevelButtons();
         levelStartWindowHeaderLabel = levelStartWindowHeaderLabel != null ? levelStartWindowHeaderLabel : FindSceneTextByPath("LevelStartWindow", "Bg/HeaderLabel");
         levelStartWindowHeaderLabel = levelStartWindowHeaderLabel != null ? levelStartWindowHeaderLabel : FindSceneTextInRoot("LevelStartWindow", "HeaderLabel");
         levelStartTaskItemsRoot = levelStartTaskItemsRoot != null ? levelStartTaskItemsRoot : FindSceneRectByPath("LevelStartWindow", "Content/TaskPlane/TasksItems");
@@ -287,6 +343,100 @@ public sealed class ScreenSwitchController : MonoBehaviour
         clanButtonContent = clanButtonContent != null ? clanButtonContent : FindButtonContent(clanButton);
         locationButtonContent = locationButtonContent != null ? locationButtonContent : FindButtonContent(locationButton);
         rankingButtonContent = rankingButtonContent != null ? rankingButtonContent : FindButtonContent(rankingButton);
+    }
+
+    private void RefreshPlayerLivesUi()
+    {
+        if (playerLivesAmountText == null || livesCounterRoot == null || livesCounterAmountText == null)
+        {
+            ResolveMissingReferences();
+        }
+
+        PlayerLives.RefreshState();
+        var lives = PlayerLives.CurrentLives;
+        var hasMaxLives = lives >= PlayerLives.MaxLives;
+
+        if (playerLivesAmountText != null)
+        {
+            playerLivesAmountText.text = hasMaxLives ? "MAX" : FormatLivesTimer(PlayerLives.TimeUntilNextLife);
+        }
+
+        SetActive(livesCounterRoot, !hasMaxLives);
+
+        if (livesCounterAmountText != null)
+        {
+            livesCounterAmountText.text = lives.ToString();
+        }
+    }
+
+    private static string FormatLivesTimer(System.TimeSpan remainingTime)
+    {
+        var totalSeconds = Mathf.Max(0, Mathf.CeilToInt((float)remainingTime.TotalSeconds));
+        var minutes = totalSeconds / 60;
+        var seconds = totalSeconds % 60;
+        return $"{minutes:00}:{seconds:00}";
+    }
+
+    private void OpenLivesAddWindow()
+    {
+        if (livesAddWindowRoot == null || livesAddWindowBuyButton == null)
+        {
+            ResolveMissingReferences();
+            SubscribeLivesAddWindowBuyButton();
+        }
+
+        if (livesAddWindowRoot == null)
+        {
+            Debug.LogWarning($"{nameof(ScreenSwitchController)} on '{name}' cannot open LivesAddWindow because it was not found.", this);
+            return;
+        }
+
+        EnsureWindowReceivesInput(livesAddWindowRoot);
+        livesAddWindowRoot.transform.SetAsLastSibling();
+        livesAddWindowRoot.SetActive(true);
+    }
+
+    private void RestoreLivesAndCloseWindow()
+    {
+        PlayerLives.RestoreToMax();
+        SetActive(livesAddWindowRoot, false);
+        RefreshPlayerLivesUi();
+    }
+
+    private void HandlePlayerLivesButtonClicked()
+    {
+        PlayerLives.RefreshState();
+        RefreshPlayerLivesUi();
+
+        if (PlayerLives.IsMaxLives)
+        {
+            SetActive(livesAddWindowRoot, false);
+            return;
+        }
+
+        OpenLivesAddWindow();
+    }
+
+    private static void EnsureWindowReceivesInput(GameObject windowRoot)
+    {
+        if (windowRoot == null || windowRoot.GetComponent<Canvas>() == null)
+        {
+            return;
+        }
+
+        if (windowRoot.GetComponent<GraphicRaycaster>() == null)
+        {
+            windowRoot.AddComponent<GraphicRaycaster>();
+        }
+
+        var canvasGroup = windowRoot.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+        {
+            return;
+        }
+
+        canvasGroup.interactable = true;
+        canvasGroup.blocksRaycasts = true;
     }
 
     private void BindContinueRaceButton()
@@ -366,6 +516,21 @@ public sealed class ScreenSwitchController : MonoBehaviour
             levelObjectNumberTexts[i] = levelObjectNumberTexts[i] != null
                 ? levelObjectNumberTexts[i]
                 : FindSceneTextInRoot(levelObjectName, "LvlNumber");
+        }
+    }
+
+    private void ResolveLevelButtons()
+    {
+        levelButtons.Clear();
+        var foundButtons = FindSceneButtons("BtnLevel");
+
+        for (var i = 0; i < foundButtons.Count; i++)
+        {
+            var levelButton = foundButtons[i];
+            if (levelButton != null && levelButton != mainLevelButton && !levelButtons.Contains(levelButton))
+            {
+                levelButtons.Add(levelButton);
+            }
         }
     }
 
@@ -586,7 +751,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
         }
 
         UnsubscribeMergeGameButton();
-        mergeGameButton.onClick.AddListener(LoadMergeGameScreen);
+        mergeGameButton.onClick.AddListener(TryLoadMergeGameScreen);
         subscribedMergeGameButton = mergeGameButton;
     }
 
@@ -603,8 +768,59 @@ public sealed class ScreenSwitchController : MonoBehaviour
         }
 
         UnsubscribeMainLevelButton();
-        mainLevelButton.onClick.AddListener(LoadMergeGameScreen);
+        mainLevelButton.onClick.AddListener(TryLoadMergeGameScreen);
         subscribedMainLevelButton = mainLevelButton;
+    }
+
+    private void SubscribePlayerLivesButton()
+    {
+        if (playerLivesButton == null)
+        {
+            return;
+        }
+
+        if (subscribedPlayerLivesButton == playerLivesButton)
+        {
+            return;
+        }
+
+        UnsubscribePlayerLivesButton();
+        playerLivesButton.onClick.AddListener(HandlePlayerLivesButtonClicked);
+        subscribedPlayerLivesButton = playerLivesButton;
+    }
+
+    private void SubscribeLevelButtons()
+    {
+        ResolveLevelButtons();
+
+        for (var i = 0; i < levelButtons.Count; i++)
+        {
+            var levelButton = levelButtons[i];
+            if (levelButton == null || subscribedLevelButtons.Contains(levelButton))
+            {
+                continue;
+            }
+
+            levelButton.onClick.AddListener(TryLoadMergeGameScreen);
+            subscribedLevelButtons.Add(levelButton);
+        }
+    }
+
+    private void SubscribeLivesAddWindowBuyButton()
+    {
+        if (livesAddWindowBuyButton == null)
+        {
+            livesAddWindowBuyButton = FindSceneButtonOrChildButtonInRoot("LivesAddWindow", "BtnBuy");
+        }
+
+        if (livesAddWindowBuyButton == null || subscribedLivesAddWindowBuyButton == livesAddWindowBuyButton)
+        {
+            return;
+        }
+
+        UnsubscribeLivesAddWindowBuyButton();
+        livesAddWindowBuyButton.onClick.AddListener(RestoreLivesAndCloseWindow);
+        subscribedLivesAddWindowBuyButton = livesAddWindowBuyButton;
     }
 
     private void UnsubscribeContinueRaceButton()
@@ -625,7 +841,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
             return;
         }
 
-        subscribedMergeGameButton.onClick.RemoveListener(LoadMergeGameScreen);
+        subscribedMergeGameButton.onClick.RemoveListener(TryLoadMergeGameScreen);
         subscribedMergeGameButton = null;
     }
 
@@ -636,8 +852,44 @@ public sealed class ScreenSwitchController : MonoBehaviour
             return;
         }
 
-        subscribedMainLevelButton.onClick.RemoveListener(LoadMergeGameScreen);
+        subscribedMainLevelButton.onClick.RemoveListener(TryLoadMergeGameScreen);
         subscribedMainLevelButton = null;
+    }
+
+    private void UnsubscribePlayerLivesButton()
+    {
+        if (subscribedPlayerLivesButton == null)
+        {
+            return;
+        }
+
+        subscribedPlayerLivesButton.onClick.RemoveListener(HandlePlayerLivesButtonClicked);
+        subscribedPlayerLivesButton = null;
+    }
+
+    private void UnsubscribeLevelButtons()
+    {
+        for (var i = 0; i < subscribedLevelButtons.Count; i++)
+        {
+            var levelButton = subscribedLevelButtons[i];
+            if (levelButton != null)
+            {
+                levelButton.onClick.RemoveListener(TryLoadMergeGameScreen);
+            }
+        }
+
+        subscribedLevelButtons.Clear();
+    }
+
+    private void UnsubscribeLivesAddWindowBuyButton()
+    {
+        if (subscribedLivesAddWindowBuyButton == null)
+        {
+            return;
+        }
+
+        subscribedLivesAddWindowBuyButton.onClick.RemoveListener(RestoreLivesAndCloseWindow);
+        subscribedLivesAddWindowBuyButton = null;
     }
 
     private void CacheDefaultPositions()
@@ -781,6 +1033,35 @@ public sealed class ScreenSwitchController : MonoBehaviour
         return target != null ? target.GetComponent<Button>() : null;
     }
 
+    private static List<Button> FindSceneButtons(string objectName)
+    {
+        var result = new List<Button>();
+        var transforms = Resources.FindObjectsOfTypeAll<Transform>();
+
+        for (var i = 0; i < transforms.Length; i++)
+        {
+            var target = transforms[i];
+            if (target == null || target.name != objectName)
+            {
+                continue;
+            }
+
+            var scene = target.gameObject.scene;
+            if (!scene.IsValid() || !scene.isLoaded)
+            {
+                continue;
+            }
+
+            var button = target.GetComponent<Button>();
+            if (button != null && !result.Contains(button))
+            {
+                result.Add(button);
+            }
+        }
+
+        return result;
+    }
+
     private static Button FindSceneButtonInRoot(string rootName, string buttonName)
     {
         var root = FindSceneObject(rootName);
@@ -797,6 +1078,35 @@ public sealed class ScreenSwitchController : MonoBehaviour
             {
                 return button;
             }
+        }
+
+        return null;
+    }
+
+    private static Button FindSceneButtonOrChildButtonInRoot(string rootName, string objectName)
+    {
+        var root = FindSceneObject(rootName);
+        if (root == null)
+        {
+            return null;
+        }
+
+        var transforms = root.GetComponentsInChildren<Transform>(true);
+        for (var i = 0; i < transforms.Length; i++)
+        {
+            var target = transforms[i];
+            if (target == null || target.name != objectName)
+            {
+                continue;
+            }
+
+            var button = target.GetComponent<Button>();
+            if (button != null)
+            {
+                return button;
+            }
+
+            return target.GetComponentInChildren<Button>(true);
         }
 
         return null;
