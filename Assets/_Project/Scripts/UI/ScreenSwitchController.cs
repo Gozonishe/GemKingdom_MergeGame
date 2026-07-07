@@ -8,6 +8,7 @@ using UnityEngine.UI;
 public sealed class ScreenSwitchController : MonoBehaviour
 {
     private const string DefaultLevelsAssetFolder = "Assets/_Project/ScriptableObjects/Levels";
+    private const string CollectionScreenButtonName = "CollectionScreenButton";
 
     private enum ScreenId
     {
@@ -191,7 +192,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
         SubscribeLevelButtons();
         SubscribeLivesAddWindowBuyButton();
 
-        if (clanButton != null)
+        if (clanButton != null && !IsCollectionScreenButton(clanButton))
         {
             clanButton.onClick.AddListener(ShowClan);
         }
@@ -267,6 +268,11 @@ public sealed class ScreenSwitchController : MonoBehaviour
 
         UpdateButtonContentOffsets(screenId);
         transform.SetAsLastSibling();
+    }
+
+    private static bool IsCollectionScreenButton(Button button)
+    {
+        return button != null && button.gameObject.name == CollectionScreenButtonName;
     }
 
     private void TryLoadMergeGameScreen()
