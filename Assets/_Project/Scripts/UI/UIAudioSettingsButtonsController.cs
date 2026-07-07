@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,6 +9,11 @@ public sealed class UIAudioSettingsButtonsController : MonoBehaviour
     [SerializeField] private Button musicButton;
     [SerializeField] private string soundButtonName = "SoundBtnSwitch";
     [SerializeField] private string musicButtonName = "MusicBtnSwitch";
+    [SerializeField, Min(0.1f)] private float refreshInterval = 0.25f;
+
+    private readonly List<Button> subscribedSoundButtons = new List<Button>();
+    private readonly List<Button> subscribedMusicButtons = new List<Button>();
+    private float nextRefreshTime;
 
     private void Awake()
     {
@@ -17,6 +23,17 @@ public sealed class UIAudioSettingsButtonsController : MonoBehaviour
     private void OnEnable()
     {
         ResolveReferences();
+        Subscribe();
+    }
+
+    private void Update()
+    {
+        if (Time.unscaledTime < nextRefreshTime)
+        {
+            return;
+        }
+
+        nextRefreshTime = Time.unscaledTime + refreshInterval;
         Subscribe();
     }
 
@@ -44,30 +61,34 @@ public sealed class UIAudioSettingsButtonsController : MonoBehaviour
 
     private void Subscribe()
     {
-        if (soundButton != null)
-        {
-            soundButton.onClick.RemoveListener(ToggleUISound);
-            soundButton.onClick.AddListener(ToggleUISound);
-        }
+        ResolveReferences();
+        PruneNullSubscriptions(subscribedSoundButtons);
+        PruneNullSubscriptions(subscribedMusicButtons);
 
-        if (musicButton != null)
-        {
-            musicButton.onClick.RemoveListener(ToggleMusic);
-            musicButton.onClick.AddListener(ToggleMusic);
-        }
+        SubscribeButtons(soundButton, soundButtonName, ToggleUISound, subscribedSoundButtons);
+        SubscribeButtons(musicButton, musicButtonName, ToggleMusic, subscribedMusicButtons);
     }
 
     private void Unsubscribe()
     {
-        if (soundButton != null)
+        for (var i = 0; i < subscribedSoundButtons.Count; i++)
         {
-            soundButton.onClick.RemoveListener(ToggleUISound);
+            if (subscribedSoundButtons[i] != null)
+            {
+                subscribedSoundButtons[i].onClick.RemoveListener(ToggleUISound);
+            }
         }
 
-        if (musicButton != null)
+        for (var i = 0; i < subscribedMusicButtons.Count; i++)
         {
-            musicButton.onClick.RemoveListener(ToggleMusic);
+            if (subscribedMusicButtons[i] != null)
+            {
+                subscribedMusicButtons[i].onClick.RemoveListener(ToggleMusic);
+            }
         }
+
+        subscribedSoundButtons.Clear();
+        subscribedMusicButtons.Clear();
     }
 
     private void ResolveReferences()
@@ -111,7 +132,7 @@ public sealed class UIAudioSettingsButtonsController : MonoBehaviour
             var button = buttons[i];
             var scene = button.gameObject.scene;
 
-            if (!scene.IsValid() || !scene.isLoaded || button.name != buttonName)
+            if (!scene.IsValid() || !scene.isLoaded || !IsNamedButton(button, buttonName))
             {
                 continue;
             }
@@ -120,5 +141,87 @@ public sealed class UIAudioSettingsButtonsController : MonoBehaviour
         }
 
         return null;
+    }
+
+    private static void SubscribeButtons(Button primaryButton, string buttonName, UnityEngine.Events.UnityAction action, List<Button> subscribedButtons)
+    {
+        AddButtonSubscription(primaryButton, action, subscribedButtons);
+
+        var sceneButtons = FindSceneButtons(buttonName);
+        for (var i = 0; i < sceneButtons.Count; i++)
+        {
+            AddButtonSubscription(sceneButtons[i], action, subscribedButtons);
+        }
+    }
+
+    private static void AddButtonSubscription(Button button, UnityEngine.Events.UnityAction action, List<Button> subscribedButtons)
+    {
+        if (button == null || subscribedButtons.Contains(button))
+        {
+            return;
+        }
+
+        button.onClick.RemoveListener(action);
+        button.onClick.AddListener(action);
+        subscribedButtons.Add(button);
+    }
+
+    private static List<Button> FindSceneButtons(string buttonName)
+    {
+        var matchingButtons = new List<Button>();
+
+        if (string.IsNullOrEmpty(buttonName))
+        {
+            return matchingButtons;
+        }
+
+        var buttons = Resources.FindObjectsOfTypeAll<Button>();
+
+        for (var i = 0; i < buttons.Length; i++)
+        {
+            var button = buttons[i];
+            var scene = button.gameObject.scene;
+
+            if (!scene.IsValid() || !scene.isLoaded || !IsNamedButton(button, buttonName))
+            {
+                continue;
+            }
+
+            matchingButtons.Add(button);
+        }
+
+        return matchingButtons;
+    }
+
+    private static void PruneNullSubscriptions(List<Button> subscribedButtons)
+    {
+        for (var i = subscribedButtons.Count - 1; i >= 0; i--)
+        {
+            if (subscribedButtons[i] == null)
+            {
+                subscribedButtons.RemoveAt(i);
+            }
+        }
+    }
+
+    private static bool IsNamedButton(Button button, string buttonName)
+    {
+        if (button == null || string.IsNullOrEmpty(buttonName))
+        {
+            return false;
+        }
+
+        var current = button.transform;
+        while (current != null)
+        {
+            if (current.name == buttonName)
+            {
+                return true;
+            }
+
+            current = current.parent;
+        }
+
+        return false;
     }
 }
