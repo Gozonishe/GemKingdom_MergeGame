@@ -652,6 +652,7 @@ GameObject:
   - component: {fileID: 2893205779460917136}
   - component: {fileID: 7496309265955895230}
   - component: {fileID: 8549210563251708021}
+  - component: {fileID: 646014356187924620}
   m_Layer: 5
   m_Name: RestartWindow
   m_TagString: Untagged
@@ -728,6 +729,25 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &646014356187924620
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5069002718553230810}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f965f8521814d91a70d61d45a91b10c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PopupBounceOnEnable
+  target: {fileID: 0}
+  startScale: 0.97
+  overshootScale: 1.01
+  growDuration: 0.12
+  settleDuration: 0.08
+  useUnscaledTime: 1
+  restoreScaleOnDisable: 1
 --- !u!1 &6773970609327928581
 GameObject:
   m_ObjectHideFlags: 0

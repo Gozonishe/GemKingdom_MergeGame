@@ -3177,6 +3177,18 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -463.72498
       objectReference: {fileID: 0}
+    - target: {fileID: 646014356187924620, guid: 3fc5c59e40506cf499f097a43e0d3541, type: 3}
+      propertyPath: startScale
+      value: 0.97
+      objectReference: {fileID: 0}
+    - target: {fileID: 646014356187924620, guid: 3fc5c59e40506cf499f097a43e0d3541, type: 3}
+      propertyPath: growDuration
+      value: 0.12
+      objectReference: {fileID: 0}
+    - target: {fileID: 646014356187924620, guid: 3fc5c59e40506cf499f097a43e0d3541, type: 3}
+      propertyPath: overshootScale
+      value: 1.01
+      objectReference: {fileID: 0}
     - target: {fileID: 694245541503359120, guid: 3fc5c59e40506cf499f097a43e0d3541, type: 3}
       propertyPath: m_Name
       value: GiveUpButtonBG

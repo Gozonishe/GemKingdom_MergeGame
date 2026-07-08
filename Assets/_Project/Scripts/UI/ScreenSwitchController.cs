@@ -42,6 +42,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
     [SerializeField] private TMP_Text livesCounterAmountText;
     [SerializeField] private GameObject livesAddWindowRoot;
     [SerializeField] private Button livesAddWindowBuyButton;
+    [SerializeField] private TMP_Text livesAddWindowTimerText;
     [SerializeField] private TMP_Text levelStartWindowHeaderLabel;
     [SerializeField] private List<LevelData> levelStartLevels = new List<LevelData>();
     [SerializeField] private RectTransform levelStartTaskItemsRoot;
@@ -337,6 +338,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
         livesCounterAmountText = livesCounterAmountText != null ? livesCounterAmountText : FindSceneTextInRoot("LivesCounter", "LivesCounter");
         livesAddWindowRoot = livesAddWindowRoot != null ? livesAddWindowRoot : FindSceneObject("LivesAddWindow");
         livesAddWindowBuyButton = livesAddWindowBuyButton != null ? livesAddWindowBuyButton : FindSceneButtonOrChildButtonInRoot("LivesAddWindow", "BtnBuy");
+        livesAddWindowTimerText = livesAddWindowTimerText != null ? livesAddWindowTimerText : FindSceneTextByPath("LivesAddWindow", "Container/Content/Group/Timer/Counter");
         ResolveLevelButtons();
         levelStartWindowHeaderLabel = levelStartWindowHeaderLabel != null ? levelStartWindowHeaderLabel : FindSceneTextByPath("LevelStartWindow", "Bg/HeaderLabel");
         levelStartWindowHeaderLabel = levelStartWindowHeaderLabel != null ? levelStartWindowHeaderLabel : FindSceneTextInRoot("LevelStartWindow", "HeaderLabel");
@@ -353,7 +355,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
 
     private void RefreshPlayerLivesUi()
     {
-        if (playerLivesAmountText == null || livesCounterRoot == null || livesCounterAmountText == null)
+        if (playerLivesAmountText == null || livesCounterRoot == null || livesCounterAmountText == null || livesAddWindowTimerText == null)
         {
             ResolveMissingReferences();
         }
@@ -365,6 +367,11 @@ public sealed class ScreenSwitchController : MonoBehaviour
         if (playerLivesAmountText != null)
         {
             playerLivesAmountText.text = hasMaxLives ? "MAX" : FormatLivesTimer(PlayerLives.TimeUntilNextLife);
+        }
+
+        if (livesAddWindowTimerText != null)
+        {
+            livesAddWindowTimerText.text = hasMaxLives ? "MAX" : FormatLivesTimer(PlayerLives.TimeUntilNextLife);
         }
 
         SetActive(livesCounterRoot, !hasMaxLives);
