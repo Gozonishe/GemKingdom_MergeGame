@@ -38,6 +38,8 @@ public sealed class LevelManager : MonoBehaviour
     [SerializeField] private Button loseLevelStartButton;
     [SerializeField] private Button loseLevelExitButton;
     [SerializeField] private Button exitLevelButton;
+    [SerializeField] private Button restartLevelButton;
+    [SerializeField] private Button giveUpButton;
 
     [Header("Scene Flow")]
     [SerializeField] private string mainMenuSceneName = DefaultMainMenuSceneName;
@@ -146,6 +148,16 @@ public sealed class LevelManager : MonoBehaviour
         if (exitLevelButton != null)
         {
             exitLevelButton.onClick.RemoveListener(ExitLevelToMainMenu);
+        }
+
+        if (restartLevelButton != null)
+        {
+            restartLevelButton.onClick.RemoveListener(RestartCurrentLevelFromWindow);
+        }
+
+        if (giveUpButton != null)
+        {
+            giveUpButton.onClick.RemoveListener(GiveUpCurrentLevel);
         }
     }
 
@@ -273,6 +285,18 @@ public sealed class LevelManager : MonoBehaviour
         LoadMainMenuScene();
     }
 
+    public void RestartCurrentLevelFromWindow()
+    {
+        ConsumeLifeForFailedAttempt();
+        RestartLevel();
+    }
+
+    public void GiveUpCurrentLevel()
+    {
+        ConsumeLifeForFailedAttempt();
+        LoadMainMenuScene();
+    }
+
     private void ResolveReferences()
     {
         if (boardManager == null)
@@ -349,6 +373,28 @@ public sealed class LevelManager : MonoBehaviour
         {
             exitLevelButton.onClick.RemoveListener(ExitLevelToMainMenu);
             exitLevelButton.onClick.AddListener(ExitLevelToMainMenu);
+        }
+
+        if (restartLevelButton == null)
+        {
+            restartLevelButton = FindSceneButton("RestartLevelButton");
+        }
+
+        if (restartLevelButton != null)
+        {
+            restartLevelButton.onClick.RemoveListener(RestartCurrentLevelFromWindow);
+            restartLevelButton.onClick.AddListener(RestartCurrentLevelFromWindow);
+        }
+
+        if (giveUpButton == null)
+        {
+            giveUpButton = FindSceneButton("GiveUpButton");
+        }
+
+        if (giveUpButton != null)
+        {
+            giveUpButton.onClick.RemoveListener(GiveUpCurrentLevel);
+            giveUpButton.onClick.AddListener(GiveUpCurrentLevel);
         }
 
         if (levelText == null)

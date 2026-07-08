@@ -10080,6 +10080,7 @@ MonoBehaviour:
   musicButton: {fileID: 171880215}
   soundButtonName: SoundBtnSwitch
   musicButtonName: MusicBtnSwitch
+  refreshInterval: 0.25
 --- !u!1001 &718978127
 PrefabInstance:
   m_ObjectHideFlags: 0
