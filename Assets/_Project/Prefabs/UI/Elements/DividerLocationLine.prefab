@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 9112672366862360495}
   - component: {fileID: 8137935474537001242}
   m_Layer: 0
-  m_Name: LocationLineDivider
+  m_Name: DividerLocationLine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
