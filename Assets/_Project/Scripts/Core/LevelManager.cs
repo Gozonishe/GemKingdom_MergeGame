@@ -26,6 +26,7 @@ public sealed class LevelManager : MonoBehaviour
     [SerializeField] private EnergyManager energyManager;
     [SerializeField] private OrderManager orderManager;
     [SerializeField] private BottomItemTrayController bottomItemTrayController;
+    [SerializeField] private CurrencyManager currencyManager;
     [SerializeField] private RewardPopup rewardPopup;
     [SerializeField] private TMP_Text levelText;
     [SerializeField] private GameObject loosePopup;
@@ -319,6 +320,11 @@ public sealed class LevelManager : MonoBehaviour
             bottomItemTrayController = FindFirstObjectByType<BottomItemTrayController>(FindObjectsInactive.Include);
         }
 
+        if (currencyManager == null)
+        {
+            currencyManager = FindFirstObjectByType<CurrencyManager>();
+        }
+
         if (rewardPopup == null)
         {
             rewardPopup = FindFirstObjectByType<RewardPopup>(FindObjectsInactive.Include);
@@ -406,6 +412,7 @@ public sealed class LevelManager : MonoBehaviour
     private void CompleteCurrentLevelAndReturnToMenu()
     {
         SaveNextLevelIndex();
+        GrantCurrentLevelReward();
 
         if (rewardPopup != null && rewardPopup.IsVisible)
         {
@@ -507,6 +514,31 @@ public sealed class LevelManager : MonoBehaviour
         waitingLoosePanelTap = false;
         SetLoosePopupActive(false);
         LoadMainMenuScene();
+    }
+
+    private void GrantCurrentLevelReward()
+    {
+        var coinReward = CurrentLevel != null ? CurrentLevel.CoinReward : 0;
+        if (coinReward <= 0)
+        {
+            return;
+        }
+
+        ResolveReferences();
+
+        if (currencyManager != null)
+        {
+            currencyManager.AddCoins(coinReward);
+        }
+        else
+        {
+            Debug.LogWarning($"{nameof(LevelManager)} on '{name}' completed a level with {coinReward} coin reward, but {nameof(currencyManager)} is not assigned.", this);
+        }
+
+        if (rewardPopup != null)
+        {
+            rewardPopup.Show(coinReward, 0);
+        }
     }
 
     private void ConsumeLifeForFailedAttempt()

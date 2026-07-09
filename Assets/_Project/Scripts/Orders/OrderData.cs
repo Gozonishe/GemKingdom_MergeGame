@@ -7,15 +7,11 @@ public sealed class OrderData
     [SerializeField] private MergeItemData requiredItem;
     [SerializeField] private int requiredAmount = 1;
     [SerializeField] private int currentAmount;
-    [SerializeField] private int coinReward;
-    [SerializeField] private int starReward;
     [SerializeField] private bool isClaimed;
 
     public MergeItemData RequiredItem => requiredItem;
     public int RequiredAmount => requiredAmount;
     public int CurrentAmount => currentAmount;
-    public int CoinReward => coinReward;
-    public int StarReward => starReward;
     public bool IsClaimed => isClaimed;
     public bool CanClaim => !isClaimed && currentAmount >= requiredAmount;
 

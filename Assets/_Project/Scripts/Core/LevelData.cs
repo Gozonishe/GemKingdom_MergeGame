@@ -70,6 +70,10 @@ public sealed class LevelData : ScriptableObject
     [HideInInspector]
     [SerializeField] private List<MergeItemData> spawnableItems = new List<MergeItemData>();
 
+    [Header("Reward")]
+    [Min(0)]
+    [SerializeField] private int coinReward;
+
     [Header("Orders")]
     [SerializeField] private List<OrderDefinition> orders = new List<OrderDefinition>();
 
@@ -81,6 +85,7 @@ public sealed class LevelData : ScriptableObject
     public IReadOnlyList<SpawnableItemDefinition> GeneratorSpawnableItems => generatorSpawnableItems;
     public IReadOnlyList<SpawnableItemDefinition> WeightedSpawnableItems => generatorSpawnableItems;
     public IReadOnlyList<MergeItemData> SpawnableItems => spawnableItems;
+    public int CoinReward => Mathf.Max(0, coinReward);
     public IReadOnlyList<OrderDefinition> Orders => orders;
     public bool HasGeneratorSpawnableItems => generatorSpawnableItems != null && generatorSpawnableItems.Count > 0;
     public bool HasWeightedSpawnableItems => HasGeneratorSpawnableItems;

@@ -73,7 +73,12 @@ public sealed class OrderView : MonoBehaviour
 
         if (rewardText != null)
         {
-            rewardText.text = $"{order.CoinReward} coins  {order.StarReward} stars";
+            rewardText.text = string.Empty;
+        }
+
+        if (rewardInfo != null)
+        {
+            rewardInfo.gameObject.SetActive(false);
         }
 
         if (claimButton != null)
@@ -104,11 +109,6 @@ public sealed class OrderView : MonoBehaviour
         if (amountText == null)
         {
             Debug.LogError($"{nameof(OrderView)} on '{name}' is missing {nameof(amountText)}.", this);
-        }
-
-        if (rewardText == null)
-        {
-            Debug.LogError($"{nameof(OrderView)} on '{name}' is missing {nameof(rewardText)}.", this);
         }
 
         if (claimButton == null)

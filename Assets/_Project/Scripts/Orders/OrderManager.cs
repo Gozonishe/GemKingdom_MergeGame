@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public sealed class OrderManager : MonoBehaviour
 {
@@ -12,20 +13,17 @@ public sealed class OrderManager : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private BoardManager boardManager;
-    [SerializeField] private CurrencyManager currencyManager;
-    [SerializeField] private RewardPopup rewardPopup;
     [SerializeField] private Transform orderViewsRoot;
     [SerializeField] private OrderView orderViewPrefab;
     [SerializeField] private List<OrderView> orderViews = new List<OrderView>();
     [SerializeField] private AdaptiveHorizontalScrollLayout adaptiveHorizontalLayout;
 
-    [Header("Rewards")]
-    [SerializeField, Min(0f)] private float autoRewardPopupDelay = 1f;
+    [Header("Auto Claim")]
+    [FormerlySerializedAs("autoRewardPopupDelay")]
+    [SerializeField, Min(0f)] private float autoClaimDelay = 1f;
 
     private readonly List<OrderRuntimeData> runtimeOrders = new List<OrderRuntimeData>();
     private bool isAutoClaimingCompletedOrders;
-    private int pendingCompletedRewardCoins;
-    private int pendingCompletedRewardStars;
 
     public IReadOnlyList<OrderRuntimeData> ActiveOrders => runtimeOrders;
     public bool AreAllOrdersClaimed => runtimeOrders.Count > 0 && AreEveryRuntimeOrderClaimed();
@@ -92,7 +90,6 @@ public sealed class OrderManager : MonoBehaviour
         }
 
         BuildRuntimeOrdersFromDefinitions(orderDefinitions);
-        ResetPendingCompletedRewards();
         EnsureOrderViews();
         BindViews();
         RefreshOrders(false);
@@ -147,18 +144,7 @@ public sealed class OrderManager : MonoBehaviour
             return false;
         }
 
-        if (currencyManager == null)
-        {
-            Debug.LogError($"{nameof(OrderManager)} on '{name}' cannot claim order because {nameof(currencyManager)} is not assigned.", this);
-            return false;
-        }
-
-        if (rewardPopup == null)
-        {
-            Debug.LogError($"{nameof(OrderManager)} on '{name}' will claim the order without showing rewards because {nameof(rewardPopup)} is not assigned.", this);
-        }
-
-        // Orders claim: collect orders consume the required amount, destroy orders only pay rewards after gameplay progress.
+        // Collect orders consume the required amount, destroy orders are completed by gameplay progress.
         // In the new board flow removed collect items leave empty cells; refill is reserved for debug tools.
         if (order.ObjectiveType == OrderObjectiveType.CollectOnBoard)
         {
@@ -170,11 +156,8 @@ public sealed class OrderManager : MonoBehaviour
             }
         }
 
-        currencyManager.AddReward(order.CoinReward, order.StarReward);
-        AddPendingCompletedReward(order.CoinReward, order.StarReward);
         order.MarkClaimed();
 
-        ShowCompletedLevelRewardIfReady();
         RefreshOrders();
         return true;
     }
@@ -258,19 +241,9 @@ public sealed class OrderManager : MonoBehaviour
             return false;
         }
 
-        ResolveReferences();
-
         var selectedOrder = availableOrders[Random.Range(0, availableOrders.Count)];
         selectedOrder.SetCurrentAmount(selectedOrder.RequiredAmount);
-
-        if (currencyManager != null)
-        {
-            currencyManager.AddReward(selectedOrder.CoinReward, selectedOrder.StarReward);
-        }
-
-        AddPendingCompletedReward(selectedOrder.CoinReward, selectedOrder.StarReward);
         selectedOrder.MarkClaimed();
-        ShowCompletedLevelRewardIfReady();
         RefreshOrders();
         return true;
     }
@@ -294,7 +267,6 @@ public sealed class OrderManager : MonoBehaviour
     private void BuildRuntimeOrdersFromDefinitions(IReadOnlyList<OrderDefinition> definitions)
     {
         runtimeOrders.Clear();
-        ResetPendingCompletedRewards();
 
         if (definitions == null)
         {
@@ -314,7 +286,6 @@ public sealed class OrderManager : MonoBehaviour
     private void BuildRuntimeOrdersFromLegacyOrders()
     {
         runtimeOrders.Clear();
-        ResetPendingCompletedRewards();
 
         for (var i = 0; i < activeOrders.Count; i++)
         {
@@ -326,9 +297,7 @@ public sealed class OrderManager : MonoBehaviour
 
             var definition = new OrderDefinition(
                 legacyOrder.RequiredItem,
-                legacyOrder.RequiredAmount,
-                legacyOrder.CoinReward,
-                legacyOrder.StarReward);
+                legacyOrder.RequiredAmount);
 
             var runtimeOrder = new OrderRuntimeData(definition);
             runtimeOrder.SetCurrentAmount(legacyOrder.CurrentAmount);
@@ -568,32 +537,15 @@ public sealed class OrderManager : MonoBehaviour
             return;
         }
 
-        ResolveReferences();
-
-        if (currencyManager == null)
-        {
-            Debug.LogError($"{nameof(OrderManager)} on '{name}' cannot auto-claim completed orders because {nameof(currencyManager)} is not assigned.", this);
-            return;
-        }
-
         isAutoClaimingCompletedOrders = true;
         StartCoroutine(AutoClaimAllCompletedOrdersAfterDelay());
     }
 
     private IEnumerator AutoClaimAllCompletedOrdersAfterDelay()
     {
-        if (autoRewardPopupDelay > 0f)
+        if (autoClaimDelay > 0f)
         {
-            yield return new WaitForSeconds(autoRewardPopupDelay);
-        }
-
-        ResolveReferences();
-
-        if (currencyManager == null)
-        {
-            Debug.LogError($"{nameof(OrderManager)} on '{name}' cannot auto-claim completed orders because {nameof(currencyManager)} is not assigned.", this);
-            isAutoClaimingCompletedOrders = false;
-            yield break;
+            yield return new WaitForSeconds(autoClaimDelay);
         }
 
         if (!AreEveryRuntimeOrderReadyOrClaimed())
@@ -601,10 +553,6 @@ public sealed class OrderManager : MonoBehaviour
             isAutoClaimingCompletedOrders = false;
             yield break;
         }
-
-        var totalCoins = 0;
-        var totalStars = 0;
-        var claimedCount = 0;
 
         for (var i = 0; i < runtimeOrders.Count; i++)
         {
@@ -614,62 +562,11 @@ public sealed class OrderManager : MonoBehaviour
                 continue;
             }
 
-            totalCoins += order.CoinReward;
-            totalStars += order.StarReward;
             order.MarkClaimed();
-            claimedCount++;
-        }
-
-        if (claimedCount > 0)
-        {
-            currencyManager.AddReward(totalCoins, totalStars);
-            ResetPendingCompletedRewards();
-
-            if (rewardPopup != null)
-            {
-                rewardPopup.Show(totalCoins, totalStars);
-            }
-            else
-            {
-                Debug.LogError($"{nameof(OrderManager)} on '{name}' auto-claimed completed orders without showing rewards because {nameof(rewardPopup)} is not assigned.", this);
-            }
         }
 
         isAutoClaimingCompletedOrders = false;
         RefreshViews();
-    }
-
-    private void AddPendingCompletedReward(int coins, int stars)
-    {
-        pendingCompletedRewardCoins += Mathf.Max(0, coins);
-        pendingCompletedRewardStars += Mathf.Max(0, stars);
-    }
-
-    private void ResetPendingCompletedRewards()
-    {
-        pendingCompletedRewardCoins = 0;
-        pendingCompletedRewardStars = 0;
-    }
-
-    private void ShowCompletedLevelRewardIfReady()
-    {
-        if (!AreEveryRuntimeOrderClaimed())
-        {
-            return;
-        }
-
-        ResolveReferences();
-
-        if (rewardPopup != null)
-        {
-            rewardPopup.Show(pendingCompletedRewardCoins, pendingCompletedRewardStars);
-        }
-        else
-        {
-            Debug.LogError($"{nameof(OrderManager)} on '{name}' completed all orders without showing rewards because {nameof(rewardPopup)} is not assigned.", this);
-        }
-
-        ResetPendingCompletedRewards();
     }
 
     private bool AreEveryRuntimeOrderReadyOrClaimed()
@@ -691,16 +588,6 @@ public sealed class OrderManager : MonoBehaviour
         if (boardManager == null)
         {
             boardManager = FindFirstObjectByType<BoardManager>();
-        }
-
-        if (currencyManager == null)
-        {
-            currencyManager = FindFirstObjectByType<CurrencyManager>();
-        }
-
-        if (rewardPopup == null)
-        {
-            rewardPopup = FindFirstObjectByType<RewardPopup>(FindObjectsInactive.Include);
         }
 
         ResolveOrderViewsRoot();

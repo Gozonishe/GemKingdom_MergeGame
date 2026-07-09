@@ -13,8 +13,6 @@ public sealed class OrderRuntimeData
     public MergeItemData RequiredItem => definition != null ? definition.RequiredItem : null;
     public int RequiredAmount => definition != null ? definition.RequiredAmount : 0;
     public int CurrentAmount => currentAmount;
-    public int CoinReward => definition != null ? definition.CoinReward : 0;
-    public int StarReward => definition != null ? definition.StarReward : 0;
     public bool IsClaimed => isClaimed;
     public bool CanClaim => !isClaimed && RequiredAmount > 0 && currentAmount >= RequiredAmount;
 

@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LevelData
   levelNumber: 2
   movesCount: 8
+  coinReward: 15
   boardColumns: 6
   boardRows: 6
   initialBoardItems:
@@ -31,5 +32,3 @@ MonoBehaviour:
   - objectiveType: 0
     requiredItem: {fileID: 11400000, guid: 67b4da7ec2bd3f0409dd1296ee237360, type: 2}
     requiredAmount: 3
-    coinReward: 15
-    starReward: 15
