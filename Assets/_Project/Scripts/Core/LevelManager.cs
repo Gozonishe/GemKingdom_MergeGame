@@ -532,7 +532,7 @@ public sealed class LevelManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"{nameof(LevelManager)} on '{name}' completed a level with {coinReward} coin reward, but {nameof(currencyManager)} is not assigned.", this);
+            PlayerGold.AddCoins(coinReward);
         }
 
         if (rewardPopup != null)

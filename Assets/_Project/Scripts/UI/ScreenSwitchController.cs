@@ -9,6 +9,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
 {
     private const string DefaultLevelsAssetFolder = "Assets/_Project/ScriptableObjects/Levels";
     private const string CollectionScreenButtonName = "CollectionScreenButton";
+    private const int RestoreLivesGoldCost = 900;
 
     private enum ScreenId
     {
@@ -37,6 +38,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
     [SerializeField] private Button playerLivesButton;
     [SerializeField] private TMP_Text mergeGameLevelText;
     [SerializeField] private List<TMP_Text> levelObjectNumberTexts = new List<TMP_Text>();
+    [SerializeField] private TMP_Text playerGoldAmountText;
     [SerializeField] private TMP_Text playerLivesAmountText;
     [SerializeField] private GameObject livesCounterRoot;
     [SerializeField] private TMP_Text livesCounterAmountText;
@@ -99,6 +101,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
 
         RefreshMergeGameLevelText();
         RefreshLevelStartTasks();
+        RefreshPlayerGoldUi();
         RefreshPlayerLivesUi();
     }
 
@@ -107,6 +110,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
         transform.SetAsLastSibling();
         RefreshMergeGameLevelText();
         RefreshLevelStartTasks();
+        RefreshPlayerGoldUi();
         RefreshPlayerLivesUi();
     }
 
@@ -120,6 +124,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
         SubscribeLivesAddWindowBuyButton();
         RefreshMergeGameLevelText();
         RefreshLevelStartTasks();
+        RefreshPlayerGoldUi();
         RefreshPlayerLivesUi();
     }
 
@@ -131,6 +136,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
         }
 
         nextLivesUiRefreshTime = Time.unscaledTime + livesUiRefreshInterval;
+        RefreshPlayerGoldUi();
         RefreshPlayerLivesUi();
     }
 
@@ -332,11 +338,14 @@ public sealed class ScreenSwitchController : MonoBehaviour
         mergeGameLevelText = mergeGameLevelText != null ? mergeGameLevelText : FindTextInButton(FindSceneButtonInRoot("MainScreen", "BtnMain"), "TextNumber");
         mergeGameLevelText = mergeGameLevelText != null ? mergeGameLevelText : FindSceneTextInRoot("MainScreen", "TextNumber");
         ResolveLevelObjectNumberTexts();
+        playerGoldAmountText = playerGoldAmountText != null ? playerGoldAmountText : FindTextInButton(playerGoldButton, "GoldAmount");
+        playerGoldAmountText = playerGoldAmountText != null ? playerGoldAmountText : FindSceneTextInRoot("BtnPlayerGold", "GoldAmount");
         playerLivesAmountText = playerLivesAmountText != null ? playerLivesAmountText : FindTextInButton(playerLivesButton, "AmountText");
         livesCounterRoot = livesCounterRoot != null ? livesCounterRoot : FindSceneObject("LivesCounter");
         livesCounterAmountText = livesCounterAmountText != null ? livesCounterAmountText : FindSceneTextInRoot("BtnPlayerLives", "LivesCounter");
         livesCounterAmountText = livesCounterAmountText != null ? livesCounterAmountText : FindSceneTextInRoot("LivesCounter", "LivesCounter");
         livesAddWindowRoot = livesAddWindowRoot != null ? livesAddWindowRoot : FindSceneObject("LivesAddWindow");
+        livesAddWindowBuyButton = livesAddWindowBuyButton != null ? livesAddWindowBuyButton : FindSceneButtonOrChildButtonInRoot("LivesAddWindow", "BtnBuyLives");
         livesAddWindowBuyButton = livesAddWindowBuyButton != null ? livesAddWindowBuyButton : FindSceneButtonOrChildButtonInRoot("LivesAddWindow", "BtnBuy");
         livesAddWindowTimerText = livesAddWindowTimerText != null ? livesAddWindowTimerText : FindSceneTextByPath("LivesAddWindow", "Container/Content/Group/Timer/Counter");
         ResolveLevelButtons();
@@ -351,6 +360,19 @@ public sealed class ScreenSwitchController : MonoBehaviour
         clanButtonContent = clanButtonContent != null ? clanButtonContent : FindButtonContent(clanButton);
         locationButtonContent = locationButtonContent != null ? locationButtonContent : FindButtonContent(locationButton);
         rankingButtonContent = rankingButtonContent != null ? rankingButtonContent : FindButtonContent(rankingButton);
+    }
+
+    private void RefreshPlayerGoldUi()
+    {
+        if (playerGoldAmountText == null)
+        {
+            ResolveMissingReferences();
+        }
+
+        if (playerGoldAmountText != null)
+        {
+            playerGoldAmountText.text = PlayerGold.CurrentCoins.ToString();
+        }
     }
 
     private void RefreshPlayerLivesUi()
@@ -409,10 +431,19 @@ public sealed class ScreenSwitchController : MonoBehaviour
         livesAddWindowRoot.SetActive(true);
     }
 
-    private void RestoreLivesAndCloseWindow()
+    private void BuyLivesAndCloseWindow()
     {
+        if (!PlayerGold.SpendCoins(RestoreLivesGoldCost))
+        {
+            SetActive(livesAddWindowRoot, false);
+            RefreshPlayerGoldUi();
+            ShowShop();
+            return;
+        }
+
         PlayerLives.RestoreToMax();
         SetActive(livesAddWindowRoot, false);
+        RefreshPlayerGoldUi();
         RefreshPlayerLivesUi();
     }
 
@@ -823,7 +854,8 @@ public sealed class ScreenSwitchController : MonoBehaviour
     {
         if (livesAddWindowBuyButton == null)
         {
-            livesAddWindowBuyButton = FindSceneButtonOrChildButtonInRoot("LivesAddWindow", "BtnBuy");
+            livesAddWindowBuyButton = FindSceneButtonOrChildButtonInRoot("LivesAddWindow", "BtnBuyLives");
+            livesAddWindowBuyButton = livesAddWindowBuyButton != null ? livesAddWindowBuyButton : FindSceneButtonOrChildButtonInRoot("LivesAddWindow", "BtnBuy");
         }
 
         if (livesAddWindowBuyButton == null || subscribedLivesAddWindowBuyButton == livesAddWindowBuyButton)
@@ -832,7 +864,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
         }
 
         UnsubscribeLivesAddWindowBuyButton();
-        livesAddWindowBuyButton.onClick.AddListener(RestoreLivesAndCloseWindow);
+        livesAddWindowBuyButton.onClick.AddListener(BuyLivesAndCloseWindow);
         subscribedLivesAddWindowBuyButton = livesAddWindowBuyButton;
     }
 
@@ -901,7 +933,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
             return;
         }
 
-        subscribedLivesAddWindowBuyButton.onClick.RemoveListener(RestoreLivesAndCloseWindow);
+        subscribedLivesAddWindowBuyButton.onClick.RemoveListener(BuyLivesAndCloseWindow);
         subscribedLivesAddWindowBuyButton = null;
     }
 
