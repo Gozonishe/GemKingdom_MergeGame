@@ -311,7 +311,19 @@ public sealed class ScreenSwitchController : MonoBehaviour
 #if UNITY_EDITOR
         UnityEditor.Selection.activeObject = null;
 #endif
-        SceneManager.LoadScene(mergeGameSceneName, LoadSceneMode.Single);
+        LoadSceneWithTransition(mergeGameSceneName);
+    }
+
+    private void LoadSceneWithTransition(string sceneName)
+    {
+        if (SceneTransition.Instance != null)
+        {
+            SceneTransition.Instance.LoadScene(sceneName);
+            return;
+        }
+
+        Debug.LogWarning($"{nameof(ScreenSwitchController)} on '{name}' is loading scene '{sceneName}' without {nameof(SceneTransition)} because no instance exists.", this);
+        SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
     }
 
     private void ResolveMissingReferences()
@@ -412,7 +424,7 @@ public sealed class ScreenSwitchController : MonoBehaviour
         return $"{minutes:00}:{seconds:00}";
     }
 
-    private void OpenLivesAddWindow()
+    public void OpenLivesAddWindow()
     {
         if (livesAddWindowRoot == null || livesAddWindowBuyButton == null)
         {

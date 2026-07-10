@@ -464,7 +464,19 @@ public sealed class LevelManager : MonoBehaviour
 #if UNITY_EDITOR
         UnityEditor.Selection.activeObject = null;
 #endif
-        SceneManager.LoadScene(mainMenuSceneName, LoadSceneMode.Single);
+        LoadSceneWithTransition(mainMenuSceneName);
+    }
+
+    private void LoadSceneWithTransition(string sceneName)
+    {
+        if (SceneTransition.Instance != null)
+        {
+            SceneTransition.Instance.LoadScene(sceneName);
+            return;
+        }
+
+        Debug.LogWarning($"{nameof(LevelManager)} on '{name}' is loading scene '{sceneName}' without {nameof(SceneTransition)} because no instance exists.", this);
+        SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
     }
 
     private bool IsOutOfMoves()
@@ -750,6 +762,13 @@ public sealed class LevelManager : MonoBehaviour
 
     private static TMP_Text FindLevelText()
     {
+        var topBar = FindSceneObject("TopBar");
+        var topBarLevelText = FindChildText(topBar != null ? topBar.transform : null, "LevelText");
+        if (topBarLevelText != null)
+        {
+            return topBarLevelText;
+        }
+
         var texts = FindObjectsByType<TMP_Text>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         for (var i = 0; i < texts.Length; i++)
         {
