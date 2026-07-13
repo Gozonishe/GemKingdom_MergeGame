@@ -12,6 +12,8 @@ public sealed class LevelManager : MonoBehaviour
     private const string DefaultLevelsAssetFolder = "Assets/_Project/ScriptableObjects/Levels";
     private const string LoosePanelName = "LoosePanel";
     private const string LevelWindowStartName = "LevelWindowStart";
+    private const int BuyMovesGoldCost = 900;
+    private const int BoughtMovesAmount = 5;
 
     [Header("Levels")]
     [SerializeField] private List<LevelData> levels = new List<LevelData>();
@@ -27,8 +29,17 @@ public sealed class LevelManager : MonoBehaviour
     [SerializeField] private OrderManager orderManager;
     [SerializeField] private BottomItemTrayController bottomItemTrayController;
     [SerializeField] private CurrencyManager currencyManager;
-    [SerializeField] private RewardPopup rewardPopup;
+    [SerializeField] private GameObject victoryLevelWindow;
+    [SerializeField] private Transform victoryRewardsContainer;
+    [SerializeField] private RewardItemView victoryRewardItemPrefab;
+    [SerializeField] private Sprite victoryCoinsIcon;
+    [SerializeField] private AudioClip victoryOpenSound;
+    [SerializeField] private Button victoryContinueButton;
+    [SerializeField] private Button victoryWatchAdsButton;
     [SerializeField] private TMP_Text levelText;
+    [SerializeField] private GameObject looseLevelWindow;
+    [SerializeField] private Button buyMovesButton;
+    [SerializeField] private GameObject shopScreen;
     [SerializeField] private GameObject loosePopup;
     [SerializeField] private GameObject loosePanel;
     [SerializeField] private GameObject loseLevelWindowStart;
@@ -48,7 +59,7 @@ public sealed class LevelManager : MonoBehaviour
     private bool isLoadingLevel;
     private bool levelCompleteHandled;
     private bool levelLoseHandled;
-    private bool waitingRewardPopupClose;
+    private bool waitingVictoryLevelWindowClose;
     private bool waitingLoosePanelTap;
     private bool lifeConsumedForCurrentLevel;
 
@@ -120,20 +131,22 @@ public sealed class LevelManager : MonoBehaviour
         {
             levelLoseHandled = true;
             ConsumeLifeForFailedAttempt();
-            ShowLoosePopup();
+            ShowLooseLevelWindow();
         }
     }
 
     private void OnDestroy()
     {
-        if (rewardPopup != null)
-        {
-            rewardPopup.Hidden -= HandleRewardPopupHidden;
-        }
+        RemoveVictoryWindowButtonListeners();
 
         if (loosePopupQuitButton != null)
         {
             loosePopupQuitButton.onClick.RemoveListener(LoadMainMenuScene);
+        }
+
+        if (buyMovesButton != null)
+        {
+            buyMovesButton.onClick.RemoveListener(BuyMovesAndContinue);
         }
 
         if (loseLevelStartButton != null)
@@ -184,8 +197,11 @@ public sealed class LevelManager : MonoBehaviour
         levelCompleteHandled = false;
         levelLoseHandled = false;
         lifeConsumedForCurrentLevel = false;
-        waitingRewardPopupClose = false;
+        waitingVictoryLevelWindowClose = false;
         waitingLoosePanelTap = false;
+        SetVictoryLevelWindowActive(false);
+        SetLooseLevelWindowActive(false);
+        SetShopScreenActive(false);
         SetLoosePopupActive(false);
         SetLoosePanelActive(false);
         SetLoseLevelWindowActive(false);
@@ -325,9 +341,46 @@ public sealed class LevelManager : MonoBehaviour
             currencyManager = FindFirstObjectByType<CurrencyManager>();
         }
 
-        if (rewardPopup == null)
+        if (victoryLevelWindow == null)
         {
-            rewardPopup = FindFirstObjectByType<RewardPopup>(FindObjectsInactive.Include);
+            victoryLevelWindow = FindSceneObject("VictoryLevelWindow");
+        }
+
+        if (victoryRewardsContainer == null)
+        {
+            var rewardsContainerObject = FindChildObject(victoryLevelWindow, "RewardsContainer");
+            victoryRewardsContainer = rewardsContainerObject != null ? rewardsContainerObject.transform : null;
+        }
+
+        if (victoryContinueButton == null)
+        {
+            victoryContinueButton = FindButtonInRoot(victoryLevelWindow, "BtnContinue");
+        }
+
+        if (victoryWatchAdsButton == null)
+        {
+            victoryWatchAdsButton = FindButtonInRoot(victoryLevelWindow, "BtnWatchADS");
+        }
+
+        if (looseLevelWindow == null)
+        {
+            looseLevelWindow = FindSceneObject("LooseLevelWindow");
+        }
+
+        if (buyMovesButton == null)
+        {
+            buyMovesButton = FindButtonInRoot(looseLevelWindow, "BuyMovesButton");
+        }
+
+        if (buyMovesButton != null)
+        {
+            buyMovesButton.onClick.RemoveListener(BuyMovesAndContinue);
+            buyMovesButton.onClick.AddListener(BuyMovesAndContinue);
+        }
+
+        if (shopScreen == null)
+        {
+            shopScreen = FindSceneObject("ShopScreen");
         }
 
         if (loosePopup == null)
@@ -412,17 +465,8 @@ public sealed class LevelManager : MonoBehaviour
     private void CompleteCurrentLevelAndReturnToMenu()
     {
         SaveNextLevelIndex();
-        GrantCurrentLevelReward();
-
-        if (rewardPopup != null && rewardPopup.IsVisible)
-        {
-            waitingRewardPopupClose = true;
-            rewardPopup.Hidden -= HandleRewardPopupHidden;
-            rewardPopup.Hidden += HandleRewardPopupHidden;
-            return;
-        }
-
-        LoadMainMenuScene();
+        var coinReward = GrantCurrentLevelReward();
+        ShowVictoryLevelWindow(coinReward);
     }
 
     private void SaveNextLevelIndex()
@@ -438,20 +482,54 @@ public sealed class LevelManager : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    private void HandleRewardPopupHidden()
+    private void ShowVictoryLevelWindow(int coinReward)
     {
-        if (rewardPopup != null)
+        ResolveReferences();
+
+        if (victoryLevelWindow == null || victoryRewardsContainer == null || victoryRewardItemPrefab == null || victoryContinueButton == null)
         {
-            rewardPopup.Hidden -= HandleRewardPopupHidden;
+            Debug.LogError($"{nameof(LevelManager)} on '{name}' cannot show VictoryLevelWindow because reward references are missing.", this);
+            LoadMainMenuScene();
+            return;
         }
 
-        if (!waitingRewardPopupClose)
+        ClearVictoryRewardItems();
+        waitingVictoryLevelWindowClose = true;
+        AddVictoryWindowButtonListeners();
+        victoryLevelWindow.transform.SetAsLastSibling();
+        SetVictoryLevelWindowActive(true);
+
+        if (coinReward > 0)
+        {
+            var rewardItem = Instantiate(victoryRewardItemPrefab, victoryRewardsContainer);
+            rewardItem.Set(victoryCoinsIcon, coinReward);
+            rewardItem.PlayAppearEffect();
+        }
+
+        if (victoryOpenSound != null)
+        {
+            UIAudioController.Instance?.PlayUISound(victoryOpenSound);
+        }
+    }
+
+    private void ContinueToNextLevel()
+    {
+        if (!waitingVictoryLevelWindowClose)
         {
             return;
         }
 
-        waitingRewardPopupClose = false;
-        LoadMainMenuScene();
+        waitingVictoryLevelWindowClose = false;
+        RemoveVictoryWindowButtonListeners();
+
+        var nextLevelIndex = currentLevelIndex + 1;
+        if (!IsInsideLevels(nextLevelIndex))
+        {
+            LoadMainMenuScene();
+            return;
+        }
+
+        LoadSceneWithTransition(SceneManager.GetActiveScene().name);
     }
 
     private void LoadMainMenuScene()
@@ -485,7 +563,70 @@ public sealed class LevelManager : MonoBehaviour
             && energyManager.CurrentEnergy <= 0
             && (orderManager == null || !orderManager.AreAllOrdersReadyOrClaimed)
             && (boardManager == null || !boardManager.IsBusy)
-            && (rewardPopup == null || !rewardPopup.IsVisible);
+            && (victoryLevelWindow == null || !victoryLevelWindow.activeInHierarchy);
+    }
+
+    private void ShowLooseLevelWindow()
+    {
+        ResolveReferences();
+        waitingLoosePanelTap = false;
+        SetLoosePopupActive(false);
+
+        if (looseLevelWindow == null || buyMovesButton == null)
+        {
+            Debug.LogError($"{nameof(LevelManager)} on '{name}' cannot show LooseLevelWindow because required references are missing.", this);
+            LoadMainMenuScene();
+            return;
+        }
+
+        buyMovesButton.interactable = true;
+        looseLevelWindow.transform.SetAsLastSibling();
+        SetLooseLevelWindowActive(true);
+    }
+
+    private void BuyMovesAndContinue()
+    {
+        if (!levelLoseHandled)
+        {
+            return;
+        }
+
+        ResolveReferences();
+
+        if (energyManager == null)
+        {
+            Debug.LogError($"{nameof(LevelManager)} on '{name}' cannot add moves because {nameof(energyManager)} is missing.", this);
+            return;
+        }
+
+        buyMovesButton.interactable = false;
+
+        var spentGold = currencyManager != null
+            ? currencyManager.SpendCoins(BuyMovesGoldCost)
+            : PlayerGold.SpendCoins(BuyMovesGoldCost);
+
+        if (!spentGold)
+        {
+            buyMovesButton.interactable = true;
+            OpenShopScreen();
+            return;
+        }
+
+        energyManager.AddEnergy(BoughtMovesAmount);
+        levelLoseHandled = false;
+        SetLooseLevelWindowActive(false);
+    }
+
+    private void OpenShopScreen()
+    {
+        if (shopScreen == null)
+        {
+            Debug.LogError($"{nameof(LevelManager)} on '{name}' cannot open ShopScreen because it was not found.", this);
+            return;
+        }
+
+        shopScreen.transform.SetAsLastSibling();
+        SetShopScreenActive(true);
     }
 
     private void ShowLoosePopup()
@@ -528,12 +669,12 @@ public sealed class LevelManager : MonoBehaviour
         LoadMainMenuScene();
     }
 
-    private void GrantCurrentLevelReward()
+    private int GrantCurrentLevelReward()
     {
-        var coinReward = CurrentLevel != null ? CurrentLevel.CoinReward : 0;
+        var coinReward = CurrentLevel != null ? Mathf.Max(0, CurrentLevel.CoinReward) : 0;
         if (coinReward <= 0)
         {
-            return;
+            return 0;
         }
 
         ResolveReferences();
@@ -547,10 +688,7 @@ public sealed class LevelManager : MonoBehaviour
             PlayerGold.AddCoins(coinReward);
         }
 
-        if (rewardPopup != null)
-        {
-            rewardPopup.Show(coinReward, 0);
-        }
+        return coinReward;
     }
 
     private void ConsumeLifeForFailedAttempt()
@@ -562,6 +700,74 @@ public sealed class LevelManager : MonoBehaviour
 
         lifeConsumedForCurrentLevel = true;
         PlayerLives.ConsumeLife();
+    }
+
+    private void AddVictoryWindowButtonListeners()
+    {
+        RemoveVictoryWindowButtonListeners();
+
+        if (victoryContinueButton == null)
+        {
+            return;
+        }
+
+        victoryContinueButton.interactable = true;
+        victoryContinueButton.onClick.AddListener(ContinueToNextLevel);
+
+        if (victoryWatchAdsButton != null)
+        {
+            victoryWatchAdsButton.onClick.RemoveListener(ContinueToNextLevel);
+        }
+    }
+
+    private void RemoveVictoryWindowButtonListeners()
+    {
+        if (victoryContinueButton != null)
+        {
+            victoryContinueButton.onClick.RemoveListener(ContinueToNextLevel);
+        }
+
+        if (victoryWatchAdsButton != null)
+        {
+            victoryWatchAdsButton.onClick.RemoveListener(ContinueToNextLevel);
+        }
+    }
+
+    private void ClearVictoryRewardItems()
+    {
+        if (victoryRewardsContainer == null)
+        {
+            return;
+        }
+
+        for (var i = victoryRewardsContainer.childCount - 1; i >= 0; i--)
+        {
+            Destroy(victoryRewardsContainer.GetChild(i).gameObject);
+        }
+    }
+
+    private void SetVictoryLevelWindowActive(bool isActive)
+    {
+        if (victoryLevelWindow != null && victoryLevelWindow.activeSelf != isActive)
+        {
+            victoryLevelWindow.SetActive(isActive);
+        }
+    }
+
+    private void SetLooseLevelWindowActive(bool isActive)
+    {
+        if (looseLevelWindow != null && looseLevelWindow.activeSelf != isActive)
+        {
+            looseLevelWindow.SetActive(isActive);
+        }
+    }
+
+    private void SetShopScreenActive(bool isActive)
+    {
+        if (shopScreen != null && shopScreen.activeSelf != isActive)
+        {
+            shopScreen.SetActive(isActive);
+        }
     }
 
     private void SetLoosePopupActive(bool isActive)
