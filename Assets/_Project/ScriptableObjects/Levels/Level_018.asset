@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LevelData
   levelNumber: 18
   movesCount: 49
-  coinReward: 140
   boardColumns: 6
   boardRows: 6
   initialBoardItems:
@@ -54,6 +53,7 @@ MonoBehaviour:
   spawnableItems:
   - {fileID: 11400000, guid: 7619562684c9c4747812645ab6705f6c, type: 2}
   - {fileID: 11400000, guid: 50e17eb973d2a4f4887adf1dc8160eb9, type: 2}
+  coinReward: 40
   orders:
   - objectiveType: 0
     requiredItem: {fileID: 11400000, guid: aa8b132dd0e1a1d4e8f68ef0bc74faff, type: 2}
