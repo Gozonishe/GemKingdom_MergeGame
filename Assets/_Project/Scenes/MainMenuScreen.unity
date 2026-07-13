@@ -541,7 +541,7 @@ Canvas:
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
-  m_SortingLayerID: 0
+  m_SortingLayerID: -816448145
   m_SortingOrder: 0
   m_TargetDisplay: 0
 --- !u!114 &64940700
@@ -3002,6 +3002,14 @@ PrefabInstance:
     - target: {fileID: 2629703864730956045, guid: af7a33ec268e97f4b818b276fbb0f5a1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5788893553050946883, guid: af7a33ec268e97f4b818b276fbb0f5a1, type: 3}
+      propertyPath: m_SortingLayer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5788893553050946883, guid: af7a33ec268e97f4b818b276fbb0f5a1, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 771670477
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -9472,8 +9480,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 771670477
+  m_SortingLayer: 3
   m_SortingOrder: 100
   m_MaskInteraction: 0
   m_RenderMode: 0
@@ -9723,6 +9731,14 @@ PrefabInstance:
     - target: {fileID: 2629703864730956045, guid: af7a33ec268e97f4b818b276fbb0f5a1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: -15
+      objectReference: {fileID: 0}
+    - target: {fileID: 5788893553050946883, guid: af7a33ec268e97f4b818b276fbb0f5a1, type: 3}
+      propertyPath: m_SortingLayer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5788893553050946883, guid: af7a33ec268e97f4b818b276fbb0f5a1, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 771670477
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -17360,8 +17376,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 771670477
+  m_SortingLayer: 3
   m_SortingOrder: 100
   m_MaskInteraction: 0
   m_RenderMode: 0
@@ -32141,6 +32157,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 15
       objectReference: {fileID: 0}
+    - target: {fileID: 5788893553050946883, guid: af7a33ec268e97f4b818b276fbb0f5a1, type: 3}
+      propertyPath: m_SortingLayer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5788893553050946883, guid: af7a33ec268e97f4b818b276fbb0f5a1, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 771670477
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -38741,6 +38765,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5788893553050946883, guid: af7a33ec268e97f4b818b276fbb0f5a1, type: 3}
+      propertyPath: m_SortingLayer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5788893553050946883, guid: af7a33ec268e97f4b818b276fbb0f5a1, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 771670477
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -42527,6 +42559,10 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 519420031}
+    - target: {fileID: 7007447515528987829, guid: 0edd60c5b7b08064381961eba6eaed5f, type: 3}
+      propertyPath: m_SortingLayerID
+      value: -816448145
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
