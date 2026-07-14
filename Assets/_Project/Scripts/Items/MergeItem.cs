@@ -51,10 +51,19 @@ public sealed class MergeItem : MonoBehaviour
         RefreshVisuals();
     }
 
-    public void SetData(MergeItemData itemData)
+    public void SetData(MergeItemData itemData, bool playLevelTransitionEffect = false)
     {
+        var transitionEffectPrefab = playLevelTransitionEffect && data != null
+            ? data.LevelTransitionEffectPrefab
+            : null;
+
         data = itemData;
         RefreshVisuals();
+
+        if (transitionEffectPrefab != null)
+        {
+            PlayLevelTransitionEffect(transitionEffectPrefab);
+        }
     }
 
     public int GetLevel()
@@ -102,6 +111,21 @@ public sealed class MergeItem : MonoBehaviour
         popCoroutine = StartCoroutine(PlayPopCoroutine());
     }
 
+    public void PlayDisappearEffect()
+    {
+        PlayDisappearEffectAt(transform);
+    }
+
+    public void PlayDisappearEffectAt(Transform effectTarget)
+    {
+        if (data == null || data.DisappearEffectPrefab == null)
+        {
+            return;
+        }
+
+        PlayLevelTransitionEffect(data.DisappearEffectPrefab, true, effectTarget);
+    }
+
     public void PlayFallToCellEffect(float duration = -1f, float bouncePixels = -1f, bool fadeIn = false)
     {
         if (!isActiveAndEnabled || transform is not RectTransform itemRectTransform)
@@ -143,6 +167,50 @@ public sealed class MergeItem : MonoBehaviour
 
         itemTransform.localScale = baseScale;
         popCoroutine = null;
+    }
+
+    private void PlayLevelTransitionEffect(
+        GameObject effectPrefab,
+        bool keepAliveAfterItemDestroy = false,
+        Transform effectTarget = null)
+    {
+        var resolvedTarget = effectTarget != null ? effectTarget : transform;
+        var effectParent = keepAliveAfterItemDestroy && resolvedTarget.parent != null
+            ? resolvedTarget.parent
+            : transform;
+        var effect = Instantiate(effectPrefab, effectParent, false);
+        effect.transform.localPosition = keepAliveAfterItemDestroy
+            ? resolvedTarget.localPosition
+            : Vector3.zero;
+        effect.transform.localRotation = Quaternion.identity;
+        effect.transform.localScale = effectPrefab.transform.localScale;
+
+        var parentCanvas = GetComponentInParent<Canvas>();
+        var particleSystems = effect.GetComponentsInChildren<ParticleSystem>(true);
+        var destroyDelay = 0f;
+
+        for (var i = 0; i < particleSystems.Length; i++)
+        {
+            var particleSystem = particleSystems[i];
+            var particleRenderer = particleSystem.GetComponent<ParticleSystemRenderer>();
+
+            if (parentCanvas != null && particleRenderer != null)
+            {
+                particleRenderer.sortingLayerID = parentCanvas.sortingLayerID;
+                particleRenderer.sortingOrder = parentCanvas.sortingOrder + 10;
+            }
+
+            particleSystem.Clear(true);
+            particleSystem.Play(true);
+
+            var main = particleSystem.main;
+            var particleDuration = main.duration
+                + main.startDelay.constantMax
+                + main.startLifetime.constantMax;
+            destroyDelay = Mathf.Max(destroyDelay, particleDuration);
+        }
+
+        Destroy(effect, destroyDelay > 0f ? destroyDelay + 0.1f : 1f);
     }
 
     private IEnumerator PlayFallCoroutine(RectTransform itemRectTransform, float duration, float bouncePixels, bool fadeIn)

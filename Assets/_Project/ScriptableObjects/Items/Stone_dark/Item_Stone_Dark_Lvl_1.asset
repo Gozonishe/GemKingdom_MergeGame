@@ -16,5 +16,6 @@ MonoBehaviour:
   displayName: stone_dark_01
   level: 1
   icon: {fileID: 448479205426318761, guid: 43843f2847d57c741b967d0d3552dbc2, type: 3}
+  levelTransitionEffectPrefab: {fileID: 4406316114940869925, guid: 7bffe634726491848a01c6623f0c5a2c, type: 3}
   nextLevelItem: {fileID: 0}
   reactToAdjacentMerge: 1

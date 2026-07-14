@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: dynamite_01
   level: 1
   icon: {fileID: 3748773680283437153, guid: 7850abb5e4a935d4daeecd682d16fab6, type: 3}
+  disappearEffectPrefab: {fileID: 5089640375180646368, guid: 83e041fa6503a064d9fc7665d59dfe81, type: 3}
   nextLevelItem: {fileID: 0}
   reactToAdjacentMerge: 0
   destroyBothOnAnyNeighborMerge: 1

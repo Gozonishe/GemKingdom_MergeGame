@@ -9,6 +9,7 @@ public sealed class OrderView : MonoBehaviour
     [SerializeField] private TMP_Text amountText;
     [SerializeField] private TMP_Text rewardText;
     [SerializeField] private Button claimButton;
+    [SerializeField] private GameObject completeOrder;
 
     [Header("Layout")]
     [SerializeField] private RectTransform topContent;
@@ -81,9 +82,15 @@ public sealed class OrderView : MonoBehaviour
             rewardInfo.gameObject.SetActive(false);
         }
 
+        var canClaim = order.CanClaim;
+
+        if (completeOrder != null)
+        {
+            completeOrder.SetActive(canClaim);
+        }
+
         if (claimButton != null)
         {
-            var canClaim = order.CanClaim;
             claimButton.gameObject.SetActive(canClaim);
             claimButton.interactable = canClaim;
         }
@@ -138,6 +145,15 @@ public sealed class OrderView : MonoBehaviour
         claimButton = claimButton != null
             ? claimButton
             : FindComponentInChild<Button>("ClaimButton");
+
+        if (completeOrder == null)
+        {
+            var completeOrderTransform = transform.Find("CompleteOrder")
+                ?? transform.Find("CompletedOrder");
+            completeOrder = completeOrderTransform != null
+                ? completeOrderTransform.gameObject
+                : null;
+        }
     }
 
     [ContextMenu("Apply Default Layout")]

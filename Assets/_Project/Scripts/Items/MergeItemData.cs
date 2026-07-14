@@ -11,6 +11,12 @@ public sealed class MergeItemData : ScriptableObject
     [Header("Visuals")]
     [SerializeField] private Sprite icon;
 
+    [Header("Level Transition Effect")]
+    [SerializeField] private GameObject levelTransitionEffectPrefab;
+
+    [Header("Disappear Effect")]
+    [SerializeField] private GameObject disappearEffectPrefab;
+
     [Header("Merge Chain")]
     [SerializeField] private MergeItemData nextLevelItem;
 
@@ -27,6 +33,10 @@ public sealed class MergeItemData : ScriptableObject
     public string DisplayName => displayName;
     public int Level => level;
     public Sprite Icon => icon;
+    public GameObject LevelTransitionEffectPrefab => levelTransitionEffectPrefab;
+    public GameObject DisappearEffectPrefab => disappearEffectPrefab != null
+        ? disappearEffectPrefab
+        : levelTransitionEffectPrefab;
     public MergeItemData NextLevelItem => nextLevelItem;
     public bool ReactToAdjacentMerge => reactToAdjacentMerge;
     public bool DestroyBothOnAnyNeighborMerge => destroyBothOnAnyNeighborMerge;

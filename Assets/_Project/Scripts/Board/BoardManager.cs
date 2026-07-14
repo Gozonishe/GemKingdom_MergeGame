@@ -281,6 +281,8 @@ public sealed class BoardManager : MonoBehaviour
 
         IsBusy = true;
 
+        destroyItem.PlayDisappearEffectAt(targetItem.transform);
+
         var sourceCell = destroyItem.CurrentCell;
         if (sourceCell != null)
         {
@@ -802,6 +804,12 @@ public sealed class BoardManager : MonoBehaviour
         var sourceData = sourceItem != null ? sourceItem.Data : null;
         var targetData = targetItem != null ? targetItem.Data : null;
 
+        var effectItem = sourceData != null && sourceData.DestroyBothOnAnyNeighborMerge
+            ? sourceItem
+            : targetItem;
+        var effectTarget = effectItem == sourceItem ? targetItem : sourceItem;
+        effectItem.PlayDisappearEffectAt(effectTarget.transform);
+
         sourceCell.Clear();
         targetCell.Clear();
         NotifyItemDestroyed(sourceData);
@@ -1056,7 +1064,7 @@ public sealed class BoardManager : MonoBehaviour
             }
         }
 
-        resultItem.SetData(nextLevelItem);
+        resultItem.SetData(nextLevelItem, true);
         mergeResultCell.SetItem(resultItem);
         PlayMergeSound();
         resultItem.PlayMergePopEffect();
@@ -1164,7 +1172,7 @@ public sealed class BoardManager : MonoBehaviour
             yield return new WaitForSeconds(connectedMergeResultDelay);
         }
 
-        resultItem.SetData(nextLevelItem);
+        resultItem.SetData(nextLevelItem, true);
         mergeResultCell.SetItem(resultItem);
         resultItem.PlayMergePopEffect();
         ApplyAdjacentMergeReactions(mergeResultCell);
@@ -1366,11 +1374,12 @@ public sealed class BoardManager : MonoBehaviour
         // Adjacent merge reaction: blockers advance through their data chain, then disappear when the chain ends.
         if (itemData.NextLevelItem != null)
         {
-            item.SetData(itemData.NextLevelItem);
+            item.SetData(itemData.NextLevelItem, true);
             item.PlayMergePopEffect();
             return;
         }
 
+        item.PlayDisappearEffect();
         cell.Clear();
         NotifyItemDestroyed(itemData);
         Destroy(item.gameObject);
