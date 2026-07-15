@@ -18,11 +18,16 @@ public sealed class OrderManager : MonoBehaviour
     [SerializeField] private List<OrderView> orderViews = new List<OrderView>();
     [SerializeField] private AdaptiveHorizontalScrollLayout adaptiveHorizontalLayout;
 
+    [Header("Ready Order Effect")]
+    [SerializeField] private GameObject readyOrderItemEffectPrefab;
+    [SerializeField, Min(0.01f)] private float readyOrderItemEffectScale = 50f;
+
     [Header("Auto Claim")]
     [FormerlySerializedAs("autoRewardPopupDelay")]
     [SerializeField, Min(0f)] private float autoClaimDelay = 1f;
 
     private readonly List<OrderRuntimeData> runtimeOrders = new List<OrderRuntimeData>();
+    private readonly HashSet<MergeItem> readyOrderItemBuffer = new HashSet<MergeItem>();
     private bool isAutoClaimingCompletedOrders;
 
     public IReadOnlyList<OrderRuntimeData> ActiveOrders => runtimeOrders;
@@ -119,6 +124,7 @@ public sealed class OrderManager : MonoBehaviour
             }
         }
 
+        RefreshReadyOrderItemEffects();
         RefreshViews();
 
         if (allowAutoClaim)
@@ -566,7 +572,73 @@ public sealed class OrderManager : MonoBehaviour
         }
 
         isAutoClaimingCompletedOrders = false;
+        RefreshReadyOrderItemEffects();
         RefreshViews();
+    }
+
+    private void RefreshReadyOrderItemEffects()
+    {
+        readyOrderItemBuffer.Clear();
+
+        if (boardManager == null || boardManager.Cells == null)
+        {
+            return;
+        }
+
+        if (readyOrderItemEffectPrefab != null)
+        {
+            for (var i = 0; i < runtimeOrders.Count; i++)
+            {
+                var order = runtimeOrders[i];
+                if (order == null
+                    || !order.CanClaim
+                    || order.ObjectiveType != OrderObjectiveType.CollectOnBoard)
+                {
+                    continue;
+                }
+
+                AddReadyOrderItems(order.RequiredItem, order.RequiredAmount);
+            }
+        }
+
+        for (var y = 0; y < boardManager.Rows; y++)
+        {
+            for (var x = 0; x < boardManager.Columns; x++)
+            {
+                var item = boardManager.GetItemAt(x, y);
+                if (item != null)
+                {
+                    item.SetOrderReadyEffect(
+                        readyOrderItemEffectPrefab,
+                        readyOrderItemEffectScale,
+                        readyOrderItemBuffer.Contains(item));
+                }
+            }
+        }
+    }
+
+    private void AddReadyOrderItems(MergeItemData requiredItem, int requiredAmount)
+    {
+        if (requiredItem == null || requiredAmount <= 0)
+        {
+            return;
+        }
+
+        var selectedAmount = 0;
+
+        for (var y = 0; y < boardManager.Rows && selectedAmount < requiredAmount; y++)
+        {
+            for (var x = 0; x < boardManager.Columns && selectedAmount < requiredAmount; x++)
+            {
+                var item = boardManager.GetItemAt(x, y);
+                if (item == null || item.Data != requiredItem || !readyOrderItemBuffer.Add(item))
+                {
+                    continue;
+                }
+
+                selectedAmount++;
+            }
+        }
     }
 
     private bool AreEveryRuntimeOrderReadyOrClaimed()

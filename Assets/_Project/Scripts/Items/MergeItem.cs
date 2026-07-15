@@ -27,6 +27,7 @@ public sealed class MergeItem : MonoBehaviour
     private Coroutine spawnBounceCoroutine;
     private Coroutine fallCoroutine;
     private CanvasGroup canvasGroup;
+    private GameObject orderReadyEffect;
 
     public MergeItemData Data => data;
     public int Level => data != null ? data.Level : 0;
@@ -125,6 +126,55 @@ public sealed class MergeItem : MonoBehaviour
         }
 
         PlayLevelTransitionEffect(data.DisappearEffectPrefab, true, effectTarget);
+    }
+
+    public void SetOrderReadyEffect(GameObject effectPrefab, float effectScale, bool isActive)
+    {
+        if (!isActive || effectPrefab == null)
+        {
+            ClearOrderReadyEffect();
+            return;
+        }
+
+        if (orderReadyEffect != null)
+        {
+            return;
+        }
+
+        orderReadyEffect = Instantiate(effectPrefab, transform, false);
+        orderReadyEffect.name = $"{effectPrefab.name}_OrderReady";
+        orderReadyEffect.transform.localPosition = Vector3.zero;
+        orderReadyEffect.transform.localRotation = Quaternion.identity;
+        orderReadyEffect.transform.localScale = effectPrefab.transform.localScale * Mathf.Max(0.01f, effectScale);
+
+        var parentCanvas = GetComponentInParent<Canvas>();
+        var particleSystems = orderReadyEffect.GetComponentsInChildren<ParticleSystem>(true);
+
+        for (var i = 0; i < particleSystems.Length; i++)
+        {
+            var particleSystem = particleSystems[i];
+            var particleRenderer = particleSystem.GetComponent<ParticleSystemRenderer>();
+
+            if (parentCanvas != null && particleRenderer != null)
+            {
+                particleRenderer.sortingLayerID = parentCanvas.sortingLayerID;
+                particleRenderer.sortingOrder = parentCanvas.sortingOrder + 10;
+            }
+
+            particleSystem.Clear(true);
+            particleSystem.Play(true);
+        }
+    }
+
+    public void ClearOrderReadyEffect()
+    {
+        if (orderReadyEffect == null)
+        {
+            return;
+        }
+
+        Destroy(orderReadyEffect);
+        orderReadyEffect = null;
     }
 
     public void PlaySpawnBounceEffect(

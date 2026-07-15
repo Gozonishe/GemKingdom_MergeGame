@@ -2721,7 +2721,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4664377449725708569, guid: 0edd60c5b7b08064381961eba6eaed5f, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7007447515528987829, guid: 0edd60c5b7b08064381961eba6eaed5f, type: 3}
       propertyPath: m_Camera
@@ -2775,7 +2775,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 80}
+  m_SizeDelta: {x: 240, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &699480160
 MonoBehaviour:
@@ -6323,6 +6323,8 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   adaptiveHorizontalLayout: {fileID: 1423717971}
+  readyOrderItemEffectPrefab: {fileID: 3481580594204729124, guid: 50ef1f50a8ac7344daa2da0020523e75, type: 3}
+  readyOrderItemEffectScale: 50
   autoClaimDelay: 1
 --- !u!114 &1423717966
 MonoBehaviour:
