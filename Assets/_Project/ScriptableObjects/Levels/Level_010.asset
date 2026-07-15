@@ -57,7 +57,7 @@ MonoBehaviour:
   - objectiveType: 0
     requiredItem: {fileID: 11400000, guid: 0cc9490e02953a44b9eb0a4ce4e9a542, type: 2}
     requiredAmount: 1
-  - objectiveType: 1
+  - objectiveType: 0
     requiredItem: {fileID: 11400000, guid: 0636a8cab37768e49ae39148199c2359, type: 2}
     requiredAmount: 1
   - objectiveType: 0

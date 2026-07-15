@@ -39,7 +39,7 @@ MonoBehaviour:
   - itemData: {fileID: 11400000, guid: a33c1beba84795444a695fc2ce6cf7e1, type: 2}
     count: 2
   - itemData: {fileID: 11400000, guid: da200a52036e13f44b6d84a28c6de0e9, type: 2}
-    count: 3
+    count: 4
   generatorSpawnableItems:
   - itemData: {fileID: 11400000, guid: c5824e6174fdfbe49b3d166fdd74fac0, type: 2}
     weight: 7

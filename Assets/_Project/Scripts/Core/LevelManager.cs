@@ -14,6 +14,7 @@ public sealed class LevelManager : MonoBehaviour
     private const string LevelWindowStartName = "LevelWindowStart";
     private const int BuyMovesGoldCost = 900;
     private const int BoughtMovesAmount = 5;
+    private const float ShopLivesRefreshInterval = 1f;
 
     [Header("Levels")]
     [SerializeField] private List<LevelData> levels = new List<LevelData>();
@@ -40,6 +41,8 @@ public sealed class LevelManager : MonoBehaviour
     [SerializeField] private GameObject looseLevelWindow;
     [SerializeField] private Button buyMovesButton;
     [SerializeField] private GameObject shopScreen;
+    [SerializeField] private TMP_Text shopPlayerLivesAmountText;
+    [SerializeField] private TMP_Text shopPlayerGoldAmountText;
     [SerializeField] private GameObject loosePopup;
     [SerializeField] private GameObject loosePanel;
     [SerializeField] private GameObject loseLevelWindowStart;
@@ -62,6 +65,7 @@ public sealed class LevelManager : MonoBehaviour
     private bool waitingVictoryLevelWindowClose;
     private bool waitingLoosePanelTap;
     private bool lifeConsumedForCurrentLevel;
+    private float nextShopLivesRefreshTime;
 
     public IReadOnlyList<LevelData> Levels => levels;
     public int CurrentLevelIndex => currentLevelIndex;
@@ -96,6 +100,7 @@ public sealed class LevelManager : MonoBehaviour
     private void Start()
     {
         ResolveReferences();
+        RefreshShopPlayerResources();
 
         if (levels.Count == 0)
         {
@@ -107,8 +112,20 @@ public sealed class LevelManager : MonoBehaviour
         LoadLevel(Mathf.Clamp(savedLevelIndex, 0, levels.Count - 1));
     }
 
+    private void OnEnable()
+    {
+        PlayerGold.CoinsChanged += HandlePlayerGoldChanged;
+    }
+
+    private void OnDisable()
+    {
+        PlayerGold.CoinsChanged -= HandlePlayerGoldChanged;
+    }
+
     private void Update()
     {
+        RefreshShopPlayerLivesWhileVisible();
+
         if (waitingLoosePanelTap && IsTapStarted())
         {
             ShowLoseLevelStartWindow();
@@ -383,6 +400,8 @@ public sealed class LevelManager : MonoBehaviour
             shopScreen = FindSceneObject("ShopScreen");
         }
 
+        ResolveShopHeaderResourceTexts();
+
         if (loosePopup == null)
         {
             loosePopup = FindSceneObject("LoosePopup");
@@ -625,6 +644,7 @@ public sealed class LevelManager : MonoBehaviour
             return;
         }
 
+        RefreshShopPlayerResources();
         shopScreen.transform.SetAsLastSibling();
         SetShopScreenActive(true);
     }
@@ -700,6 +720,84 @@ public sealed class LevelManager : MonoBehaviour
 
         lifeConsumedForCurrentLevel = true;
         PlayerLives.ConsumeLife();
+        RefreshShopPlayerLivesAmount();
+    }
+
+    private void RefreshShopPlayerResources()
+    {
+        ResolveShopHeaderResourceTexts();
+        RefreshShopPlayerLivesAmount();
+        RefreshShopPlayerGoldAmount(PlayerGold.CurrentCoins);
+    }
+
+    private void RefreshShopPlayerLivesAmount()
+    {
+        if (shopPlayerLivesAmountText == null)
+        {
+            ResolveShopHeaderResourceTexts();
+        }
+
+        if (shopPlayerLivesAmountText == null)
+        {
+            return;
+        }
+
+        PlayerLives.RefreshState();
+        shopPlayerLivesAmountText.text = PlayerLives.CurrentLives.ToString();
+    }
+
+    private void RefreshShopPlayerLivesWhileVisible()
+    {
+        if (shopScreen == null
+            || !shopScreen.activeInHierarchy
+            || Time.unscaledTime < nextShopLivesRefreshTime)
+        {
+            return;
+        }
+
+        nextShopLivesRefreshTime = Time.unscaledTime + ShopLivesRefreshInterval;
+        RefreshShopPlayerLivesAmount();
+    }
+
+    private void RefreshShopPlayerGoldAmount(int coins)
+    {
+        if (shopPlayerGoldAmountText == null)
+        {
+            ResolveShopHeaderResourceTexts();
+        }
+
+        if (shopPlayerGoldAmountText != null)
+        {
+            shopPlayerGoldAmountText.text = Mathf.Max(0, coins).ToString();
+        }
+    }
+
+    private void HandlePlayerGoldChanged(int coins)
+    {
+        RefreshShopPlayerGoldAmount(coins);
+    }
+
+    private void ResolveShopHeaderResourceTexts()
+    {
+        if (shopScreen == null)
+        {
+            return;
+        }
+
+        var header = FindChildObject(shopScreen, "Header");
+        var searchRoot = header != null ? header : shopScreen;
+
+        if (shopPlayerLivesAmountText == null)
+        {
+            var livesButton = FindActiveChildObject(searchRoot, "BtnPlayerLives");
+            shopPlayerLivesAmountText = FindTextInRoot(livesButton, "AmountText");
+        }
+
+        if (shopPlayerGoldAmountText == null)
+        {
+            var goldButton = FindActiveChildObject(searchRoot, "BtnPlayerGold");
+            shopPlayerGoldAmountText = FindTextInRoot(goldButton, "GoldAmount");
+        }
     }
 
     private void AddVictoryWindowButtonListeners()
@@ -1052,6 +1150,34 @@ public sealed class LevelManager : MonoBehaviour
         }
 
         return null;
+    }
+
+    private static GameObject FindActiveChildObject(GameObject root, string childName)
+    {
+        if (root == null || string.IsNullOrEmpty(childName))
+        {
+            return null;
+        }
+
+        GameObject inactiveFallback = null;
+        var transforms = root.GetComponentsInChildren<Transform>(true);
+        for (var i = 0; i < transforms.Length; i++)
+        {
+            var target = transforms[i];
+            if (target == null || target.name != childName)
+            {
+                continue;
+            }
+
+            if (target.gameObject.activeSelf)
+            {
+                return target.gameObject;
+            }
+
+            inactiveFallback = inactiveFallback != null ? inactiveFallback : target.gameObject;
+        }
+
+        return inactiveFallback;
     }
 
     private static TMP_Text FindTextInRoot(GameObject root, string textName)
