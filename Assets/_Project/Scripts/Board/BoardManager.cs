@@ -281,9 +281,10 @@ public sealed class BoardManager : MonoBehaviour
 
         IsBusy = true;
 
+        var sourceCell = destroyItem.CurrentCell;
+        ApplyAdjacentMergeReactions(sourceCell, targetCell);
         destroyItem.PlayDisappearEffectAt(targetItem.transform);
 
-        var sourceCell = destroyItem.CurrentCell;
         if (sourceCell != null)
         {
             sourceCell.Clear();
@@ -300,7 +301,6 @@ public sealed class BoardManager : MonoBehaviour
             Debug.Log($"{nameof(BoardManager)} removed spider: {SpiderRemovedByDynamiteReason}.", this);
         }
 
-        ApplyAdjacentMergeReactions(targetCell);
         ResolveSpidersAfterPlayerPlacement();
         RefreshOrders();
         IsBusy = false;
@@ -808,6 +808,7 @@ public sealed class BoardManager : MonoBehaviour
             ? sourceItem
             : targetItem;
         var effectTarget = effectItem == sourceItem ? targetItem : sourceItem;
+        ApplyAdjacentMergeReactions(sourceCell, targetCell);
         effectItem.PlayDisappearEffectAt(effectTarget.transform);
 
         sourceCell.Clear();
@@ -816,7 +817,6 @@ public sealed class BoardManager : MonoBehaviour
         NotifyItemDestroyed(targetData);
         Destroy(sourceItem.gameObject);
         Destroy(targetItem.gameObject);
-        ApplyAdjacentMergeReactions(targetCell);
         ResolveSpidersAfterPlayerPlacement();
         RefreshOrders();
         IsBusy = false;
@@ -901,13 +901,31 @@ public sealed class BoardManager : MonoBehaviour
         return null;
     }
 
-    private void ApplyAdjacentMergeReactions(BoardCell mergeResultCell)
+    private void ApplyAdjacentMergeReactions(IReadOnlyList<BoardCell> mergeSourceCells)
     {
         var affectedCells = new HashSet<BoardCell>();
-        AddAdjacentCells(mergeResultCell, affectedCells);
 
-        affectedCells.Remove(mergeResultCell);
+        if (mergeSourceCells != null)
+        {
+            for (var i = 0; i < mergeSourceCells.Count; i++)
+            {
+                AddAdjacentCells(mergeSourceCells[i], affectedCells);
+            }
+        }
 
+        ApplyMergeReactions(affectedCells);
+    }
+
+    private void ApplyAdjacentMergeReactions(BoardCell firstSourceCell, BoardCell secondSourceCell)
+    {
+        var affectedCells = new HashSet<BoardCell>();
+        AddAdjacentCells(firstSourceCell, affectedCells);
+        AddAdjacentCells(secondSourceCell, affectedCells);
+        ApplyMergeReactions(affectedCells);
+    }
+
+    private void ApplyMergeReactions(HashSet<BoardCell> affectedCells)
+    {
         foreach (var cell in affectedCells)
         {
             ApplyAdjacentMergeReaction(cell);
@@ -1047,6 +1065,8 @@ public sealed class BoardManager : MonoBehaviour
             return false;
         }
 
+        ApplyAdjacentMergeReactions(connectedCells);
+
         for (var i = 0; i < connectedCells.Count; i++)
         {
             var cell = connectedCells[i];
@@ -1068,7 +1088,6 @@ public sealed class BoardManager : MonoBehaviour
         mergeResultCell.SetItem(resultItem);
         PlayMergeSound();
         resultItem.PlayMergePopEffect();
-        ApplyAdjacentMergeReactions(mergeResultCell);
         return true;
     }
 
@@ -1097,6 +1116,8 @@ public sealed class BoardManager : MonoBehaviour
         {
             // Merge logic: the last placed/generated item stays in place and upgrades.
             // Other matched items visually slide into it before the upgraded sprite appears.
+            ApplyAdjacentMergeReactions(connectedCells);
+
             if (!ExtractConnectedMergeItems(mergeResultCell, connectedCells, consumedItems))
             {
                 break;
@@ -1175,7 +1196,6 @@ public sealed class BoardManager : MonoBehaviour
         resultItem.SetData(nextLevelItem, true);
         mergeResultCell.SetItem(resultItem);
         resultItem.PlayMergePopEffect();
-        ApplyAdjacentMergeReactions(mergeResultCell);
     }
 
     private void PlayMergeSound()
