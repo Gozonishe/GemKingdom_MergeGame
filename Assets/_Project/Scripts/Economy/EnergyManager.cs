@@ -60,7 +60,7 @@ public sealed class EnergyManager : MonoBehaviour
     {
         if (energyView != null)
         {
-            energyView.Refresh(currentEnergy, maxEnergy);
+            energyView.Refresh(currentEnergy);
         }
     }
 

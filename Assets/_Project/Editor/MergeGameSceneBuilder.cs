@@ -167,7 +167,7 @@ public static class MergeGameSceneBuilder
         var coinsText = CreateText("CoinsText", topBar.transform, "Coins: 0", 36, TextAlignmentOptions.Left);
         AnchorStretch(coinsText.gameObject, new Vector2(24f, 0f), new Vector2(330f, 0f));
 
-        var energyText = CreateText("MovesText", topBar.transform, "Moves: 100/100", 36, TextAlignmentOptions.Center);
+        var energyText = CreateText("MovesText", topBar.transform, "100", 36, TextAlignmentOptions.Center);
         AnchorStretch(energyText.gameObject, new Vector2(330f, 0f), new Vector2(330f, 0f));
 
         var starsText = CreateText("StarsText", topBar.transform, "Stars: 0", 36, TextAlignmentOptions.Right);

@@ -13,11 +13,11 @@ public sealed class UIEnergyView : MonoBehaviour
         }
     }
 
-    public void Refresh(int current, int max)
+    public void Refresh(int current)
     {
         if (energyText != null)
         {
-            energyText.text = $"Moves: {current}/{max}";
+            energyText.text = current.ToString();
         }
     }
 }

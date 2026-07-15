@@ -8,6 +8,8 @@ public sealed class UICurrencyView : MonoBehaviour
 
     private void Awake()
     {
+        ResolveReferences();
+
         if (coinsText == null)
         {
             Debug.LogError($"{nameof(UICurrencyView)} on '{name}' is missing {nameof(coinsText)}.", this);
@@ -21,6 +23,8 @@ public sealed class UICurrencyView : MonoBehaviour
 
     public void Refresh(int coins, int stars)
     {
+        ResolveReferences();
+
         if (coinsText != null)
         {
             coinsText.text = coins.ToString();
@@ -29,6 +33,24 @@ public sealed class UICurrencyView : MonoBehaviour
         if (starsText != null)
         {
             starsText.text = $"Stars: {stars}";
+        }
+    }
+
+    private void ResolveReferences()
+    {
+        if (coinsText != null)
+        {
+            return;
+        }
+
+        var texts = GetComponentsInChildren<TMP_Text>(true);
+        for (var i = 0; i < texts.Length; i++)
+        {
+            if (texts[i] != null && texts[i].name == "GoldAmount")
+            {
+                coinsText = texts[i];
+                return;
+            }
         }
     }
 }
