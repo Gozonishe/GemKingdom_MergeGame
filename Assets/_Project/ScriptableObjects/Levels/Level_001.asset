@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LevelData
   levelNumber: 1
   movesCount: 7
-  boardColumns: 5
-  boardRows: 5
+  boardColumns: 4
+  boardRows: 4
+  boardMask: 
   initialBoardItems:
   - itemData: {fileID: 11400000, guid: 50e17eb973d2a4f4887adf1dc8160eb9, type: 2}
     count: 3

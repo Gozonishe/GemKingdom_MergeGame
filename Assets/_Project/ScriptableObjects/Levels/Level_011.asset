@@ -16,6 +16,17 @@ MonoBehaviour:
   movesCount: 34
   boardColumns: 6
   boardRows: 6
+  boardMask: '001100
+
+    011110
+
+    111111
+
+    111111
+
+    011110
+
+    001100'
   initialBoardItems:
   - itemData: {fileID: 11400000, guid: 8cfa7b3c4e357544d96e8c7553d758d1, type: 2}
     count: 6
