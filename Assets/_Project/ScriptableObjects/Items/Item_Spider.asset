@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Spider
   level: 1
   icon: {fileID: -7587680375674875981, guid: 3c5b2a8d69a379d4fbddce7be6fa400a, type: 3}
+  disappearEffectPrefab: {fileID: 3954484749564410113, guid: 7fbcdaefb2014204ea08ed73cfc308d0, type: 3}
   nextLevelItem: {fileID: 0}
   reactToAdjacentMerge: 0
   destroyBothOnAnyNeighborMerge: 0

@@ -1702,7 +1702,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8614962144676277655, guid: b97314fdbf5298b4f8b9f9a045a3eadb, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 39.999878
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 8614962144676277655, guid: b97314fdbf5298b4f8b9f9a045a3eadb, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -2224,6 +2224,11 @@ MonoBehaviour:
   boardManager: {fileID: 174095286}
   energyManager: {fileID: 1815406205}
   generatorSpawnableItems: []
+  animateGeneratedItemSpawn: 1
+  generatedItemStartScale: 0.5
+  generatedItemOvershootScale: 1.08
+  generatedItemGrowDuration: 0.14
+  generatedItemSettleDuration: 0.1
 --- !u!1 &610000011
 GameObject:
   m_ObjectHideFlags: 0
@@ -2716,7 +2721,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4664377449725708569, guid: 0edd60c5b7b08064381961eba6eaed5f, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7007447515528987829, guid: 0edd60c5b7b08064381961eba6eaed5f, type: 3}
       propertyPath: m_Camera
@@ -6801,7 +6806,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -6913,6 +6918,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3450030828561368568, guid: ac4a82be9912aca4a8b8c0a0bcca22c0, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4005002195875998856, guid: ac4a82be9912aca4a8b8c0a0bcca22c0, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
@@ -6923,7 +6932,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4005002195875998856, guid: ac4a82be9912aca4a8b8c0a0bcca22c0, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 170
+      value: 340
       objectReference: {fileID: 0}
     - target: {fileID: 4005002195875998856, guid: ac4a82be9912aca4a8b8c0a0bcca22c0, type: 3}
       propertyPath: m_AnchoredPosition.y

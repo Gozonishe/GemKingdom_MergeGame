@@ -24,6 +24,7 @@ public sealed class MergeItem : MonoBehaviour
     [field: SerializeField] public BoardCell CurrentCell { get; private set; }
 
     private Coroutine popCoroutine;
+    private Coroutine spawnBounceCoroutine;
     private Coroutine fallCoroutine;
     private CanvasGroup canvasGroup;
 
@@ -126,6 +127,29 @@ public sealed class MergeItem : MonoBehaviour
         PlayLevelTransitionEffect(data.DisappearEffectPrefab, true, effectTarget);
     }
 
+    public void PlaySpawnBounceEffect(
+        float startScale = 0.72f,
+        float overshootScale = 1.08f,
+        float growDuration = 0.14f,
+        float settleDuration = 0.1f)
+    {
+        if (!isActiveAndEnabled)
+        {
+            return;
+        }
+
+        if (spawnBounceCoroutine != null)
+        {
+            StopCoroutine(spawnBounceCoroutine);
+        }
+
+        spawnBounceCoroutine = StartCoroutine(PlaySpawnBounceCoroutine(
+            startScale,
+            overshootScale,
+            growDuration,
+            settleDuration));
+    }
+
     public void PlayFallToCellEffect(float duration = -1f, float bouncePixels = -1f, bool fadeIn = false)
     {
         if (!isActiveAndEnabled || transform is not RectTransform itemRectTransform)
@@ -167,6 +191,26 @@ public sealed class MergeItem : MonoBehaviour
 
         itemTransform.localScale = baseScale;
         popCoroutine = null;
+    }
+
+    private IEnumerator PlaySpawnBounceCoroutine(
+        float startScale,
+        float overshootScale,
+        float growDuration,
+        float settleDuration)
+    {
+        var itemTransform = transform;
+        var targetScale = Vector3.one;
+        var start = targetScale * Mathf.Clamp(startScale, 0.1f, 1f);
+        var overshoot = targetScale * Mathf.Max(1f, overshootScale);
+
+        itemTransform.localScale = start;
+
+        yield return ScaleTo(itemTransform, start, overshoot, Mathf.Max(0.01f, growDuration));
+        yield return ScaleTo(itemTransform, overshoot, targetScale, Mathf.Max(0.01f, settleDuration));
+
+        itemTransform.localScale = targetScale;
+        spawnBounceCoroutine = null;
     }
 
     private void PlayLevelTransitionEffect(

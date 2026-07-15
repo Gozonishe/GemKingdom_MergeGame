@@ -16,6 +16,13 @@ public sealed class BottomItemTrayController : MonoBehaviour
     [Header("Generator Balance")]
     [SerializeField] private List<SpawnableItemDefinition> generatorSpawnableItems = new List<SpawnableItemDefinition>();
 
+    [Header("Generated Item Spawn Animation")]
+    [SerializeField] private bool animateGeneratedItemSpawn = true;
+    [SerializeField, Range(0.1f, 1f)] private float generatedItemStartScale = 0.72f;
+    [SerializeField, Range(1f, 1.5f)] private float generatedItemOvershootScale = 1.08f;
+    [SerializeField, Min(0f)] private float generatedItemGrowDuration = 0.14f;
+    [SerializeField, Min(0f)] private float generatedItemSettleDuration = 0.1f;
+
     public BoardCell GeneratedItemSlot => generatedItemSlot;
     public BoardCell FrozenItemSlot => frozenItemSlot;
 
@@ -126,7 +133,8 @@ public sealed class BottomItemTrayController : MonoBehaviour
             return;
         }
 
-        boardManager.CreateItemInCell(generatedItemSlot, itemData, true);
+        var generatedItem = boardManager.CreateItemInCell(generatedItemSlot, itemData, true);
+        PlayGeneratedItemSpawnAnimation(generatedItem);
     }
 
     public bool TrySpendMoveForBoardPlacement()
@@ -170,7 +178,22 @@ public sealed class BottomItemTrayController : MonoBehaviour
             return;
         }
 
-        boardManager.CreateItemInCell(generatedItemSlot, itemData, true);
+        var generatedItem = boardManager.CreateItemInCell(generatedItemSlot, itemData, true);
+        PlayGeneratedItemSpawnAnimation(generatedItem);
+    }
+
+    private void PlayGeneratedItemSpawnAnimation(MergeItem item)
+    {
+        if (!animateGeneratedItemSpawn || item == null)
+        {
+            return;
+        }
+
+        item.PlaySpawnBounceEffect(
+            generatedItemStartScale,
+            generatedItemOvershootScale,
+            generatedItemGrowDuration,
+            generatedItemSettleDuration);
     }
 
     private void ClearSlot(BoardCell slot)

@@ -1488,6 +1488,12 @@ public sealed class BoardManager : MonoBehaviour
 
         var spiderData = spider.Data;
         var spiderCell = spider.CurrentCell;
+
+        if (reason == SpiderRemovedByTrapReason)
+        {
+            spider.PlayDisappearEffect();
+        }
+
         spiderCell.Clear();
         NotifyItemDestroyed(spiderData);
         Destroy(spider.gameObject);

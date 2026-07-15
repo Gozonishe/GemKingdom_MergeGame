@@ -102,7 +102,11 @@ public sealed class ShopGoldItemView : MonoBehaviour
 
     private void HandleBuyClicked()
     {
-        PlayerGold.AddCoins(GoldAmount);
+        if (!PlayerGold.AddCoins(GoldAmount))
+        {
+            return;
+        }
+
         PurchasedEvent?.Invoke(this);
 
         if (purchased != null)

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public sealed class CurrencyManager : MonoBehaviour
@@ -16,6 +17,17 @@ public sealed class CurrencyManager : MonoBehaviour
         PlayerGold.RefreshState();
         ValidateReferences();
         RefreshView();
+    }
+
+    private void OnEnable()
+    {
+        PlayerGold.CoinsChanged += HandleCoinsChanged;
+        RefreshView();
+    }
+
+    private void OnDisable()
+    {
+        PlayerGold.CoinsChanged -= HandleCoinsChanged;
     }
 
     public void AddReward(int coinAmount, int starAmount)
@@ -79,6 +91,14 @@ public sealed class CurrencyManager : MonoBehaviour
         }
     }
 
+    private void HandleCoinsChanged(int coins)
+    {
+        if (currencyView != null)
+        {
+            currencyView.Refresh(coins, stars);
+        }
+    }
+
     private void ValidateReferences()
     {
         if (currencyView == null)
@@ -93,6 +113,8 @@ public static class PlayerGold
     public const int InitialCoins = 1000;
 
     private const string CoinsKey = "PlayerGold.Current";
+
+    public static event Action<int> CoinsChanged;
 
     public static int CurrentCoins
     {
@@ -158,7 +180,9 @@ public static class PlayerGold
 
     private static void SaveCoins(int coins)
     {
-        PlayerPrefs.SetInt(CoinsKey, Mathf.Max(0, coins));
+        var normalizedCoins = Mathf.Max(0, coins);
+        PlayerPrefs.SetInt(CoinsKey, normalizedCoins);
         PlayerPrefs.Save();
+        CoinsChanged?.Invoke(normalizedCoins);
     }
 }
