@@ -40021,6 +40021,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 473723956317543649, guid: 0edd60c5b7b08064381961eba6eaed5f, type: 3}
+      propertyPath: m_fontSize
+      value: 42
+      objectReference: {fileID: 0}
+    - target: {fileID: 473723956317543649, guid: 0edd60c5b7b08064381961eba6eaed5f, type: 3}
+      propertyPath: m_enableAutoSizing
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3849997335909671460, guid: 0edd60c5b7b08064381961eba6eaed5f, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

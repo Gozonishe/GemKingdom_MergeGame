@@ -12,6 +12,8 @@ public static class MergeGameSceneBuilder
     private const string ScenePath = "Assets/_Project/Scenes/MergeGameScene.unity";
     private const string BoardCellPrefabPath = "Assets/_Project/Prefabs/Board/BoardCell.prefab";
     private const string MergeItemPrefabPath = "Assets/_Project/Prefabs/Items/MergeItem.prefab";
+    private const string FullStoneDataPath = "Assets/_Project/ScriptableObjects/Items/Stone_dark/Item_Stone_Dark_Lvl_2.asset";
+    private const string CrackedStoneDataPath = "Assets/_Project/ScriptableObjects/Items/Stone_dark/Item_Stone_Dark_Lvl_1.asset";
 
     [MenuItem("Tools/Merge-2 Puzzle/Build Merge Game Scene")]
     public static void BuildScene()
@@ -53,6 +55,8 @@ public static class MergeGameSceneBuilder
         SetObjectReference(boardManager, "boardRoot", boardRoot.transform);
         SetObjectReference(boardManager, "cellPrefab", boardCellPrefab);
         SetObjectReference(boardManager, "itemPrefab", mergeItemPrefab);
+        SetObjectReference(boardManager, "fullStoneBlockerData", AssetDatabase.LoadAssetAtPath<MergeItemData>(FullStoneDataPath));
+        SetObjectReference(boardManager, "crackedStoneBlockerData", AssetDatabase.LoadAssetAtPath<MergeItemData>(CrackedStoneDataPath));
         SetObjectReference(boardManager, "energyManager", energyManager);
         SetObjectReference(boardManager, "orderManager", orderManager);
 
@@ -266,12 +270,6 @@ public static class MergeGameSceneBuilder
         rect.pivot = new Vector2(0.5f, 0.5f);
         rect.sizeDelta = new Vector2(943.8f, 1115.4f);
         rect.anchoredPosition = new Vector2(0f, -80f);
-
-        var grid = boardRoot.AddComponent<GridLayoutGroup>();
-        grid.cellSize = new Vector2(137.3f, 137.3f);
-        grid.spacing = new Vector2(11.4f, 11.4f);
-        grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-        grid.constraintCount = 6;
 
         boardRoot.AddComponent<BoardManager>();
         return boardRoot;

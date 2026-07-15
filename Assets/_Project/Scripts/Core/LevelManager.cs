@@ -227,7 +227,7 @@ public sealed class LevelManager : MonoBehaviour
 
         if (boardManager != null)
         {
-            boardManager.SetBoardSize(level.BoardColumns, level.BoardRows);
+            boardManager.ConfigureBoard(level);
             boardManager.SetInitialBoardItems(level.InitialBoardItems);
 
             if (level.HasWeightedSpawnableItems)

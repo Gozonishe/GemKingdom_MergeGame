@@ -10,10 +10,8 @@ public sealed class BoardManager : MonoBehaviour
     private const int MaxCascadeMergeSteps = 32;
     private const string SpiderRemovedByDynamiteReason = "Dynamite";
     private const string SpiderRemovedByTrapReason = "Trapped";
-
-    [Header("Board Size")]
-    [SerializeField] private int columns = DefaultColumns;
-    [SerializeField] private int rows = DefaultRows;
+    private int columns = DefaultColumns;
+    private int rows = DefaultRows;
 
     [Header("UI References")]
     [SerializeField] private Transform boardRoot;
@@ -25,9 +23,15 @@ public sealed class BoardManager : MonoBehaviour
     [HideInInspector]
     [SerializeField] private List<MergeItemData> spawnableItems = new List<MergeItemData>();
 
-    [Header("Layout")]
+    [Header("Board Mask Blockers")]
+    [SerializeField] private MergeItemData fullStoneBlockerData;
+    [SerializeField] private MergeItemData crackedStoneBlockerData;
+
+    [Header("Cell Layout")]
     [SerializeField] private Vector2 cellSize = new Vector2(137.3f, 137.3f);
     [SerializeField] private Vector2 cellSpacing = new Vector2(11.4f, 11.4f);
+
+    [Header("Board Generation")]
     [SerializeField] private bool clearExistingBoardOnInitialize = true;
 
     [Header("Gravity Animation")]
@@ -54,7 +58,7 @@ public sealed class BoardManager : MonoBehaviour
     [SerializeField, Min(0f)] private float spiderMoveDuration = 0.18f;
 
     private BoardCell[,] cells;
-    private bool isInitialized;
+    private char[,] parsedBoardMask;
 
     private struct MovingMergeItem
     {
@@ -75,14 +79,6 @@ public sealed class BoardManager : MonoBehaviour
     public Transform BoardRoot => boardRoot;
     public Transform CellsRoot => boardRoot;
     public bool IsBusy { get; private set; }
-
-    private void Start()
-    {
-        if (!isInitialized)
-        {
-            InitializeBoard();
-        }
-    }
 
     public void InitializeBoard()
     {
@@ -109,14 +105,21 @@ public sealed class BoardManager : MonoBehaviour
         }
 
         cells = new BoardCell[columns, rows];
-        isInitialized = true;
+        EnsureBoardMask();
 
         for (var y = 0; y < rows; y++)
         {
             for (var x = 0; x < columns; x++)
             {
+                var symbol = parsedBoardMask[x, y];
+                if (!CreatesCell(symbol))
+                {
+                    continue;
+                }
+
                 var cell = CreateCell(x, y);
                 cells[x, y] = cell;
+                SpawnBoardMaskBlocker(cell, symbol);
             }
         }
 
@@ -124,10 +127,26 @@ public sealed class BoardManager : MonoBehaviour
         RefreshOrders();
     }
 
+    public void ConfigureBoard(LevelData levelData)
+    {
+        if (levelData == null)
+        {
+            columns = DefaultColumns;
+            rows = DefaultRows;
+            parsedBoardMask = CreateFullBoardMask(columns, rows);
+            return;
+        }
+
+        columns = levelData.BoardColumns;
+        rows = levelData.BoardRows;
+        parsedBoardMask = ParseBoardMask(levelData);
+    }
+
     public void SetBoardSize(int newColumns, int newRows)
     {
         columns = Mathf.Max(1, newColumns);
         rows = Mathf.Max(1, newRows);
+        parsedBoardMask = CreateFullBoardMask(columns, rows);
     }
 
     public void SetInitialBoardItems(IReadOnlyList<InitialBoardItemDefinition> items)
@@ -421,7 +440,6 @@ public sealed class BoardManager : MonoBehaviour
     {
         ClearBoardRoot();
         cells = null;
-        isInitialized = false;
         InitializeBoard();
     }
 
@@ -487,7 +505,7 @@ public sealed class BoardManager : MonoBehaviour
             columnCells.Sort(CompareCellsBottomToTop);
 
             // Collapse columns: collect existing items from visual bottom to top, then place them back from bottom upward.
-            // This keeps gravity correct even when a GridLayoutGroup or anchors make logical y different from screen y.
+            // Visual positions are authoritative so gravity also works with holes in the logical grid.
             for (var cellIndex = 0; cellIndex < columnCells.Count; cellIndex++)
             {
                 var cell = columnCells[cellIndex];
@@ -613,6 +631,11 @@ public sealed class BoardManager : MonoBehaviour
         return IsInsideBoard(x, y) ? cells[x, y] : null;
     }
 
+    public BoardCell GetCell(Vector2Int position)
+    {
+        return GetCell(position.x, position.y);
+    }
+
     public bool IsInsideBoard(int x, int y)
     {
         return cells != null
@@ -620,6 +643,22 @@ public sealed class BoardManager : MonoBehaviour
             && x < columns
             && y >= 0
             && y < rows;
+    }
+
+    public bool IsCellInsideBoard(Vector2Int position)
+    {
+        return IsInsideBoard(position.x, position.y);
+    }
+
+    public bool HasCell(Vector2Int position)
+    {
+        return GetCell(position) != null;
+    }
+
+    public bool TryGetCell(Vector2Int position, out BoardCell cell)
+    {
+        cell = GetCell(position);
+        return cell != null;
     }
 
     public MergeItem GetItemAt(int x, int y)
@@ -1667,6 +1706,102 @@ public sealed class BoardManager : MonoBehaviour
         }
     }
 
+    private char[,] ParseBoardMask(LevelData levelData)
+    {
+        if (levelData == null || string.IsNullOrWhiteSpace(levelData.BoardMask))
+        {
+            return CreateFullBoardMask(columns, rows);
+        }
+
+        if (!levelData.TryGetBoardMaskRows(out var maskRows, out var validationError))
+        {
+            Debug.LogWarning(
+                $"{nameof(BoardManager)}: level '{levelData.name}' has an invalid Board Mask ({validationError}). "
+                + $"A full {columns}x{rows} board will be used.",
+                levelData);
+            return CreateFullBoardMask(columns, rows);
+        }
+
+        var mask = new char[columns, rows];
+        for (var y = 0; y < rows; y++)
+        {
+            for (var x = 0; x < columns; x++)
+            {
+                mask[x, y] = NormalizeBoardMaskSymbol(maskRows[y][x]);
+            }
+        }
+
+        return mask;
+    }
+
+    private static char[,] CreateFullBoardMask(int maskColumns, int maskRows)
+    {
+        var mask = new char[maskColumns, maskRows];
+        for (var y = 0; y < maskRows; y++)
+        {
+            for (var x = 0; x < maskColumns; x++)
+            {
+                mask[x, y] = '1';
+            }
+        }
+
+        return mask;
+    }
+
+    private void EnsureBoardMask()
+    {
+        if (parsedBoardMask == null
+            || parsedBoardMask.GetLength(0) != columns
+            || parsedBoardMask.GetLength(1) != rows)
+        {
+            parsedBoardMask = CreateFullBoardMask(columns, rows);
+        }
+    }
+
+    private void SpawnBoardMaskBlocker(BoardCell cell, char symbol)
+    {
+        MergeItemData blockerData = null;
+
+        if (symbol == 'S')
+        {
+            blockerData = fullStoneBlockerData;
+        }
+        else if (symbol == 'C')
+        {
+            blockerData = crackedStoneBlockerData;
+        }
+        else
+        {
+            return;
+        }
+
+        if (blockerData == null)
+        {
+            Debug.LogWarning(
+                $"{nameof(BoardManager)} on '{name}' cannot create blocker '{symbol}' at ({cell.X}, {cell.Y}) because its item data is not assigned.",
+                this);
+            return;
+        }
+
+        CreateItemInCell(cell, blockerData, false);
+    }
+
+    private static char NormalizeBoardMaskSymbol(char symbol)
+    {
+        var normalizedSymbol = char.ToUpperInvariant(symbol);
+        if (normalizedSymbol == '.')
+        {
+            return '1';
+        }
+
+        return normalizedSymbol == '_' ? '0' : normalizedSymbol;
+    }
+
+    private static bool CreatesCell(char symbol)
+    {
+        return NormalizeBoardMaskSymbol(symbol) != '0';
+    }
+
     private void ConfigureCellRect(RectTransform cellRectTransform, int x, int y)
     {
         if (cellRectTransform == null)
@@ -1674,15 +1809,19 @@ public sealed class BoardManager : MonoBehaviour
             return;
         }
 
-        cellRectTransform.anchorMin = new Vector2(0f, 1f);
-        cellRectTransform.anchorMax = new Vector2(0f, 1f);
-        cellRectTransform.pivot = new Vector2(0f, 1f);
+        cellRectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+        cellRectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        cellRectTransform.pivot = new Vector2(0.5f, 0.5f);
         cellRectTransform.sizeDelta = cellSize;
 
-        var visualY = rows - 1 - y;
+        var boardWidth = columns * cellSize.x + Mathf.Max(0, columns - 1) * cellSpacing.x;
+        var boardHeight = rows * cellSize.y + Mathf.Max(0, rows - 1) * cellSpacing.y;
+        var left = -boardWidth * 0.5f + cellSize.x * 0.5f;
+        var top = boardHeight * 0.5f - cellSize.y * 0.5f;
+
         cellRectTransform.anchoredPosition = new Vector2(
-            x * (cellSize.x + cellSpacing.x),
-            -visualY * (cellSize.y + cellSpacing.y));
+            left + x * (cellSize.x + cellSpacing.x),
+            top - y * (cellSize.y + cellSpacing.y));
     }
 
     private void ClearBoardRoot()
@@ -1694,7 +1833,9 @@ public sealed class BoardManager : MonoBehaviour
 
         for (var i = boardRoot.childCount - 1; i >= 0; i--)
         {
-            Destroy(boardRoot.GetChild(i).gameObject);
+            var child = boardRoot.GetChild(i);
+            child.gameObject.SetActive(false);
+            Destroy(child.gameObject);
         }
     }
 

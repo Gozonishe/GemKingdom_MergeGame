@@ -24,7 +24,6 @@ Canvas
       OrderView_2
       OrderView_3
     BoardRoot
-      GridLayoutGroup
       BoardCell prefabs will be spawned here
     BottomPanel
       AddEnergyButton
@@ -40,7 +39,7 @@ MainCamera
 Manual setup checklist:
 
 - `BoardRoot` must be a `RectTransform`.
-- `BoardRoot` should have `GridLayoutGroup` and `BoardManager`.
+- `BoardRoot` should have `BoardManager`. It positions cells itself so mask holes keep their grid coordinates.
 - `BoardCell.prefab` must contain `RectTransform`, `Image` background and `BoardCell`.
 - `MergeItem.prefab` must contain `RectTransform`, `Image`, `CanvasGroup`, `MergeItem` and `ItemDragHandler`.
 - `TopBar` should have `CurrencyManager`, `EnergyManager`, `UICurrencyView` and `UIEnergyView`.
