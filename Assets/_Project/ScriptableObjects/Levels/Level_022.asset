@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7f8a2d18a1d64244ab3a731a82f0d4c7, type: 3}
-  m_Name: Level_017
+  m_Name: Level_022
   m_EditorClassIdentifier: Assembly-CSharp::LevelData
-  levelNumber: 17
+  levelNumber: 22
   movesCount: 44
   boardColumns: 6
   boardRows: 6
-  boardMask: '011111
+  boardMask: '111111
 
     111111
 
@@ -26,7 +26,7 @@ MonoBehaviour:
 
     111111
 
-    111110'
+    111111'
   initialBoardItems:
   - itemData: {fileID: 11400000, guid: 8cfa7b3c4e357544d96e8c7553d758d1, type: 2}
     count: 5
@@ -40,6 +40,8 @@ MonoBehaviour:
     count: 3
   - itemData: {fileID: 11400000, guid: c5824e6174fdfbe49b3d166fdd74fac0, type: 2}
     count: 2
+  - itemData: {fileID: 11400000, guid: 1f1ce725e39b4be9b5847f7b46a2258f, type: 2}
+    count: 1
   generatorSpawnableItems:
   - itemData: {fileID: 11400000, guid: 8cfa7b3c4e357544d96e8c7553d758d1, type: 2}
     weight: 7
@@ -71,3 +73,6 @@ MonoBehaviour:
   - objectiveType: 1
     requiredItem: {fileID: 11400000, guid: da200a52036e13f44b6d84a28c6de0e9, type: 2}
     requiredAmount: 4
+  - objectiveType: 1
+    requiredItem: {fileID: 11400000, guid: 1f1ce725e39b4be9b5847f7b46a2258f, type: 2}
+    requiredAmount: 1

@@ -16,7 +16,17 @@ MonoBehaviour:
   movesCount: 42
   boardColumns: 6
   boardRows: 6
-  boardMask: 
+  boardMask: '111111
+
+    100111
+
+    111111
+
+    111111
+
+    111001
+
+    111111'
   initialBoardItems:
   - itemData: {fileID: 11400000, guid: 50e17eb973d2a4f4887adf1dc8160eb9, type: 2}
     count: 5
@@ -32,8 +42,6 @@ MonoBehaviour:
     count: 2
   - itemData: {fileID: 11400000, guid: da200a52036e13f44b6d84a28c6de0e9, type: 2}
     count: 4
-  - itemData: {fileID: 11400000, guid: 1f1ce725e39b4be9b5847f7b46a2258f, type: 2}
-    count: 1
   generatorSpawnableItems:
   - itemData: {fileID: 11400000, guid: 50e17eb973d2a4f4887adf1dc8160eb9, type: 2}
     weight: 7
