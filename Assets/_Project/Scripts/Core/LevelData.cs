@@ -59,7 +59,7 @@ public sealed class LevelData : ScriptableObject
     [Min(1)]
     [SerializeField] private int boardRows = 6;
 
-    [Tooltip("Rows are written from top to bottom. Use 1 or . for a cell, 0 or _ for a hole, S for a full stone and C for a cracked stone.")]
+    [Tooltip("Rows are written from top to bottom. Use 1 or . for a cell, 0 or _ for a hole, S for a full stone, C for a cracked stone and P for Item_Spider.")]
     [TextArea(3, 12)]
     [SerializeField] private string boardMask;
 
@@ -216,7 +216,8 @@ public sealed class LevelData : ScriptableObject
             || normalizedSymbol == '0'
             || normalizedSymbol == '_'
             || normalizedSymbol == 'S'
-            || normalizedSymbol == 'C';
+            || normalizedSymbol == 'C'
+            || normalizedSymbol == 'P';
     }
 
     private void MarkDirtyInEditor()

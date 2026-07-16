@@ -573,6 +573,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0cc9490e02953a44b9eb0a4ce4e9a542, type: 2}
   fullStoneBlockerData: {fileID: 11400000, guid: da200a52036e13f44b6d84a28c6de0e9, type: 2}
   crackedStoneBlockerData: {fileID: 11400000, guid: d159175d4c24bad408a9aca90aec8d58, type: 2}
+  spiderData: {fileID: 11400000, guid: 1f1ce725e39b4be9b5847f7b46a2258f, type: 2}
   cellSize: {x: 137.3, y: 137.3}
   cellSpacing: {x: 11.4, y: 11.4}
   clearExistingBoardOnInitialize: 1
@@ -2696,7 +2697,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4664377449725708569, guid: 0edd60c5b7b08064381961eba6eaed5f, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7007447515528987829, guid: 0edd60c5b7b08064381961eba6eaed5f, type: 3}
       propertyPath: m_Camera
@@ -8941,15 +8942,20 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 023e12831e49a5b4aab35af40a82c095, type: 2}
   - {fileID: 11400000, guid: 3a6981baf712eda4e9dd53746a7e7043, type: 2}
   - {fileID: 11400000, guid: 1cd1432505ff2a74a8de46dda619db6c, type: 2}
-  - {fileID: 11400000, guid: 20517f0c2a7214b4181a06e0b14cc63a, type: 2}
   - {fileID: 11400000, guid: 5676c25a546e29444911d7158dd3992f, type: 2}
-  - {fileID: 11400000, guid: 52e5d2bab20a2fe4db27eb2d04ab15e7, type: 2}
   - {fileID: 11400000, guid: 3604b6e3ede795b45991d4d87cead869, type: 2}
-  - {fileID: 11400000, guid: 78659715963124f4ca86ff6d28798a87, type: 2}
   - {fileID: 11400000, guid: c3daaf85f87645f409536f1ca8e7f96d, type: 2}
-  - {fileID: 11400000, guid: 2056f11904b60a54eb84f30e2f8a8082, type: 2}
   - {fileID: 11400000, guid: 446c22b772389804191ea02e16d9a647, type: 2}
+  - {fileID: 11400000, guid: 20517f0c2a7214b4181a06e0b14cc63a, type: 2}
+  - {fileID: 11400000, guid: 52e5d2bab20a2fe4db27eb2d04ab15e7, type: 2}
+  - {fileID: 11400000, guid: 78659715963124f4ca86ff6d28798a87, type: 2}
+  - {fileID: 11400000, guid: 2056f11904b60a54eb84f30e2f8a8082, type: 2}
   - {fileID: 11400000, guid: a5ef2f1a5880f6d4ead378b2e693cec1, type: 2}
+  - {fileID: 11400000, guid: f12194da3235ba142a4f49994c3bbd5f, type: 2}
+  - {fileID: 11400000, guid: 3372f727b07bec145b2620877d0f4db2, type: 2}
+  - {fileID: 11400000, guid: fd5e2baf4efac024c8c7997081437f3f, type: 2}
+  - {fileID: 11400000, guid: cfa28abe77a3f964797b07df6180254b, type: 2}
+  - {fileID: 11400000, guid: a4693762cce1b78418dc8d8d3c070bb4, type: 2}
   currentLevelIndex: 0
   autoFillLevelsFromProjectFolder: 1
   levelsAssetFolder: Assets/_Project/ScriptableObjects/Levels

@@ -14,6 +14,7 @@ public static class MergeGameSceneBuilder
     private const string MergeItemPrefabPath = "Assets/_Project/Prefabs/Items/MergeItem.prefab";
     private const string FullStoneDataPath = "Assets/_Project/ScriptableObjects/Items/Stone_dark/Item_Stone_Dark_Lvl_2.asset";
     private const string CrackedStoneDataPath = "Assets/_Project/ScriptableObjects/Items/Stone_dark/Item_Stone_Dark_Lvl_1.asset";
+    private const string SpiderDataPath = "Assets/_Project/ScriptableObjects/Items/Item_Spider.asset";
 
     [MenuItem("Tools/Merge-2 Puzzle/Build Merge Game Scene")]
     public static void BuildScene()
@@ -57,6 +58,7 @@ public static class MergeGameSceneBuilder
         SetObjectReference(boardManager, "itemPrefab", mergeItemPrefab);
         SetObjectReference(boardManager, "fullStoneBlockerData", AssetDatabase.LoadAssetAtPath<MergeItemData>(FullStoneDataPath));
         SetObjectReference(boardManager, "crackedStoneBlockerData", AssetDatabase.LoadAssetAtPath<MergeItemData>(CrackedStoneDataPath));
+        SetObjectReference(boardManager, "spiderData", AssetDatabase.LoadAssetAtPath<MergeItemData>(SpiderDataPath));
         SetObjectReference(boardManager, "energyManager", energyManager);
         SetObjectReference(boardManager, "orderManager", orderManager);
 

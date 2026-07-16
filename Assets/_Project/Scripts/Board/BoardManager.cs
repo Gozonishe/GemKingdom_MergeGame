@@ -26,6 +26,7 @@ public sealed class BoardManager : MonoBehaviour
     [Header("Board Mask Blockers")]
     [SerializeField] private MergeItemData fullStoneBlockerData;
     [SerializeField] private MergeItemData crackedStoneBlockerData;
+    [SerializeField] private MergeItemData spiderData;
 
     [Header("Cell Layout")]
     [SerializeField] private Vector2 cellSize = new Vector2(137.3f, 137.3f);
@@ -1769,6 +1770,10 @@ public sealed class BoardManager : MonoBehaviour
         else if (symbol == 'C')
         {
             blockerData = crackedStoneBlockerData;
+        }
+        else if (symbol == 'P')
+        {
+            blockerData = spiderData;
         }
         else
         {

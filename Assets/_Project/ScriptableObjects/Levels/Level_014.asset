@@ -24,6 +24,8 @@ MonoBehaviour:
 
     111111
 
+    111111
+
     111111'
   initialBoardItems:
   - itemData: {fileID: 11400000, guid: c5824e6174fdfbe49b3d166fdd74fac0, type: 2}
