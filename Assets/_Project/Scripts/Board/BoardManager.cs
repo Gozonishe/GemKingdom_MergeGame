@@ -8,6 +8,7 @@ public sealed class BoardManager : MonoBehaviour
     private const int DefaultRows = 6;
     private const int RequiredConnectedMergeItemCount = 3;
     private const int MaxCascadeMergeSteps = 32;
+    private const float StoneDamageSoundVolumeScale = 1.8f;
     private const string SpiderRemovedByDynamiteReason = "Dynamite";
     private const string SpiderRemovedByTrapReason = "Trapped";
     private int columns = DefaultColumns;
@@ -53,6 +54,7 @@ public sealed class BoardManager : MonoBehaviour
     [SerializeField] private AudioClip mergeSound;
     [SerializeField, Min(0f)] private float mergeSoundDelay = 0.06f;
     [SerializeField] private AudioClip dynamiteSound;
+    [SerializeField] private AudioClip stoneDamageSound;
 
     [Header("Spider Movement")]
     [SerializeField] private bool animateSpiderMovement = true;
@@ -302,7 +304,7 @@ public sealed class BoardManager : MonoBehaviour
         IsBusy = true;
 
         var sourceCell = destroyItem.CurrentCell;
-        ApplyAdjacentMergeReactions(sourceCell, targetCell);
+        ApplyAdjacentMergeReactions(sourceCell, targetCell, false);
         destroyItem.PlayDisappearEffectAt(targetItem.transform);
 
         if (sourceCell != null)
@@ -848,7 +850,7 @@ public sealed class BoardManager : MonoBehaviour
             ? sourceItem
             : targetItem;
         var effectTarget = effectItem == sourceItem ? targetItem : sourceItem;
-        ApplyAdjacentMergeReactions(sourceCell, targetCell);
+        ApplyAdjacentMergeReactions(sourceCell, targetCell, false);
         effectItem.PlayDisappearEffectAt(effectTarget.transform);
 
         sourceCell.Clear();
@@ -953,22 +955,25 @@ public sealed class BoardManager : MonoBehaviour
             }
         }
 
-        ApplyMergeReactions(affectedCells);
+        ApplyMergeReactions(affectedCells, true);
     }
 
-    private void ApplyAdjacentMergeReactions(BoardCell firstSourceCell, BoardCell secondSourceCell)
+    private void ApplyAdjacentMergeReactions(
+        BoardCell firstSourceCell,
+        BoardCell secondSourceCell,
+        bool playStoneDamageAudio = true)
     {
         var affectedCells = new HashSet<BoardCell>();
         AddAdjacentCells(firstSourceCell, affectedCells);
         AddAdjacentCells(secondSourceCell, affectedCells);
-        ApplyMergeReactions(affectedCells);
+        ApplyMergeReactions(affectedCells, playStoneDamageAudio);
     }
 
-    private void ApplyMergeReactions(HashSet<BoardCell> affectedCells)
+    private void ApplyMergeReactions(HashSet<BoardCell> affectedCells, bool playStoneDamageAudio)
     {
         foreach (var cell in affectedCells)
         {
-            ApplyAdjacentMergeReaction(cell);
+            ApplyAdjacentMergeReaction(cell, playStoneDamageAudio);
         }
     }
 
@@ -1280,6 +1285,16 @@ public sealed class BoardManager : MonoBehaviour
         UIAudioController.Instance?.PlayUISound(dynamiteSound);
     }
 
+    private void PlayStoneDamageSound()
+    {
+        if (stoneDamageSound == null)
+        {
+            return;
+        }
+
+        UIAudioController.Instance?.PlayUISound(stoneDamageSound, StoneDamageSoundVolumeScale);
+    }
+
     private IEnumerator MoveConsumedItemsToResult(List<MergeItem> consumedItems, MergeItem resultItem)
     {
         if (consumedItems == null || consumedItems.Count == 0 || resultItem == null)
@@ -1421,7 +1436,7 @@ public sealed class BoardManager : MonoBehaviour
         return orderManager == null || orderManager.CanCreateMergeResult(sourceItem, resultItem);
     }
 
-    private void ApplyAdjacentMergeReaction(BoardCell cell)
+    private void ApplyAdjacentMergeReaction(BoardCell cell, bool playStoneDamageAudio)
     {
         var item = cell != null ? cell.CurrentItem : null;
         var itemData = item != null ? item.Data : null;
@@ -1429,6 +1444,11 @@ public sealed class BoardManager : MonoBehaviour
         if (itemData == null || !itemData.ReactToAdjacentMerge)
         {
             return;
+        }
+
+        if (playStoneDamageAudio && IsStoneBlocker(itemData))
+        {
+            PlayStoneDamageSound();
         }
 
         // Adjacent merge reaction: blockers advance through their data chain, then disappear when the chain ends.
@@ -1443,6 +1463,12 @@ public sealed class BoardManager : MonoBehaviour
         cell.Clear();
         NotifyItemDestroyed(itemData);
         Destroy(item.gameObject);
+    }
+
+    private bool IsStoneBlocker(MergeItemData itemData)
+    {
+        return itemData != null
+            && (itemData == fullStoneBlockerData || itemData == crackedStoneBlockerData);
     }
 
     private void NotifyItemDestroyed(MergeItemData itemData)

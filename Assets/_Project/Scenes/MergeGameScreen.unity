@@ -590,6 +590,7 @@ MonoBehaviour:
   mergeSound: {fileID: 8300000, guid: 4561d102f77eef04faebcde6fd3b32ad, type: 3}
   mergeSoundDelay: 0.08
   dynamiteSound: {fileID: 8300000, guid: 6544297712dfe8a41accef494abf76c3, type: 3}
+  stoneDamageSound: {fileID: 8300000, guid: 25eff8d562226c74c983627bc6b71919, type: 3}
   animateSpiderMovement: 1
   spiderMoveDuration: 0.18
 --- !u!224 &174095288
