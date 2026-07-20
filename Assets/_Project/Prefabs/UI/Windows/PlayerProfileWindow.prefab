@@ -1380,6 +1380,7 @@ GameObject:
   - component: {fileID: 2798583186091952197}
   - component: {fileID: 467441469652565447}
   - component: {fileID: 4596356484336072016}
+  - component: {fileID: 3461954756234827190}
   m_Layer: 5
   m_Name: PlayerProfileWindow
   m_TagString: Untagged
@@ -1475,6 +1476,18 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &3461954756234827190
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8614302751525419873}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2079438cd14648c7afbf8556d9d47b21, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerProfileIconSelector
 --- !u!1 &8799085662311315084
 GameObject:
   m_ObjectHideFlags: 0
